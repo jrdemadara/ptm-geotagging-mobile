@@ -5,12 +5,19 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import com.jrdemadara.ptm_geotagging.data.Municipality
 import com.jrdemadara.ptm_geotagging.features.login.LoginActivity
 import com.jrdemadara.ptm_geotagging.features.register.RegisterActivity
+import com.jrdemadara.ptm_geotagging.server.ApiInterface
 import com.jrdemadara.ptm_geotagging.server.LocalDatabase
+import com.jrdemadara.ptm_geotagging.server.NodeServer
 import com.jrdemadara.ptm_geotagging.util.NetworkChecker
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var networkChecker: NetworkChecker
     private lateinit var localDatabase: LocalDatabase
     private lateinit var sharedPreferences: SharedPreferences
     private var prefApp = "pref_app"
@@ -22,10 +29,10 @@ class MainActivity : AppCompatActivity() {
         localDatabase = LocalDatabase(this)
         sharedPreferences = getSharedPreferences(prefApp, MODE_PRIVATE)
         buttonGetStarted = findViewById(R.id.buttonGetStarted)
+        updateMunicipalities()
         buttonGetStarted.setOnClickListener{
             checkFirstStart()
         }
-
     }
 
     private fun checkFirstStart(){
@@ -42,6 +49,34 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(applicationContext, RegisterActivity::class.java)
             startActivity(intent)
             finish()
+        }
+    }
+
+    private fun updateMunicipalities() {
+        networkChecker = NetworkChecker(application)
+        networkChecker.observe(this) { isConnected ->
+            if (isConnected) {
+                val retrofit = NodeServer.getRetrofitInstance().create(ApiInterface::class.java)
+                retrofit.getMunicipalities().enqueue(object : Callback<List<Municipality>?> {
+                    override fun onResponse(
+                        call: Call<List<Municipality>?>,
+                        response: Response<List<Municipality>?>
+                    ){
+                        val list: List<Municipality>? = response.body()
+                        assert(list != null)
+                        if (list != null) {
+                            localDatabase.truncateTables()
+                            for (x in list) {
+                                localDatabase.updateMunicipalities(
+                                    x.name
+                                )
+                            }
+                        }
+                    }
+                    override fun onFailure(call: Call<List<Municipality>?>, t: Throwable) {
+                    }
+                })
+            }
         }
     }
 }
