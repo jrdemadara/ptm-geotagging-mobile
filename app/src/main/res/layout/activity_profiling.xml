@@ -59,9 +59,10 @@
                 android:layout_height="wrap_content">
                 <include layout="@layout/layout_profile" />
                 <include layout="@layout/layout_beneficiary" />
-                <include layout="@layout/layout_livelihood" />
                 <include layout="@layout/layout_skill" />
+                <include layout="@layout/layout_livelihood" />
                 <include layout="@layout/layout_image" />
+                <include layout="@layout/layout_confirm" />
             </ViewFlipper>
         </ScrollView>
 

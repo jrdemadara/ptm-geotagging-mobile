@@ -22,6 +22,7 @@
             android:textSize="20sp" />
 
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewSkill"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp">
@@ -42,14 +43,16 @@
                 android:text="Skill" />
 
             <EditText
-                android:id="@+id/editTextText7"
+                android:id="@+id/editTextSkill"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/ic_round_edittext"
                 android:ems="10"
                 android:fontFamily="@font/roboto_mono"
-                android:inputType="text" />
+                android:inputType="text"
+                android:paddingStart="16dp"
+                android:textAllCaps="false" />
 
             <LinearLayout
                 android:layout_width="fill_parent"
@@ -59,7 +62,7 @@
                 android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/button"
+                    android:id="@+id/buttonSkillRemove"
                     android:layout_width="wrap_content"
                     android:layout_height="52dp"
                     android:layout_marginTop="16dp"
@@ -69,7 +72,7 @@
                     android:text="Remove" />
 
                 <Button
-                    android:id="@+id/button2"
+                    android:id="@+id/buttonSkillAdd"
                     android:layout_width="fill_parent"
                     android:layout_height="52dp"
                     android:layout_marginStart="5dp"

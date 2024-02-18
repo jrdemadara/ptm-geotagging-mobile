@@ -13,18 +13,12 @@ class LocalDatabase(context: Context):
             private const val DATABASE_VERSION = 1
 
             /* Tables */
-            private const val TABLE_USERS = "users"
             private const val TABLE_PROFILES = "profiles"
             private const val TABLE_BENEFICIARIES = "beneficiaries"
             private const val TABLE_LIVELIHOOD = "livelihoods"
             private const val TABLE_SKILLS = "skills"
+            private const val TABLE_PHOTOS = "photos"
             private const val TABLE_MUNICIPALITIES = "municipalities"
-
-            /* User Table */
-            private const val USER_ID_COL = "id"
-            private const val USER_NAME_COL = "name"
-            private const val USER_EMAIL_COL = "email"
-            private const val USER_PASSWORD_COL = "password"
 
             /* Profiles Table */
             private const val PROFILE_ID_COL = "id"
@@ -37,11 +31,10 @@ class LocalDatabase(context: Context):
             private const val PROFILE_PHONE_COL = "phone"
             private const val PROFILE_LAT_COL = "lat"
             private const val PROFILE_LON_COL = "lon"
-            private const val PROFILE_USER_ID_COL = "user_id"
 
             /* Beneficiaries Table */
             private const val BENEFICIARY_ID_COL = "id"
-            private const val BENEFICIARY_PRECINT_COL = "precint"
+            private const val BENEFICIARY_PRECINCT_COL = "precinct"
             private const val BENEFICIARY_FULLNAME_COL = "fullname"
             private const val BENEFICIARY_BIRTHDATE_COL = "birthdate"
             private const val BENEFICIARY_PROFILE_ID_COL = "profile_id"
@@ -56,21 +49,19 @@ class LocalDatabase(context: Context):
             private const val SKILL_SKILL_COL = "skill"
             private const val SKILL_PROFILE_ID_COL = "profile_id"
 
+            /* Photos Table */
+            private const val PHOTO_ID_COL = "id"
+            private const val PHOTO_PERSONAL_COL = "photo_personal"
+            private const val PHOTO_FAMILY_COL = "photo_family"
+            private const val PHOTO_LIVELIHOOD_COL = "photo_livelihood"
+            private const val PHOTO_PROFILE_ID_COL = "profile_id"
+
             /* Municipalities Table */
             private const val MUNICIPALITY_NAME_COL = "name"
 
         }
 
         override fun onCreate(db: SQLiteDatabase?) {
-            val createUserTable = (
-                    "CREATE TABLE " +
-                            TABLE_USERS + " (" +
-                            USER_ID_COL + " TEXT, " +
-                            USER_NAME_COL + " TEXT," +
-                            USER_EMAIL_COL + " TEXT," +
-                            USER_PASSWORD_COL + " TEXT)"
-                    )
-
             val createProfilesTable = (
                     "CREATE TABLE " +
                             TABLE_PROFILES + " (" +
@@ -83,15 +74,14 @@ class LocalDatabase(context: Context):
                             PROFILE_OCCUPATION_COL + " TEXT," +
                             PROFILE_PHONE_COL + " TEXT," +
                             PROFILE_LAT_COL + " TEXT," +
-                            PROFILE_LON_COL + " TEXT," +
-                            PROFILE_USER_ID_COL + " TEXT)"
+                            PROFILE_LON_COL + " TEXT)"
                     )
 
             val createBeneficiariesTable = (
                     "CREATE TABLE " +
                             TABLE_BENEFICIARIES + " (" +
-                            BENEFICIARY_ID_COL + " TEXT, " +
-                            BENEFICIARY_PRECINT_COL + " TEXT," +
+                            BENEFICIARY_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            BENEFICIARY_PRECINCT_COL + " TEXT," +
                             BENEFICIARY_FULLNAME_COL + " TEXT," +
                             BENEFICIARY_BIRTHDATE_COL + " TEXT," +
                             BENEFICIARY_PROFILE_ID_COL + " TEXT)"
@@ -100,7 +90,7 @@ class LocalDatabase(context: Context):
             val createLivelihoodsTable = (
                     "CREATE TABLE " +
                             TABLE_LIVELIHOOD + " (" +
-                            LIVELIHOOD_ID_COL + " TEXT, " +
+                            LIVELIHOOD_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                             LIVELIHOOD_LIVELIHOOD_COL + " TEXT," +
                             LIVELIHOOD_PROFILE_ID_COL + " TEXT)"
                     )
@@ -108,9 +98,19 @@ class LocalDatabase(context: Context):
             val createSkillsTable = (
                     "CREATE TABLE " +
                             TABLE_SKILLS + " (" +
-                            SKILL_ID_COL + " TEXT, " +
+                            SKILL_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                             SKILL_SKILL_COL + " TEXT," +
                             SKILL_PROFILE_ID_COL + " TEXT)"
+                    )
+
+            val createPhotosTable = (
+                    "CREATE TABLE " +
+                            TABLE_PHOTOS + " (" +
+                            PHOTO_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            PHOTO_PERSONAL_COL + " BLOB," +
+                            PHOTO_FAMILY_COL + " BLOB," +
+                            PHOTO_LIVELIHOOD_COL + " BLOB," +
+                            PHOTO_PROFILE_ID_COL + " TEXT)"
                     )
 
             val createMunicipalitiesTable = (
@@ -119,20 +119,20 @@ class LocalDatabase(context: Context):
                             MUNICIPALITY_NAME_COL + " TEXT)"
                     )
 
-            db?.execSQL(createUserTable)
             db?.execSQL(createProfilesTable)
             db?.execSQL(createBeneficiariesTable)
             db?.execSQL(createLivelihoodsTable)
             db?.execSQL(createSkillsTable)
+            db?.execSQL(createPhotosTable)
             db?.execSQL(createMunicipalitiesTable)
         }
 
         override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-            db?.execSQL("DROP TABLE IF EXISTS $TABLE_USERS")
             db?.execSQL("DROP TABLE IF EXISTS $TABLE_PROFILES")
             db?.execSQL("DROP TABLE IF EXISTS $TABLE_BENEFICIARIES")
             db?.execSQL("DROP TABLE IF EXISTS $TABLE_LIVELIHOOD")
             db?.execSQL("DROP TABLE IF EXISTS $TABLE_SKILLS")
+            db?.execSQL("DROP TABLE IF EXISTS $TABLE_PHOTOS")
             db?.execSQL("DROP TABLE IF EXISTS $TABLE_MUNICIPALITIES")
             onCreate(db)
         }
@@ -167,6 +167,93 @@ class LocalDatabase(context: Context):
             return modules
         }
 
-        /* Users */
+    /* Save Attendance */
+    fun saveProfile(
+        id: String?,
+        lastname: String?,
+        firstname: String?,
+        middlename: String?,
+        extension: String?,
+        birthdate: String?,
+        occupation: String?,
+        phone: String?,
+        latitude: String?,
+        longitude: String?,
+    ) {
+        val db = this.writableDatabase
+        db.delete(TABLE_PROFILES, "$PROFILE_LASTNAME_COL = ? AND $PROFILE_FIRSTNAME_COL = ?", arrayOf(lastname, firstname))
+        val values = ContentValues()
+        values.put(PROFILE_ID_COL, id)
+        values.put(PROFILE_LASTNAME_COL, lastname)
+        values.put(PROFILE_FIRSTNAME_COL, firstname)
+        values.put(PROFILE_MIDDLENAME_COL, middlename)
+        values.put(PROFILE_EXTENSION_COL, extension)
+        values.put(PROFILE_BIRTHDATE_COL, birthdate)
+        values.put(PROFILE_OCCUPATION_COL, occupation)
+        values.put(PROFILE_PHONE_COL, phone)
+        values.put(PROFILE_LAT_COL, latitude)
+        values.put(PROFILE_LON_COL, longitude)
+        db.insert(TABLE_PROFILES, null, values)
+        db.close()
+    }
 
+    fun saveBeneficiaries(
+        id: String?,
+        precinct: String?,
+        fullname: String?,
+        birthdate: String?
+    ) {
+        val db = this.writableDatabase
+        db.delete(TABLE_BENEFICIARIES, "$BENEFICIARY_PRECINCT_COL = ? AND $BENEFICIARY_FULLNAME_COL = ?", arrayOf(precinct, fullname))
+        val values = ContentValues()
+        values.put(BENEFICIARY_PRECINCT_COL, precinct)
+        values.put(BENEFICIARY_FULLNAME_COL, fullname)
+        values.put(BENEFICIARY_BIRTHDATE_COL, birthdate)
+        values.put(BENEFICIARY_PROFILE_ID_COL, id)
+        db.insert(TABLE_BENEFICIARIES, null, values)
+        db.close()
+    }
+
+    fun saveSkills(
+        id: String?,
+        skill: String?
+    ) {
+        val db = this.writableDatabase
+        db.delete(TABLE_SKILLS, "$SKILL_SKILL_COL = ? AND $SKILL_PROFILE_ID_COL = ?", arrayOf(skill, id))
+        val values = ContentValues()
+        values.put(SKILL_SKILL_COL, skill)
+        values.put(SKILL_PROFILE_ID_COL, id)
+        db.insert(TABLE_SKILLS, null, values)
+        db.close()
+    }
+
+    fun saveLivelihood(
+        id: String?,
+        livelihood: String?
+    ) {
+        val db = this.writableDatabase
+        db.delete(TABLE_LIVELIHOOD, "$LIVELIHOOD_LIVELIHOOD_COL = ? AND $LIVELIHOOD_PROFILE_ID_COL = ?", arrayOf(livelihood, id))
+        val values = ContentValues()
+        values.put(LIVELIHOOD_LIVELIHOOD_COL, livelihood)
+        values.put(LIVELIHOOD_PROFILE_ID_COL, id)
+        db.insert(TABLE_LIVELIHOOD, null, values)
+        db.close()
+    }
+
+    fun savePhotos(
+        id: String?,
+        photoPersonal: String?,
+        photoFamily: String?,
+        photoLivelihood: String?
+    ) {
+        val db = this.writableDatabase
+        db.delete(TABLE_PHOTOS, "$PHOTO_PROFILE_ID_COL = ?", arrayOf(id))
+        val values = ContentValues()
+        values.put(PHOTO_PERSONAL_COL, photoPersonal)
+        values.put(PHOTO_FAMILY_COL, photoFamily)
+        values.put(PHOTO_LIVELIHOOD_COL, photoLivelihood)
+        values.put(PHOTO_PROFILE_ID_COL, id)
+        db.insert(TABLE_PHOTOS, null, values)
+        db.close()
+    }
     }

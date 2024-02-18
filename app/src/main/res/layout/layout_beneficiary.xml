@@ -23,6 +23,7 @@
             android:textSize="20sp" />
 
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewBeneficiary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp">
@@ -40,17 +41,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/roboto_mono"
-                android:text="Precint" />
+                android:text="Precinct" />
 
             <EditText
-                android:id="@+id/editTextText7"
+                android:id="@+id/editTextPrecinct"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/ic_round_edittext"
                 android:ems="10"
                 android:fontFamily="@font/roboto_mono"
-                android:inputType="text" />
+                android:inputType="text"
+                android:paddingStart="16dp" />
 
             <TextView
                 android:id="@+id/textView16"
@@ -61,14 +63,15 @@
                 android:text="Fullname" />
 
             <EditText
-                android:id="@+id/editTextText8"
+                android:id="@+id/editTextBeneficiaryName"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/ic_round_edittext"
                 android:ems="10"
                 android:fontFamily="@font/roboto_mono"
-                android:inputType="text" />
+                android:inputType="text"
+                android:paddingStart="16dp" />
 
             <TextView
                 android:id="@+id/textView17"
@@ -79,14 +82,18 @@
                 android:text="Birthdate" />
 
             <EditText
-                android:id="@+id/editTextText9"
+                android:id="@+id/editTextBeneficiaryBirthdate"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/ic_round_edittext"
+                android:clickable="true"
+                android:longClickable="false"
                 android:ems="10"
+                android:focusable="false"
                 android:fontFamily="@font/roboto_mono"
-                android:inputType="text" />
+                android:inputType="text"
+                android:paddingStart="16dp" />
 
             <LinearLayout
                 android:layout_width="fill_parent"
@@ -96,7 +103,7 @@
                 android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/button"
+                    android:id="@+id/buttonBeneficiaryRemove"
                     android:layout_width="wrap_content"
                     android:layout_height="52dp"
                     android:layout_marginTop="16dp"
@@ -106,7 +113,7 @@
                     android:text="Remove" />
 
                 <Button
-                    android:id="@+id/button2"
+                    android:id="@+id/buttonBeneficiaryAdd"
                     android:layout_width="fill_parent"
                     android:layout_height="52dp"
                     android:layout_marginStart="5dp"

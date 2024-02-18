@@ -18,10 +18,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/roboto_mono_bold"
-            android:text="Beneficiaries"
+            android:text="Livelihood"
             android:textSize="20sp" />
 
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewLivelihood"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp">
@@ -42,14 +43,15 @@
                 android:text="Livelihood" />
 
             <EditText
-                android:id="@+id/editTextText7"
+                android:id="@+id/editTextLivelihood"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/ic_round_edittext"
                 android:ems="10"
                 android:fontFamily="@font/roboto_mono"
-                android:inputType="text" />
+                android:inputType="text"
+                android:paddingStart="16dp" />
 
             <LinearLayout
                 android:layout_width="fill_parent"
@@ -59,7 +61,7 @@
                 android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/button"
+                    android:id="@+id/buttonLivelihoodRemove"
                     android:layout_width="wrap_content"
                     android:layout_height="52dp"
                     android:layout_marginTop="16dp"
@@ -69,7 +71,7 @@
                     android:text="Remove" />
 
                 <Button
-                    android:id="@+id/button2"
+                    android:id="@+id/buttonLivelihoodAdd"
                     android:layout_width="fill_parent"
                     android:layout_height="52dp"
                     android:layout_marginStart="5dp"
