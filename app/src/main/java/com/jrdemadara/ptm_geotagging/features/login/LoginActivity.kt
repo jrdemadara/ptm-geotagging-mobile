@@ -50,10 +50,23 @@ class LoginActivity : AppCompatActivity() {
 
             retrofit.loginUser(filter).enqueue(object : Callback<ResponseBody?> {
                 override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
-                    Toast.makeText(applicationContext, response.headers().toString(), Toast.LENGTH_SHORT).show()
-                    Log.e("Request Failure", response.body().)
-                    val token: ResponseBody? = response.body()
-                    //saveAccessToken(response.headers()["access_token"].toString())
+                    if (response.isSuccessful) {
+                        val responseBody = response.body()?.string() // Convert response body to string
+                        val jsonObject = responseBody?.let { JSONObject(it) }
+                        val accessToken = jsonObject?.getString("access_token")
+
+                        // Now you have the access token, you can use it as needed
+                        if (accessToken != null) {
+                            saveAccessToken(accessToken)
+                            val intent = Intent(applicationContext, LoginActivity::class.java)
+                            startActivity(intent)
+                            finish()
+                        }
+                    } else {
+                        // Handle unsuccessful response
+                        Log.e("Response Error", "Unsuccessful response: ${response.code()}")
+                    }
+
                 }
 
                 override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
