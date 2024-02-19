@@ -1,4 +1,4 @@
-package com.jrdemadara.ptm_geotagging.features.profiling
+package com.jrdemadara.ptm_geotagging.features.profiling.beneficiary
 
 import android.view.LayoutInflater
 import android.view.View

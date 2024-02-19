@@ -5,24 +5,40 @@ import android.app.DatePickerDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.location.Location
+import android.opengl.Visibility
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.DatePicker
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.ScrollView
+import android.widget.TextView
 import android.widget.Toast
 import android.widget.ViewFlipper
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.jrdemadara.ptm_geotagging.R
+import com.jrdemadara.ptm_geotagging.features.profiles.ProfilesActivity
+import com.jrdemadara.ptm_geotagging.features.profiling.beneficiary.Beneficiaries
+import com.jrdemadara.ptm_geotagging.features.profiling.beneficiary.BeneficiariesAdapter
+import com.jrdemadara.ptm_geotagging.features.profiling.livelihood.Livelihood
+import com.jrdemadara.ptm_geotagging.features.profiling.livelihood.LivelihoodsAdapter
+import com.jrdemadara.ptm_geotagging.features.profiling.skill.Skills
+import com.jrdemadara.ptm_geotagging.features.profiling.skill.SkillsAdapter
 import com.jrdemadara.ptm_geotagging.server.LocalDatabase
 import java.io.ByteArrayOutputStream
 import java.util.Calendar
@@ -33,12 +49,13 @@ class ProfilingActivity : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var buttonNext: Button
     private lateinit var buttonPrevious: Button
+    private lateinit var buttonSave: Button
+    private lateinit var textViewSaveMessage: TextView
     private lateinit var viewFlipper: ViewFlipper
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
     private var flip: Int = 1
-    private val beneficiariesList = mutableListOf<Beneficiaries>()
-    private lateinit var adapter: BeneficiariesAdapter
+    private lateinit var uuid: UUID
 
     //* Profile Variables
     private lateinit var editTextLastname: EditText
@@ -56,18 +73,30 @@ class ProfilingActivity : AppCompatActivity() {
     private lateinit var editTextBeneficiaryBirthdate: EditText
     private lateinit var buttonBeneficiaryAdd: Button
     private lateinit var buttonBeneficiaryRemove: Button
+    private lateinit var textViewBeneficiaryEmpty: TextView
+    private lateinit var scrollViewBeneficiaries: ScrollView
+    private val beneficiariesList = mutableListOf<Beneficiaries>()
+    private lateinit var adapterBeneficiaries: BeneficiariesAdapter
 
     //* Skill Variables
     private lateinit var recyclerViewSkill: RecyclerView
     private lateinit var editTextSkill: EditText
     private lateinit var buttonSkillAdd: Button
     private lateinit var buttonSkillRemove: Button
+    private lateinit var textViewSkillsEmpty: TextView
+    private lateinit var scrollViewSkills: ScrollView
+    private val skillsList = mutableListOf<Skills>()
+    private lateinit var adapterSkills: SkillsAdapter
 
     //* Livelihood Variables
     private lateinit var recyclerViewLivelihood: RecyclerView
     private lateinit var editTextLivelihood: EditText
     private lateinit var buttonLivelihoodAdd: Button
     private lateinit var buttonLivelihoodRemove: Button
+    private lateinit var textViewLivelihoodEmpty: TextView
+    private lateinit var scrollViewLivelihood: ScrollView
+    private val livelihoodList = mutableListOf<Livelihood>()
+    private lateinit var adapterLivelihood: LivelihoodsAdapter
 
     //* Image Variables
     private lateinit var capturedImagePersonal: ByteArray
@@ -80,11 +109,19 @@ class ProfilingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profiling)
+        val toolbar: Toolbar = findViewById(R.id.materialToolbar3)
+        setSupportActionBar(toolbar)
+
+        // Enable the back arrow button
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         localDatabase = LocalDatabase(this@ProfilingActivity)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         viewFlipper = findViewById(R.id.viewFlipper)
+        buttonSave = findViewById(R.id.buttonSave)
         buttonNext = findViewById(R.id.buttonNextView)
         buttonPrevious = findViewById(R.id.buttonPreviousView)
+        textViewSaveMessage = findViewById(R.id.textViewSaveMessage)
+        uuid = UUID.randomUUID()
         //* Initialize Profile Variable
         editTextLastname = findViewById(R.id.editTextLastname)
         editTextFirstname = findViewById(R.id.editTextFirstname)
@@ -100,16 +137,22 @@ class ProfilingActivity : AppCompatActivity() {
         editTextBeneficiaryBirthdate = findViewById(R.id.editTextBeneficiaryBirthdate)
         buttonBeneficiaryAdd = findViewById(R.id.buttonBeneficiaryAdd)
         buttonBeneficiaryRemove = findViewById(R.id.buttonBeneficiaryRemove)
+        textViewBeneficiaryEmpty = findViewById(R.id.textViewBeneficiaryEmpty)
+        scrollViewBeneficiaries = findViewById(R.id.scrollViewBeneficiary)
         //* Initialize Skill Variable
         recyclerViewSkill = findViewById(R.id.recyclerViewSkill)
         editTextSkill = findViewById(R.id.editTextSkill)
         buttonSkillAdd = findViewById(R.id.buttonSkillAdd)
         buttonSkillRemove = findViewById(R.id.buttonSkillRemove)
+        textViewSkillsEmpty = findViewById(R.id.textViewSkillsEmpty)
+        scrollViewSkills = findViewById(R.id.scrollViewSkill)
         //* Initialize Livelihood Variable
         recyclerViewLivelihood = findViewById(R.id.recyclerViewLivelihood)
         editTextLivelihood = findViewById(R.id.editTextLivelihood)
         buttonLivelihoodAdd = findViewById(R.id.buttonLivelihoodAdd)
         buttonLivelihoodRemove = findViewById(R.id.buttonLivelihoodRemove)
+        textViewLivelihoodEmpty = findViewById(R.id.textViewLivelihoodEmpty)
+        scrollViewLivelihood = findViewById(R.id.scrollViewLivelihood)
         //* Initialize Image Variable
         capturedImagePersonal = ByteArray(0)
         capturedImageFamily = ByteArray(0)
@@ -117,10 +160,18 @@ class ProfilingActivity : AppCompatActivity() {
         imageViewPersonal = findViewById(R.id.imageViewPersonal)
         imageViewFamily = findViewById(R.id.imageViewFamily)
         imageViewLivelihood = findViewById(R.id.imageViewLivelihood)
-        // Initialize RecyclerView and adapter
-        adapter = BeneficiariesAdapter(beneficiariesList)
+        // Initialize Beneficiaries RecyclerView and adapter
+        adapterBeneficiaries = BeneficiariesAdapter(beneficiariesList)
         recyclerViewBeneficiary.layoutManager = LinearLayoutManager(this)
-        recyclerViewBeneficiary.adapter = adapter
+        recyclerViewBeneficiary.adapter = adapterBeneficiaries
+        // Initialize Skills RecyclerView and adapter
+        adapterSkills = SkillsAdapter(skillsList)
+        recyclerViewSkill.layoutManager = LinearLayoutManager(this)
+        recyclerViewSkill.adapter = adapterSkills
+        // Initialize Livelihood RecyclerView and adapter
+        adapterLivelihood = LivelihoodsAdapter(livelihoodList)
+        recyclerViewLivelihood.layoutManager = LinearLayoutManager(this)
+        recyclerViewLivelihood.adapter = adapterLivelihood
         checkPermission()
         getLastLocation()
 
@@ -148,110 +199,290 @@ class ProfilingActivity : AppCompatActivity() {
             if (flip < 7) {
                 viewFlipper.showNext()
                 flip++
-
+                buttonPrevious.isEnabled = true
                 if (flip == 6) {
-                    buttonNext.text = "Save"
+                    buttonNext.isEnabled = false
                 }
-            }
-
-            if (flip == 7) {
-                val profileID: UUID = UUID.randomUUID()
-                if (editTextLastname.text.isNotEmpty() &&
-                    editTextFirstname.text.isNotEmpty() &&
-                    editTextMiddlename.text.isNotEmpty() &&
-                    editTextExtension.text.isNotEmpty() &&
-                    editTextBirthdate.text.isNotEmpty() &&
-                    editTextOccupation.text.isNotEmpty() &&
-                    editTextPhone.text.isNotEmpty()
-                    ) {
-                    localDatabase.saveProfile(
-                        profileID.toString(),
-                        editTextLastname.text.toString().trim(),
-                        editTextFirstname.text.toString().trim(),
-                        editTextMiddlename.text.toString().trim(),
-                        editTextExtension.text.toString().trim(),
-                        editTextBirthdate.text.toString().trim(),
-                        editTextOccupation.text.toString().trim(),
-                        editTextPhone.text.toString().trim(),
-                        latitude.toString(),
-                        longitude.toString())
-                } else {
-                    // Show a message or handle the case where EditText fields are empty
-                    Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-                }
-
-                if (editTextPrecinct.text.isNotEmpty() &&
-                    editTextBeneficiaryName.text.isNotEmpty() &&
-                    editTextBeneficiaryBirthdate.text.isNotEmpty()
-                ) {
-                    localDatabase.saveBeneficiaries(
-                        profileID.toString(),
-                        editTextPrecinct.text.toString().trim(),
-                        editTextBeneficiaryName.text.toString().trim(),
-                        editTextBeneficiaryBirthdate.text.toString().trim())
-                } else {
-                    // Show a message or handle the case where EditText fields are empty
-                    Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-                }
-
-                if (editTextSkill.text.isNotEmpty()) {
-                    localDatabase.saveSkills(
-                        profileID.toString(),
-                        editTextSkill.text.toString().trim())
-                } else {
-                    // Show a message or handle the case where EditText fields are empty
-                    Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-                }
-
-                if (editTextLivelihood.text.isNotEmpty()) {
-                    localDatabase.saveLivelihood(
-                        profileID.toString(),
-                        editTextLivelihood.text.toString().trim())
-                } else {
-                    // Show a message or handle the case where EditText fields are empty
-                    Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-                }
-
-                if (capturedImagePersonal.decodeToString().isNotEmpty() &&
-                    capturedImageFamily.decodeToString().isNotEmpty() &&
-                    capturedImageLivelihood.decodeToString().isNotEmpty()
-                    ) {
-                    localDatabase.savePhotos(
-                        profileID.toString(),
-                        capturedImagePersonal.decodeToString(),
-                        capturedImageFamily.decodeToString(),
-                        capturedImageLivelihood.decodeToString())
-                } else {
-                    // Show a message or handle the case where EditText fields are empty
-                    Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-                }
-                Toast.makeText(this, "Profile has been saved successfully.", Toast.LENGTH_SHORT).show()
             }
         }
         buttonPrevious.setOnClickListener{
             if (flip > 1){
                 viewFlipper.showPrevious()
                 flip--
-                buttonNext.text = "Next"
+                buttonPrevious.isEnabled = true
+                buttonNext.isEnabled = true
             }
-
+            if (flip == 1) {
+                buttonPrevious.isEnabled = false
+            }
         }
 
         buttonBeneficiaryAdd.setOnClickListener {
-            val precinct = editTextPrecinct.text.toString()
-            val fullname = editTextBeneficiaryName.text.toString()
-            val birthdate = editTextBeneficiaryBirthdate.text.toString()
+            val precinct = editTextPrecinct.text.toString().trim()
+            val fullname = editTextBeneficiaryName.text.toString().trim()
+            val birthdate = editTextBeneficiaryBirthdate.text.toString().trim()
 
-            val person = Beneficiaries(precinct, fullname, birthdate)
-            beneficiariesList.add(person)
-            adapter.notifyItemInserted(beneficiariesList.size - 1)
+            if (editTextPrecinct.text.isNotEmpty() &&
+                editTextBeneficiaryName.text.isNotEmpty() &&
+                editTextBeneficiaryBirthdate.text.isNotEmpty()
+            ) {
+                val beneficiary = Beneficiaries(precinct, fullname, birthdate)
+                beneficiariesList.add(beneficiary)
+                adapterBeneficiaries.notifyItemInserted(beneficiariesList.size - 1)
+                checkBeneficiariesList()
+            } else {
+                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+            }
         }
 
         buttonBeneficiaryRemove.setOnClickListener {
             if (beneficiariesList.isNotEmpty()) {
                 beneficiariesList.removeAt(beneficiariesList.size - 1)
-                adapter.notifyItemRemoved(beneficiariesList.size)
+                adapterBeneficiaries.notifyItemRemoved(beneficiariesList.size)
+                checkBeneficiariesList()
             }
+        }
+        checkBeneficiariesList()
+
+        buttonSkillAdd.setOnClickListener {
+            val skill = editTextSkill.text.toString().trim()
+            if (skill.isNotEmpty()
+            ) {
+                val skills = Skills(skill)
+                skillsList.add(skills)
+                adapterSkills.notifyItemInserted(skillsList.size - 1)
+                checkSkillsList()
+            } else {
+                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        buttonSkillRemove.setOnClickListener {
+            if (skillsList.isNotEmpty()) {
+                skillsList.removeAt(skillsList.size - 1)
+                adapterSkills.notifyItemRemoved(skillsList.size)
+                checkSkillsList()
+            }
+        }
+        checkSkillsList()
+
+        buttonLivelihoodAdd.setOnClickListener {
+            val livelihood = editTextLivelihood.text.toString().trim()
+            if (livelihood.isNotEmpty()
+            ) {
+                val livelihoods = Livelihood(livelihood)
+                livelihoodList.add(livelihoods)
+                adapterLivelihood.notifyItemInserted(livelihoodList.size - 1)
+                checkLivelihoodList()
+            } else {
+                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        buttonLivelihoodRemove.setOnClickListener {
+            if (livelihoodList.isNotEmpty()) {
+                livelihoodList.removeAt(livelihoodList.size - 1)
+                adapterLivelihood.notifyItemRemoved(livelihoodList.size)
+                checkLivelihoodList()
+            }
+        }
+        checkLivelihoodList()
+
+        buttonSave.setOnClickListener {
+            saveProfile(uuid.toString())
+            saveBeneficiaries(uuid.toString())
+            saveSkills(uuid.toString())
+            saveLivelihood(uuid.toString())
+            savePhoto(uuid.toString())
+            buttonSave.text = "Saving..."
+            buttonSave.isEnabled = false
+            Handler(Looper.getMainLooper()).postDelayed({
+                resetComponents()
+                val intent = Intent(applicationContext, ProfilesActivity::class.java)
+                startActivity(intent)
+                finish()
+            }, 5000)
+        }
+    }
+
+    private fun saveProfile(profileID: String){
+        if (editTextLastname.text.isNotEmpty() &&
+            editTextFirstname.text.isNotEmpty() &&
+            editTextMiddlename.text.isNotEmpty() &&
+            editTextBirthdate.text.isNotEmpty() &&
+            editTextOccupation.text.isNotEmpty() &&
+            editTextPhone.text.isNotEmpty()
+        ) {
+            val isSaved = localDatabase.saveProfile(
+                profileID,
+                editTextLastname.text.toString().trim(),
+                editTextFirstname.text.toString().trim(),
+                editTextMiddlename.text.toString().trim(),
+                editTextExtension.text.toString().trim(),
+                editTextBirthdate.text.toString().trim(),
+                editTextOccupation.text.toString().trim(),
+                editTextPhone.text.toString().trim(),
+                latitude.toString(),
+                longitude.toString())
+            if (isSaved) {
+                textViewSaveMessage.visibility = View.VISIBLE
+                textViewSaveMessage.setTextColor(Color.GREEN)
+                textViewSaveMessage.text = "Profile has been successfully saved."
+            } else {
+                textViewSaveMessage.visibility = View.VISIBLE
+                textViewSaveMessage.setTextColor(Color.RED)
+                textViewSaveMessage.text = "Failed to save personal information."
+            }
+        } else {
+            Toast.makeText(this, "Please fill in all personal information fields", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun saveBeneficiaries(profileID: String){
+        for (beneficiary in beneficiariesList) {
+            val isSaved = localDatabase.saveBeneficiaries(
+                profileID,
+                beneficiary.precinct,
+                beneficiary.fullname,
+                beneficiary.birthdate
+            )
+            if (isSaved) {
+                textViewSaveMessage.visibility = View.VISIBLE
+                textViewSaveMessage.setTextColor(Color.GREEN)
+                textViewSaveMessage.text = "Profile has been successfully saved."
+            } else {
+                textViewSaveMessage.visibility = View.VISIBLE
+                textViewSaveMessage.setTextColor(Color.RED)
+                textViewSaveMessage.text = "Failed to save beneficiaries."
+            }
+        }
+    }
+
+    private fun saveSkills(profileID: String){
+        for (skill in skillsList) {
+            val isSaved =localDatabase.saveSkills(
+                profileID,
+                skill.skill
+            )
+            if (isSaved) {
+                textViewSaveMessage.visibility = View.VISIBLE
+                textViewSaveMessage.setTextColor(Color.GREEN)
+                textViewSaveMessage.text = "Profile has been successfully saved."
+            } else {
+                textViewSaveMessage.visibility = View.VISIBLE
+                textViewSaveMessage.setTextColor(Color.RED)
+                textViewSaveMessage.text = "Failed to save skills."
+            }
+        }
+    }
+
+    private fun saveLivelihood(profileID: String){
+        for (livelihood in livelihoodList) {
+            val isSaved = localDatabase.saveLivelihood(
+                profileID,
+                livelihood.livelihood
+            )
+            if (isSaved) {
+                textViewSaveMessage.visibility = View.VISIBLE
+                textViewSaveMessage.setTextColor(Color.GREEN)
+                textViewSaveMessage.text = "Profile has been successfully saved."
+            } else {
+                textViewSaveMessage.visibility = View.VISIBLE
+                textViewSaveMessage.setTextColor(Color.RED)
+                textViewSaveMessage.text = "Failed to save livelihood."
+            }
+        }
+
+    }
+
+    private fun savePhoto(profileID: String){
+        if (capturedImagePersonal.decodeToString().isNotEmpty()
+        ) {
+            val isSaved = localDatabase.savePhotos(
+                profileID,
+                capturedImagePersonal.decodeToString(),
+                capturedImageFamily.decodeToString(),
+                capturedImageLivelihood.decodeToString())
+            if (isSaved) {
+                textViewSaveMessage.visibility = View.VISIBLE
+                textViewSaveMessage.setTextColor(Color.GREEN)
+                textViewSaveMessage.text = "Profile has been successfully saved."
+            } else {
+                textViewSaveMessage.visibility = View.VISIBLE
+                textViewSaveMessage.setTextColor(Color.RED)
+                textViewSaveMessage.text = "Failed to save photos."
+            }
+        } else {
+            Toast.makeText(this, "Please take a personal photo.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun resetComponents(){
+        uuid = UUID.randomUUID()
+        flip = 1
+        latitude = 0.0
+        longitude = 0.0
+        imageViewPersonal.setImageResource(R.drawable.imageplus)
+        imageViewFamily.setImageResource(R.drawable.imageplus)
+        imageViewLivelihood.setImageResource(R.drawable.imageplus)
+        capturedImagePersonal = byteArrayOf()
+        capturedImageFamily = byteArrayOf()
+        capturedImageLivelihood = byteArrayOf()
+        buttonNext.text = "Next"
+
+        editTextLastname.text.clear()
+        editTextLastname.text.clear()
+        editTextFirstname.text.clear()
+        editTextMiddlename.text.clear()
+        editTextBirthdate.text.clear()
+        editTextOccupation.text.clear()
+        editTextPhone.text.clear()
+        editTextPrecinct.text.clear()
+        editTextBeneficiaryName.text.clear()
+        editTextBeneficiaryBirthdate.text.clear()
+        editTextSkill.text.clear()
+        editTextLivelihood.text.clear()
+        beneficiariesList.clear()
+        skillsList.clear()
+        livelihoodList.clear()
+        adapterBeneficiaries.notifyDataSetChanged()
+        adapterSkills.notifyDataSetChanged()
+        adapterLivelihood.notifyDataSetChanged()
+        checkBeneficiariesList()
+        checkSkillsList()
+        checkLivelihoodList()
+        textViewSaveMessage.text = ""
+        textViewSaveMessage.visibility = View.GONE
+
+    }
+
+    private fun checkBeneficiariesList(){
+        if (beneficiariesList.isEmpty()) {
+            scrollViewBeneficiaries.visibility = View.GONE
+            textViewBeneficiaryEmpty.visibility = View.VISIBLE
+        } else {
+            scrollViewBeneficiaries.visibility = View.VISIBLE
+            textViewBeneficiaryEmpty.visibility = View.GONE
+        }
+    }
+
+    private fun checkSkillsList(){
+        if (skillsList.isEmpty()) {
+            scrollViewSkills.visibility = View.GONE
+            textViewSkillsEmpty.visibility = View.VISIBLE
+        } else {
+            scrollViewSkills.visibility = View.VISIBLE
+            textViewSkillsEmpty.visibility = View.GONE
+        }
+    }
+
+    private fun checkLivelihoodList(){
+        if (livelihoodList.isEmpty()) {
+            scrollViewLivelihood.visibility = View.GONE
+            textViewLivelihoodEmpty.visibility = View.VISIBLE
+        } else {
+            scrollViewLivelihood.visibility = View.VISIBLE
+            textViewLivelihoodEmpty.visibility = View.GONE
         }
     }
 
@@ -424,5 +655,26 @@ class ProfilingActivity : AppCompatActivity() {
     companion object {
         private const val PERMISSIONS_REQUEST_LOCATION = 100
         private const val CAMERA_PERMISSION_CODE = 100
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Confirmation")
+            .setMessage("Unsaved data will be lost. Are you sure you want to exit?")
+
+        builder.setPositiveButton("Yes") { dialog, _ ->
+            val intent = Intent(applicationContext, ProfilesActivity::class.java)
+            startActivity(intent)
+            finish()
+            dialog.dismiss()
+        }
+
+        // Add "No" button and its action
+        builder.setNegativeButton("No") { dialog, _ ->
+            dialog.dismiss()
+        }
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
+        return true
     }
 }

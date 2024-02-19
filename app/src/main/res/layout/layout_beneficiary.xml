@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,13 +23,31 @@
             android:text="Beneficiaries"
             android:textSize="20sp" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewBeneficiary"
+        <TextView
+            android:id="@+id/textViewBeneficiaryEmpty"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp">
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/roboto_mono"
+            android:text="No beneficiaries added yet"
+            android:textAlignment="center"
+            android:textColor="#E53935"
+            android:textSize="16sp"
+            android:visibility="visible" />
 
-        </androidx.recyclerview.widget.RecyclerView>
+        <ScrollView
+            android:id="@+id/scrollViewBeneficiary"
+            android:layout_width="match_parent"
+            android:layout_height="200dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewBeneficiary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp">
+
+            </androidx.recyclerview.widget.RecyclerView>
+        </ScrollView>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -88,11 +107,11 @@
                 android:layout_marginTop="8dp"
                 android:background="@drawable/ic_round_edittext"
                 android:clickable="true"
-                android:longClickable="false"
                 android:ems="10"
                 android:focusable="false"
                 android:fontFamily="@font/roboto_mono"
                 android:inputType="text"
+                android:longClickable="false"
                 android:paddingStart="16dp" />
 
             <LinearLayout

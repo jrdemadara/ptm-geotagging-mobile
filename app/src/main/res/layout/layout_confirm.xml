@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -27,7 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:fontFamily="@font/roboto_mono_bold"
-            android:text="Save Data"
+            android:text="Review and Save"
             android:textAlignment="center"
             android:textSize="20sp" />
 
@@ -37,8 +38,28 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:fontFamily="@font/roboto_mono"
-            android:text="Please insure the data has been reviewed before proceeding."
+            android:text="Please ensure that the data has been carefully reviewed before proceeding, as it cannot be modified once it has been saved."
             android:textAlignment="center"
+            android:textColor="#F4511E"
             android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/textViewSaveMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/roboto_mono"
+            android:gravity="center"
+            android:text="Transaction Message"
+            android:textSize="16sp"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/buttonSave"
+            android:layout_width="252dp"
+            android:layout_height="52dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="58dp"
+            android:text="Proceed" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

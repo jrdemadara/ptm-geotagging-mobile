@@ -179,22 +179,51 @@ class LocalDatabase(context: Context):
         phone: String?,
         latitude: String?,
         longitude: String?,
-    ) {
-        val db = this.writableDatabase
-        db.delete(TABLE_PROFILES, "$PROFILE_LASTNAME_COL = ? AND $PROFILE_FIRSTNAME_COL = ?", arrayOf(lastname, firstname))
-        val values = ContentValues()
-        values.put(PROFILE_ID_COL, id)
-        values.put(PROFILE_LASTNAME_COL, lastname)
-        values.put(PROFILE_FIRSTNAME_COL, firstname)
-        values.put(PROFILE_MIDDLENAME_COL, middlename)
-        values.put(PROFILE_EXTENSION_COL, extension)
-        values.put(PROFILE_BIRTHDATE_COL, birthdate)
-        values.put(PROFILE_OCCUPATION_COL, occupation)
-        values.put(PROFILE_PHONE_COL, phone)
-        values.put(PROFILE_LAT_COL, latitude)
-        values.put(PROFILE_LON_COL, longitude)
-        db.insert(TABLE_PROFILES, null, values)
-        db.close()
+    ): Boolean {
+        return try {
+            val db = this.writableDatabase
+
+            // Check if the profile with the same last name and first name already exists in the database
+            val cursor = db.query(
+                TABLE_PROFILES,
+                arrayOf(PROFILE_ID_COL),
+                "$PROFILE_LASTNAME_COL = ? AND $PROFILE_FIRSTNAME_COL = ?",
+                arrayOf(lastname, firstname),
+                null,
+                null,
+                null
+            )
+
+            if (cursor != null && cursor.count > 0) {
+                // Profile already exists, don't save the data
+                cursor.close()
+                db.close()
+                return false
+            }
+
+            cursor?.close()
+
+            // Profile doesn't exist, proceed with saving the data
+            val values = ContentValues()
+            values.put(PROFILE_ID_COL, id)
+            values.put(PROFILE_LASTNAME_COL, lastname)
+            values.put(PROFILE_FIRSTNAME_COL, firstname)
+            values.put(PROFILE_MIDDLENAME_COL, middlename)
+            values.put(PROFILE_EXTENSION_COL, extension)
+            values.put(PROFILE_BIRTHDATE_COL, birthdate)
+            values.put(PROFILE_OCCUPATION_COL, occupation)
+            values.put(PROFILE_PHONE_COL, phone)
+            values.put(PROFILE_LAT_COL, latitude)
+            values.put(PROFILE_LON_COL, longitude)
+            db.insert(TABLE_PROFILES, null, values)
+
+            db.close()
+            true // Data saved successfully
+        } catch (e: Exception) {
+            // Handle any exceptions here
+            e.printStackTrace()
+            false // Data not saved successfully
+        }
     }
 
     fun saveBeneficiaries(
@@ -202,42 +231,129 @@ class LocalDatabase(context: Context):
         precinct: String?,
         fullname: String?,
         birthdate: String?
-    ) {
-        val db = this.writableDatabase
-        db.delete(TABLE_BENEFICIARIES, "$BENEFICIARY_PRECINCT_COL = ? AND $BENEFICIARY_FULLNAME_COL = ?", arrayOf(precinct, fullname))
-        val values = ContentValues()
-        values.put(BENEFICIARY_PRECINCT_COL, precinct)
-        values.put(BENEFICIARY_FULLNAME_COL, fullname)
-        values.put(BENEFICIARY_BIRTHDATE_COL, birthdate)
-        values.put(BENEFICIARY_PROFILE_ID_COL, id)
-        db.insert(TABLE_BENEFICIARIES, null, values)
-        db.close()
+    ): Boolean {
+        return try {
+            val db = this.writableDatabase
+
+            // Check if the precinct already exists in the database
+            val cursor = db.query(
+                TABLE_BENEFICIARIES,
+                arrayOf(BENEFICIARY_PRECINCT_COL),
+                "$BENEFICIARY_PRECINCT_COL = ?",
+                arrayOf(precinct),
+                null,
+                null,
+                null
+            )
+
+            if (cursor != null && cursor.count > 0) {
+                // Precinct already exists, don't save the data
+                cursor.close()
+                db.close()
+                return false
+            }
+
+            cursor?.close()
+
+            // Precinct doesn't exist, proceed with saving the data
+            val values = ContentValues()
+            values.put(BENEFICIARY_PRECINCT_COL, precinct)
+            values.put(BENEFICIARY_FULLNAME_COL, fullname)
+            values.put(BENEFICIARY_BIRTHDATE_COL, birthdate)
+            values.put(BENEFICIARY_PROFILE_ID_COL, id)
+            db.insert(TABLE_BENEFICIARIES, null, values)
+
+            db.close()
+            true // Data saved successfully
+        } catch (e: Exception) {
+            // Handle any exceptions here
+            e.printStackTrace()
+            false // Data not saved successfully
+        }
     }
 
     fun saveSkills(
         id: String?,
         skill: String?
-    ) {
-        val db = this.writableDatabase
-        db.delete(TABLE_SKILLS, "$SKILL_SKILL_COL = ? AND $SKILL_PROFILE_ID_COL = ?", arrayOf(skill, id))
-        val values = ContentValues()
-        values.put(SKILL_SKILL_COL, skill)
-        values.put(SKILL_PROFILE_ID_COL, id)
-        db.insert(TABLE_SKILLS, null, values)
-        db.close()
+    ): Boolean {
+        return try {
+            val db = this.writableDatabase
+
+            // Check if the skill already exists for the given profile ID
+            val cursor = db.query(
+                TABLE_SKILLS,
+                arrayOf(SKILL_SKILL_COL),
+                "$SKILL_SKILL_COL = ? AND $SKILL_PROFILE_ID_COL = ?",
+                arrayOf(skill, id),
+                null,
+                null,
+                null
+            )
+
+            if (cursor != null && cursor.count > 0) {
+                // Skill already exists for the given profile ID, don't save the data
+                cursor.close()
+                db.close()
+                return false
+            }
+
+            cursor?.close()
+
+            // Skill doesn't exist for the given profile ID, proceed with saving the data
+            val values = ContentValues()
+            values.put(SKILL_SKILL_COL, skill)
+            values.put(SKILL_PROFILE_ID_COL, id)
+            db.insert(TABLE_SKILLS, null, values)
+
+            db.close()
+            true // Data saved successfully
+        } catch (e: Exception) {
+            // Handle any exceptions here
+            e.printStackTrace()
+            false // Data not saved successfully
+        }
     }
 
     fun saveLivelihood(
         id: String?,
         livelihood: String?
-    ) {
-        val db = this.writableDatabase
-        db.delete(TABLE_LIVELIHOOD, "$LIVELIHOOD_LIVELIHOOD_COL = ? AND $LIVELIHOOD_PROFILE_ID_COL = ?", arrayOf(livelihood, id))
-        val values = ContentValues()
-        values.put(LIVELIHOOD_LIVELIHOOD_COL, livelihood)
-        values.put(LIVELIHOOD_PROFILE_ID_COL, id)
-        db.insert(TABLE_LIVELIHOOD, null, values)
-        db.close()
+    ): Boolean {
+        return try {
+            val db = this.writableDatabase
+
+            // Check if the livelihood already exists for the given profile ID
+            val cursor = db.query(
+                TABLE_LIVELIHOOD,
+                arrayOf(LIVELIHOOD_LIVELIHOOD_COL),
+                "$LIVELIHOOD_LIVELIHOOD_COL = ? AND $LIVELIHOOD_PROFILE_ID_COL = ?",
+                arrayOf(livelihood, id),
+                null,
+                null,
+                null
+            )
+
+            if (cursor != null && cursor.count > 0) {
+                // Livelihood already exists for the given profile ID, don't save the data
+                cursor.close()
+                db.close()
+                return false
+            }
+
+            cursor?.close()
+
+            // Livelihood doesn't exist for the given profile ID, proceed with saving the data
+            val values = ContentValues()
+            values.put(LIVELIHOOD_LIVELIHOOD_COL, livelihood)
+            values.put(LIVELIHOOD_PROFILE_ID_COL, id)
+            db.insert(TABLE_LIVELIHOOD, null, values)
+
+            db.close()
+            true // Data saved successfully
+        } catch (e: Exception) {
+            // Handle any exceptions here
+            e.printStackTrace()
+            false // Data not saved successfully
+        }
     }
 
     fun savePhotos(
@@ -245,15 +361,44 @@ class LocalDatabase(context: Context):
         photoPersonal: String?,
         photoFamily: String?,
         photoLivelihood: String?
-    ) {
-        val db = this.writableDatabase
-        db.delete(TABLE_PHOTOS, "$PHOTO_PROFILE_ID_COL = ?", arrayOf(id))
-        val values = ContentValues()
-        values.put(PHOTO_PERSONAL_COL, photoPersonal)
-        values.put(PHOTO_FAMILY_COL, photoFamily)
-        values.put(PHOTO_LIVELIHOOD_COL, photoLivelihood)
-        values.put(PHOTO_PROFILE_ID_COL, id)
-        db.insert(TABLE_PHOTOS, null, values)
-        db.close()
+    ): Boolean {
+        return try {
+            val db = this.writableDatabase
+
+            // Check if photos already exist for the given profile ID
+            val cursor = db.query(
+                TABLE_PHOTOS,
+                arrayOf(PHOTO_PERSONAL_COL, PHOTO_FAMILY_COL, PHOTO_LIVELIHOOD_COL),
+                "$PHOTO_PROFILE_ID_COL = ?",
+                arrayOf(id),
+                null,
+                null,
+                null
+            )
+
+            if (cursor != null && cursor.count > 0) {
+                // Photos already exist for the given profile ID, don't save the data
+                cursor.close()
+                db.close()
+                return false
+            }
+
+            cursor?.close()
+
+            // Photos don't exist for the given profile ID, proceed with saving the data
+            val values = ContentValues()
+            values.put(PHOTO_PERSONAL_COL, photoPersonal)
+            values.put(PHOTO_FAMILY_COL, photoFamily)
+            values.put(PHOTO_LIVELIHOOD_COL, photoLivelihood)
+            values.put(PHOTO_PROFILE_ID_COL, id)
+            db.insert(TABLE_PHOTOS, null, values)
+
+            db.close()
+            true // Data saved successfully
+        } catch (e: Exception) {
+            // Handle any exceptions here
+            e.printStackTrace()
+            false // Data not saved successfully
+        }
     }
     }

@@ -4,6 +4,8 @@ import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.widget.Button
 import com.jrdemadara.ptm_geotagging.data.Municipality
 import com.jrdemadara.ptm_geotagging.features.login.LoginActivity
@@ -15,8 +17,10 @@ import com.jrdemadara.ptm_geotagging.util.NetworkChecker
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import kotlin.math.abs
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), GestureDetector.OnGestureListener {
+    private lateinit var gestureDetector: GestureDetector
     private lateinit var networkChecker: NetworkChecker
     private lateinit var localDatabase: LocalDatabase
     private lateinit var sharedPreferences: SharedPreferences
@@ -26,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        gestureDetector = GestureDetector(this, this)
         localDatabase = LocalDatabase(this)
         sharedPreferences = getSharedPreferences(prefApp, MODE_PRIVATE)
         buttonGetStarted = findViewById(R.id.buttonGetStarted)
@@ -78,5 +83,58 @@ class MainActivity : AppCompatActivity() {
                 })
             }
         }
+    }
+
+    override fun onDown(e: MotionEvent): Boolean {
+        return true
+    }
+
+    override fun onShowPress(e: MotionEvent) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onSingleTapUp(e: MotionEvent): Boolean {
+        return true
+    }
+
+    override fun onScroll(
+        e1: MotionEvent?,
+        e2: MotionEvent,
+        distanceX: Float,
+        distanceY: Float
+    ): Boolean {
+        return true
+    }
+
+    override fun onLongPress(e: MotionEvent) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onFling(
+        e1: MotionEvent?,
+        e2: MotionEvent,
+        velocityX: Float,
+        velocityY: Float
+    ): Boolean {
+        if (e1 != null && e2 != null) {
+            val distanceX = e2.x - e1.x
+            val distanceY = e2.y - e1.y
+
+            if (abs(distanceX) > abs(distanceY) && abs(distanceX) > SWIPE_THRESHOLD && abs(
+                    velocityX
+                ) > SWIPE_VELOCITY_THRESHOLD
+            ) {
+                if (distanceX > 0) {
+                    // Swipe from left to right (backwards)
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        }
+        return true
+    }
+
+    companion object {
+        private const val SWIPE_THRESHOLD = 100
+        private const val SWIPE_VELOCITY_THRESHOLD = 100
     }
 }

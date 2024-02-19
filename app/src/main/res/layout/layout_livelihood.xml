@@ -8,6 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -21,13 +22,31 @@
             android:text="Livelihood"
             android:textSize="20sp" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewLivelihood"
+        <TextView
+            android:id="@+id/textViewLivelihoodEmpty"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp">
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/roboto_mono"
+            android:text="No livelihood added yet"
+            android:textAlignment="center"
+            android:textColor="#E53935"
+            android:textSize="16sp"
+            android:visibility="visible" />
 
-        </androidx.recyclerview.widget.RecyclerView>
+        <ScrollView
+            android:id="@+id/scrollViewLivelihood"
+            android:layout_width="match_parent"
+            android:layout_height="200dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewLivelihood"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp">
+
+            </androidx.recyclerview.widget.RecyclerView>
+        </ScrollView>
 
         <LinearLayout
             android:layout_width="match_parent"
