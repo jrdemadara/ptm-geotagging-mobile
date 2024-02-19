@@ -22,4 +22,8 @@ interface ApiInterface {
     @Headers("Content-Type:application/json")
     @POST("login")
     fun loginUser(@QueryMap filter: HashMap<String, String>): Call<ResponseBody>
+
+    @Headers("Content-Type:application/json")
+    @POST("profile")
+    fun uploadProfile(@QueryMap filter: HashMap<String, Any>): Call<ResponseBody>
 }

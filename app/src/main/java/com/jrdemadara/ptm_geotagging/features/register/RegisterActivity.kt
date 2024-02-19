@@ -36,6 +36,8 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var localDatabase: LocalDatabase
     private lateinit var sharedPreferences: SharedPreferences
     private var prefApp = "pref_app"
+    private var prefAccessToken = "pref_access_token"
+    private lateinit var accessToken: String
     private lateinit var buttonRegister: Button
     private lateinit var spinnerMunicipality: Spinner
     private lateinit var editTextFullname: EditText
@@ -49,6 +51,7 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(R.layout.activity_register)
         localDatabase = LocalDatabase(this)
         sharedPreferences = getSharedPreferences(prefApp, MODE_PRIVATE)
+        accessToken = sharedPreferences.getString(prefAccessToken, null).toString()
         buttonRegister = findViewById(R.id.buttonRegister)
         spinnerMunicipality = findViewById(R.id.spinnerMunicipality)
         editTextFullname = findViewById(R.id.editTextFullname)
@@ -73,7 +76,7 @@ class RegisterActivity : AppCompatActivity() {
 
     private fun register() {
         if (editTextPassword.text.toString() == editTextConfirmPassword.text.toString()){
-            val retrofit = NodeServer.getRetrofitInstance().create(ApiInterface::class.java)
+            val retrofit = NodeServer.getRetrofitInstance(accessToken).create(ApiInterface::class.java)
             val filter = HashMap<String, String>()
             filter["name"] = editTextFullname.text.toString()
             filter["email"] = editTextEmail.text.toString()

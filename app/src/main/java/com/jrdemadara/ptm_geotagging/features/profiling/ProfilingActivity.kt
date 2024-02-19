@@ -230,8 +230,12 @@ class ProfilingActivity : AppCompatActivity() {
                 beneficiariesList.add(beneficiary)
                 adapterBeneficiaries.notifyItemInserted(beneficiariesList.size - 1)
                 checkBeneficiariesList()
+                editTextPrecinct.text.clear()
+                editTextBeneficiaryName.text.clear()
+                editTextBeneficiaryBirthdate.text.clear()
+                editTextPrecinct.requestFocus()
             } else {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, "Please fill the required field.", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -252,8 +256,9 @@ class ProfilingActivity : AppCompatActivity() {
                 skillsList.add(skills)
                 adapterSkills.notifyItemInserted(skillsList.size - 1)
                 checkSkillsList()
+                editTextSkill.text.clear()
             } else {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, "Please fill the required field.", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -274,8 +279,9 @@ class ProfilingActivity : AppCompatActivity() {
                 livelihoodList.add(livelihoods)
                 adapterLivelihood.notifyItemInserted(livelihoodList.size - 1)
                 checkLivelihoodList()
+                editTextLivelihood.text.clear()
             } else {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, "Please fill the required field.", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -289,30 +295,39 @@ class ProfilingActivity : AppCompatActivity() {
         checkLivelihoodList()
 
         buttonSave.setOnClickListener {
-            saveProfile(uuid.toString())
-            saveBeneficiaries(uuid.toString())
-            saveSkills(uuid.toString())
-            saveLivelihood(uuid.toString())
-            savePhoto(uuid.toString())
-            buttonSave.text = "Saving..."
-            buttonSave.isEnabled = false
-            Handler(Looper.getMainLooper()).postDelayed({
-                resetComponents()
-                val intent = Intent(applicationContext, ProfilesActivity::class.java)
-                startActivity(intent)
-                finish()
-            }, 5000)
+            if (editTextLastname.text.isNotEmpty() &&
+                editTextFirstname.text.isNotEmpty() &&
+                editTextMiddlename.text.isNotEmpty() &&
+                editTextBirthdate.text.isNotEmpty() &&
+                editTextOccupation.text.isNotEmpty() &&
+                editTextPhone.text.isNotEmpty() &&
+                capturedImagePersonal.decodeToString().isNotEmpty()
+            ) {
+                buttonSave.text = "Saving..."
+                buttonSave.isEnabled = false
+                saveProfile(uuid.toString())
+                saveBeneficiaries(uuid.toString())
+                saveSkills(uuid.toString())
+                saveLivelihood(uuid.toString())
+                savePhoto(uuid.toString())
+                Handler(Looper.getMainLooper()).postDelayed({
+                    resetComponents()
+                    val intent = Intent(applicationContext, ProfilesActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                }, 5000)
+            }else{
+                buttonSave.text = "Proceed"
+                textViewSaveMessage.visibility = View.VISIBLE
+                textViewSaveMessage.setTextColor(Color.RED)
+                buttonSave.isEnabled = true
+                textViewSaveMessage.text = "Please fill in all required fields."
+            }
+
         }
     }
 
     private fun saveProfile(profileID: String){
-        if (editTextLastname.text.isNotEmpty() &&
-            editTextFirstname.text.isNotEmpty() &&
-            editTextMiddlename.text.isNotEmpty() &&
-            editTextBirthdate.text.isNotEmpty() &&
-            editTextOccupation.text.isNotEmpty() &&
-            editTextPhone.text.isNotEmpty()
-        ) {
             val isSaved = localDatabase.saveProfile(
                 profileID,
                 editTextLastname.text.toString().trim(),
@@ -333,9 +348,7 @@ class ProfilingActivity : AppCompatActivity() {
                 textViewSaveMessage.setTextColor(Color.RED)
                 textViewSaveMessage.text = "Failed to save personal information."
             }
-        } else {
-            Toast.makeText(this, "Please fill in all personal information fields", Toast.LENGTH_SHORT).show()
-        }
+
     }
 
     private fun saveBeneficiaries(profileID: String){
@@ -396,8 +409,6 @@ class ProfilingActivity : AppCompatActivity() {
     }
 
     private fun savePhoto(profileID: String){
-        if (capturedImagePersonal.decodeToString().isNotEmpty()
-        ) {
             val isSaved = localDatabase.savePhotos(
                 profileID,
                 capturedImagePersonal.decodeToString(),
@@ -412,9 +423,6 @@ class ProfilingActivity : AppCompatActivity() {
                 textViewSaveMessage.setTextColor(Color.RED)
                 textViewSaveMessage.text = "Failed to save photos."
             }
-        } else {
-            Toast.makeText(this, "Please take a personal photo.", Toast.LENGTH_SHORT).show()
-        }
     }
 
     private fun resetComponents(){
@@ -526,7 +534,6 @@ class ProfilingActivity : AppCompatActivity() {
 
                 // Convert the Bitmap to a byte array
                 capturedImagePersonal = bitmapToByteArray(imageBitmap)
-                Log.e("Request Failure", capturedImagePersonal.decodeToString())
             }
         }
 
@@ -538,7 +545,6 @@ class ProfilingActivity : AppCompatActivity() {
 
                 // Convert the Bitmap to a byte array
                 capturedImageFamily = bitmapToByteArray(imageBitmap)
-                Log.e("Request Failure", capturedImageFamily.decodeToString())
             }
         }
 
@@ -550,7 +556,6 @@ class ProfilingActivity : AppCompatActivity() {
 
                 // Convert the Bitmap to a byte array
                 capturedImageLivelihood = bitmapToByteArray(imageBitmap)
-                Log.e("Request Failure", capturedImageLivelihood.decodeToString())
             }
         }
 

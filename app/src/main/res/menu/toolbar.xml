@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/update"
+        android:id="@+id/upload"
         android:checkable="true"
         android:enabled="true"
         android:icon="@drawable/cloud"
@@ -15,7 +15,7 @@
         android:enabled="true"
         android:icon="@drawable/info"
         android:title="About"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
     <item
         android:id="@+id/logout"
         android:checkable="true"

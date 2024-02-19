@@ -24,6 +24,7 @@ import retrofit2.Response
 class LoginActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
     private var prefAccessToken= "pref_access_token"
+    private lateinit var accessToken: String
     private lateinit var buttonLogin: Button
     private lateinit var editTextLoginEmail: EditText
     private lateinit var editTextLoginPassword: EditText
@@ -31,7 +32,7 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
         sharedPreferences = getSharedPreferences("pref_app", MODE_PRIVATE)
-
+        accessToken = sharedPreferences.getString(prefAccessToken, null).toString()
         buttonLogin = findViewById(R.id.buttonLogin)
         editTextLoginEmail = findViewById(R.id.editTextLoginEmail)
         editTextLoginPassword = findViewById(R.id.editTextLoginPassword)
@@ -43,7 +44,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun login() {
         if (editTextLoginEmail.text.isNotEmpty() && editTextLoginPassword.text.isNotEmpty()){
-            val retrofit = NodeServer.getRetrofitInstance().create(ApiInterface::class.java)
+            val retrofit = NodeServer.getRetrofitInstance(accessToken).create(ApiInterface::class.java)
             val filter = HashMap<String, String>()
             filter["email"] = editTextLoginEmail.text.toString()
             filter["password"] = editTextLoginPassword.text.toString()
