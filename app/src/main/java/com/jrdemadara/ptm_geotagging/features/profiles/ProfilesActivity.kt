@@ -1,14 +1,23 @@
 package com.jrdemadara.ptm_geotagging.features.profiles
 
+import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Base64
 import android.view.Menu
 import android.view.View
+import android.view.Window
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jrdemadara.ptm_geotagging.R
@@ -17,7 +26,15 @@ import com.jrdemadara.ptm_geotagging.server.ApiInterface
 import com.jrdemadara.ptm_geotagging.server.LocalDatabase
 import com.jrdemadara.ptm_geotagging.server.NodeServer
 import com.jrdemadara.ptm_geotagging.util.NetworkChecker
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
+import org.json.JSONArray
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -44,9 +61,7 @@ class ProfilesActivity : AppCompatActivity() {
         textViewUploaded = findViewById(R.id.textViewUploaded)
         textViewNotUploaded = findViewById(R.id.textViewNotUploaded)
 
-        textViewTotalProfile.text = localDatabase.getProfileCount().toString()
-        textViewUploaded.text = localDatabase.getUploadedCount().toString()
-        textViewNotUploaded.text = localDatabase.getNotUploadedCount().toString()
+
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
         toolbar.setOnMenuItemClickListener { item ->
@@ -66,6 +81,8 @@ class ProfilesActivity : AppCompatActivity() {
             false
         }
 
+        loadData()
+
         floatingButtonAdd.setOnClickListener {
             val intent = Intent(applicationContext, ProfilingActivity::class.java)
             startActivity(intent)
@@ -73,86 +90,143 @@ class ProfilesActivity : AppCompatActivity() {
         }
     }
 
+    private fun loadData(){
+        textViewTotalProfile.text = localDatabase.getProfileCount().toString()
+        textViewUploaded.text = localDatabase.getUploadedCount().toString()
+        textViewNotUploaded.text = localDatabase.getNotUploadedCount().toString()
+    }
+
+    @OptIn(DelicateCoroutinesApi::class)
     private fun uploadProfile(){
+        //* Check network connection
         networkChecker = NetworkChecker(application)
         networkChecker.observe(this) { isConnected ->
             if (isConnected) {
+                val loadingDialog = showLoadingDialog()
+                loadingDialog.show()
                 val retrofit = NodeServer.getRetrofitInstance(accessToken).create(ApiInterface::class.java)
+                val profileData = JSONObject()
+                //* Get profile data
+                val profiles = localDatabase.getProfiles()
+                //* Iterate profile array
+                // Use a coroutine to execute the Retrofit calls sequentially
+                    if (profiles.isNotEmpty()){
+                        profiles.forEach { profile ->
+                            profileData.put("lastname", profile.lastname)
+                            profileData.put("firstname", profile.firstname)
+                            profileData.put("middlename", profile.middlename)
+                            profileData.put("extension", profile.extension)
+                            profileData.put("birthdate", profile.birthdate)
+                            profileData.put("occupation", profile.occupation)
+                            profileData.put("phone", profile.phone)
+                            profileData.put("lat", profile.lat)
+                            profileData.put("lon", profile.lon)
 
-                val profileWithDetails = localDatabase.getProfilesWithDetails()
-
-                profileWithDetails.forEach { details ->
-                    val profile = details.profile
-
-                    val filter = HashMap<String, Any>()
-                    filter["lastname"] = profile.lastname
-                    filter["firstname"] = profile.firstname
-                    filter["middlename"] = profile.middlename
-                    filter["extension"] = profile.extension
-                    filter["birthdate"] = profile.birthdate
-                    filter["occupation"] = profile.occupation
-                    filter["phone"] = profile.phone
-                    filter["lat"] = profile.lat
-                    filter["lon"] = profile.lon
-
-                    // Convert beneficiaries list to a list of maps
-                    val beneficiariesList = details.beneficiaries?.map { beneficiary ->
-                        mapOf(
-                            "precinct" to beneficiary.precinct,
-                            "fullname" to beneficiary.fullname,
-                            "birthdate" to beneficiary.birthdate
-                        )
-                    } ?: emptyList()
-
-                    val jsonArray = beneficiariesList.map { beneficiary ->
-                        "{ \"precinct\": \"${beneficiary["precinct"]}\", \"fullname\": \"${beneficiary["fullname"]}\", \"birthdate\": \"${beneficiary["birthdate"]}\" }"
-                    }.joinToString(", ", "[", "]")
-
-                    filter["beneficiaries"] = jsonArray
-
-                    // Convert skills and livelihoods lists to simple lists
-                    val skillsJsonArray = details.skills.joinToString(", ", "{\"skills\": [", "]}") { skill ->
-                        "\"${skill}\""
-                    }
-
-                    val livelihoodsJsonArray = details.livelihoods.joinToString(", ", "{\"livelihoods\": [", "]}") { livelihood ->
-                        "\"${livelihood}\""
-                    }
-
-                    filter["skills"] = skillsJsonArray
-                    filter["livelihoods"] = livelihoodsJsonArray
-
-                    // Convert photos to strings
-                    val photo = details.photo
-                    val personalPhoto: String = photo.personalPhoto.decodeToString()
-                    val familyPhoto: String = photo.familyPhoto.decodeToString()
-                    val livelihoodPhoto: String = photo.livelihoodPhoto.decodeToString()
-                    filter["personalPhoto"] = personalPhoto
-                    filter["familyPhoto"] = familyPhoto
-                    filter["livelihoodPhoto"] = livelihoodPhoto
-
-                    // Make POST request
-                    retrofit.uploadProfile(filter).enqueue(object : Callback<ResponseBody?> {
-                        override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
-                            if (response.code() == 201) {
-                                // Data uploaded successfully
-                                println("Data uploaded successfully for profile with ID: ${profile.id}")
-                            } else {
-                                // Handle unsuccessful response
-                                val responseBody = response.body()?.string() // Convert response body to string
-                                println(responseBody.toString())
-                                Toast.makeText(applicationContext, response.code().toString(), Toast.LENGTH_SHORT).show()
+                            val beneficiariesArray = JSONArray()
+                            val beneficiaries = localDatabase.getBeneficiaries(profile.id)
+                            beneficiaries.forEach { beneficiary ->
+                                val beneficiaryObject = JSONObject().apply {
+                                    put("precinct", beneficiary.precinct)
+                                    put("fullname", beneficiary.fullname)
+                                    put("birthdate", beneficiary.birthdate)
+                                }
+                                beneficiariesArray.put(beneficiaryObject)
                             }
-                        }
+                            profileData.put("beneficiaries", beneficiariesArray)
 
-                        override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
-                            // Handle failure
-                            println("Failed to upload data for profile with ID: ${profile.id}. Error: ${t.message}")
+                            val skillsArray = JSONArray()
+                            val skills = localDatabase.getSkills(profile.id)
+                            if (skills.isNotEmpty()){
+                                skills.forEach { skill ->
+                                    skillsArray.put(skill.skill)
+                                }
+                                profileData.put("skills", skillsArray)
+                            }
+
+                            val livelihoodArray = JSONArray()
+                            val livelihoods = localDatabase.getLivelihood(profile.id)
+                            if (livelihoods.isNotEmpty()){
+                                livelihoods.forEach { livelihood ->
+                                    livelihoodArray.put(livelihood.livelihood)
+                                }
+                                profileData.put("livelihoods", livelihoodArray)
+                            }
+
+                            val photos = localDatabase.getPhotos(profile.id)
+                            if (photos.isNotEmpty()) {
+                                photos.forEach { img ->
+                                    val personalByteArray = img.personal
+                                    val familyByteArray = img.family
+                                    val livelihoodByteArray = img.livelihood
+
+                                    val base64StringPersonal = Base64.encodeToString(personalByteArray, Base64.DEFAULT)
+                                    val personalPhotoPart = base64StringPersonal.toRequestBody("image/jpeg".toMediaTypeOrNull())
+                                    val personalPhoto = MultipartBody.Part.createFormData("personalPhoto", "personalPhoto.jpg", personalPhotoPart)
+
+
+                                    val base64StringFamily = Base64.encodeToString(familyByteArray, Base64.DEFAULT)
+                                    val familyPhotoPart = base64StringFamily.toRequestBody("image/jpeg".toMediaTypeOrNull())
+                                    val familyPhoto = MultipartBody.Part.createFormData("familyPhoto", "familyPhoto.jpg", familyPhotoPart)
+
+
+                                    val base64StringLivelihood = Base64.encodeToString(livelihoodByteArray, Base64.DEFAULT)
+                                    val livelihoodPhotoPart = base64StringLivelihood.toRequestBody("image/jpeg".toMediaTypeOrNull())
+                                    val livelihoodPhoto = MultipartBody.Part.createFormData("livelihoodPhoto", "livelihoodPhoto.jpg", livelihoodPhotoPart)
+
+                                    // Execute the Retrofit request outside the loop
+                                    retrofit.uploadProfile(profileData.toString().toRequestBody(), personalPhoto, familyPhoto, livelihoodPhoto).enqueue(object : Callback<ResponseBody?> {
+                                        override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
+                                            if (response.isSuccessful) {
+                                                if (response.code() == 201) {
+                                                    // Data uploaded successfully
+                                                    Toast.makeText(applicationContext, "Successfully saved.", Toast.LENGTH_SHORT).show()
+                                                    localDatabase.markUploaded(profile.id)
+                                                    loadData()
+                                                    loadingDialog.dismiss()
+                                                } else {
+                                                    // Handle unsuccessful response
+                                                    Toast.makeText(applicationContext, "Failed to save profile.", Toast.LENGTH_SHORT).show()
+                                                    loadData()
+                                                    loadingDialog.dismiss()
+                                                }
+                                            } else {
+                                                // Handle unsuccessful response
+                                                Toast.makeText(applicationContext, "Something went wrong.\nStatusCode: ${response.code()}", Toast.LENGTH_SHORT).show()
+                                                loadingDialog.dismiss()
+                                            }
+                                        }
+
+                                        override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
+                                            // Handle failure
+                                            Toast.makeText(applicationContext, "Upload failed.\nPlease try again.", Toast.LENGTH_SHORT).show()
+                                            loadingDialog.dismiss()
+                                        }
+                                    })
+
+                                }
+
+
+                            }
+
                         }
-                    })
-                }
+                    } else {
+                        Toast.makeText(applicationContext, "There is nothing to upload.", Toast.LENGTH_SHORT).show()
+                    }
             }
         }
+    }
+
+    private fun showLoadingDialog(): Dialog {
+        val dialog = Dialog(this@ProfilesActivity)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCancelable(false)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.setContentView(R.layout.upload_dialog) // Create a layout file for the dialog
+
+        val imageView = dialog.findViewById<ImageView>(R.id.imageViewUpload)
+        Glide.with(this@ProfilesActivity).load(R.drawable.progress).apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE)).into(imageView)
+
+        return dialog
     }
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.toolbar, menu)

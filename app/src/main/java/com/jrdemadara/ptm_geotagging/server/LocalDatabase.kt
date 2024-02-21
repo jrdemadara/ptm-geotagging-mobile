@@ -2,12 +2,15 @@ package com.jrdemadara.ptm_geotagging.server
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.jrdemadara.ptm_geotagging.data.Beneficiary
+import com.jrdemadara.ptm_geotagging.data.Livelihood
 import com.jrdemadara.ptm_geotagging.data.Photo
 import com.jrdemadara.ptm_geotagging.data.Profile
 import com.jrdemadara.ptm_geotagging.data.ProfileWithDetails
+import com.jrdemadara.ptm_geotagging.features.profiling.skill.Skills
 
 class LocalDatabase(context: Context):
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION)  {
@@ -365,9 +368,9 @@ class LocalDatabase(context: Context):
 
     fun savePhotos(
         id: String?,
-        photoPersonal: String?,
-        photoFamily: String?,
-        photoLivelihood: String?
+        photoPersonal: ByteArray?,
+        photoFamily: ByteArray?,
+        photoLivelihood: ByteArray?
     ): Boolean {
         return try {
             val db = this.writableDatabase
@@ -455,24 +458,23 @@ class LocalDatabase(context: Context):
         return count
     }
 
-    fun getProfilesWithDetails(): List<ProfileWithDetails> {
-        val selectQuery = """
-        SELECT * FROM $TABLE_PROFILES 
-        LEFT JOIN $TABLE_BENEFICIARIES ON $TABLE_PROFILES.$PROFILE_ID_COL = $TABLE_BENEFICIARIES.$BENEFICIARY_PROFILE_ID_COL
-        LEFT JOIN $TABLE_SKILLS ON $TABLE_PROFILES.$PROFILE_ID_COL = $TABLE_SKILLS.$SKILL_PROFILE_ID_COL
-        LEFT JOIN $TABLE_LIVELIHOOD ON $TABLE_PROFILES.$PROFILE_ID_COL = $TABLE_LIVELIHOOD.$LIVELIHOOD_PROFILE_ID_COL
-        LEFT JOIN $TABLE_PHOTOS ON $TABLE_PROFILES.$PROFILE_ID_COL = $TABLE_PHOTOS.$PHOTO_PROFILE_ID_COL
-        WHERE $TABLE_PROFILES.$PROFILE_IS_UPLOADED_COL = 0
-    """
+    /* Get profiles to upload */
+    fun getProfiles(): ArrayList<Profile> {
         val db = this.readableDatabase
-        val cursor = db.rawQuery(selectQuery, null)
-
-        val profilesWithDetails = mutableListOf<ProfileWithDetails>()
-
+        val query = "SELECT *  FROM $TABLE_PROFILES WHERE $PROFILE_IS_UPLOADED_COL = 0"
+        val data: ArrayList<Profile> = ArrayList()
+        val cursor: Cursor?
         try {
-            cursor.use {
-                while (cursor.moveToNext()) {
-                    val profile = Profile(
+            cursor = db.rawQuery(query, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(query)
+            return ArrayList()
+        }
+        if (cursor.moveToFirst()) {
+            do {
+                data.add(
+                    Profile(
                         id = cursor.getString(0),
                         lastname = cursor.getString(1),
                         firstname = cursor.getString(2),
@@ -484,49 +486,197 @@ class LocalDatabase(context: Context):
                         lat = cursor.getString(8),
                         lon = cursor.getString(9),
                     )
-
-                    val beneficiaries = mutableListOf<Beneficiary>()
-                    val skills = mutableListOf<String>()
-                    val livelihoods = mutableListOf<String>()
-                    val photo = Photo(
-                        personalPhoto = cursor.getBlob(23), // Assuming personal photo is at index 10
-                        familyPhoto = cursor.getBlob(24),   // Assuming family photo is at index 11
-                        livelihoodPhoto = cursor.getBlob(25) // Assuming livelihood photo is at index 12
-                    )
-
-                    // Extract beneficiary data
-                    val precinct = cursor.getString(12)
-                    val fullname = cursor.getString(13)
-                    val birthdate = cursor.getString(14)
-                    if (precinct != null && fullname != null && birthdate != null) {
-                        beneficiaries.add(Beneficiary(precinct, fullname, birthdate))
-                    }
-
-                    // Extract skill data
-                    val skill = cursor.getString(17)
-                    if (skill != null) {
-                        skills.add(skill)
-                    }
-
-                    // Extract livelihood data
-                    val livelihood = cursor.getString(20)
-                    if (livelihood != null) {
-                        livelihoods.add(livelihood)
-                    }
-
-                    val profileWithDetails = ProfileWithDetails(profile, beneficiaries, skills, livelihoods, photo)
-                    profilesWithDetails.add(profileWithDetails)
-                }
-            }
-        } catch (e: Exception) {
-            // Handle any exceptions here
-            e.printStackTrace()
-        } finally {
-            cursor?.close()
-            db?.close()
+                )
+            } while (cursor.moveToNext())
         }
-
-        return profilesWithDetails
+        cursor.close()
+        return data
     }
+
+    fun getBeneficiaries(profileID: String): ArrayList<Beneficiary> {
+        val db = this.readableDatabase
+        val query = "SELECT *  FROM $TABLE_BENEFICIARIES WHERE $BENEFICIARY_PROFILE_ID_COL = '$profileID'"
+        val data: ArrayList<Beneficiary> = ArrayList()
+        val cursor: Cursor?
+        try {
+            cursor = db.rawQuery(query, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(query)
+            return ArrayList()
+        }
+        if (cursor.moveToFirst()) {
+            do {
+                data.add(
+                    Beneficiary(
+                        precinct = cursor.getString(1),
+                        fullname = cursor.getString(2),
+                        birthdate = cursor.getString(3),
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return data
+    }
+
+    fun getSkills(profileID: String): ArrayList<Skills> {
+        val db = this.readableDatabase
+        val query = "SELECT *  FROM $TABLE_SKILLS WHERE $SKILL_PROFILE_ID_COL = '$profileID'"
+        val data: ArrayList<Skills> = ArrayList()
+        val cursor: Cursor?
+        try {
+            cursor = db.rawQuery(query, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(query)
+            return ArrayList()
+        }
+        if (cursor.moveToFirst()) {
+            do {
+                data.add(
+                    Skills(
+                        skill = cursor.getString(1),
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return data
+    }
+
+    fun getLivelihood(profileID: String): ArrayList<Livelihood> {
+        val db = this.readableDatabase
+        val query = "SELECT *  FROM $TABLE_LIVELIHOOD WHERE $LIVELIHOOD_PROFILE_ID_COL = '$profileID'"
+        val data: ArrayList<Livelihood> = ArrayList()
+        val cursor: Cursor?
+        try {
+            cursor = db.rawQuery(query, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(query)
+            return ArrayList()
+        }
+        if (cursor.moveToFirst()) {
+            do {
+                data.add(
+                    Livelihood(
+                        livelihood = cursor.getString(1),
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return data
+    }
+
+    fun getPhotos(profileID: String): ArrayList<Photo> {
+        val db = this.readableDatabase
+        val query = "SELECT *  FROM $TABLE_PHOTOS WHERE $PHOTO_PROFILE_ID_COL = '$profileID'"
+        val data: ArrayList<Photo> = ArrayList()
+        val cursor: Cursor?
+        try {
+            cursor = db.rawQuery(query, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(query)
+            return ArrayList()
+        }
+        if (cursor.moveToFirst()) {
+            do {
+                data.add(
+                    Photo(
+                        personal = cursor.getBlob(1),
+                        family = cursor.getBlob(2),
+                        livelihood = cursor.getBlob(3),
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return data
+    }
+
+    fun markUploaded(profileID: String) {
+        val db = this.writableDatabase
+        val values = ContentValues()
+        values.put(PROFILE_IS_UPLOADED_COL, 1)
+        db.update(TABLE_PROFILES, values, "$PROFILE_ID_COL = ?", arrayOf(profileID))
+        db.close()
+    }
+
+//    fun getProfilesWithDetails(): List<ProfileWithDetails> {
+//        val selectQuery = """
+//        SELECT * FROM $TABLE_PROFILES
+//        LEFT JOIN $TABLE_BENEFICIARIES ON $TABLE_PROFILES.$PROFILE_ID_COL = $TABLE_BENEFICIARIES.$BENEFICIARY_PROFILE_ID_COL
+//        LEFT JOIN $TABLE_SKILLS ON $TABLE_PROFILES.$PROFILE_ID_COL = $TABLE_SKILLS.$SKILL_PROFILE_ID_COL
+//        LEFT JOIN $TABLE_LIVELIHOOD ON $TABLE_PROFILES.$PROFILE_ID_COL = $TABLE_LIVELIHOOD.$LIVELIHOOD_PROFILE_ID_COL
+//        LEFT JOIN $TABLE_PHOTOS ON $TABLE_PROFILES.$PROFILE_ID_COL = $TABLE_PHOTOS.$PHOTO_PROFILE_ID_COL
+//        WHERE $TABLE_PROFILES.$PROFILE_IS_UPLOADED_COL = 0
+//    """
+//        val db = this.readableDatabase
+//        val cursor = db.rawQuery(selectQuery, null)
+//
+//        val profilesWithDetails = mutableListOf<ProfileWithDetails>()
+//
+//        try {
+//            cursor.use {
+//                while (cursor.moveToNext()) {
+//                    val profile = Profile(
+//                        id = cursor.getString(0),
+//                        lastname = cursor.getString(1),
+//                        firstname = cursor.getString(2),
+//                        middlename = cursor.getString(3),
+//                        extension = cursor.getString(4),
+//                        birthdate = cursor.getString(5),
+//                        occupation = cursor.getString(6),
+//                        phone = cursor.getString(7),
+//                        lat = cursor.getString(8),
+//                        lon = cursor.getString(9),
+//                    )
+//
+//                    val beneficiaries = mutableListOf<Beneficiary>()
+//                    val skills = mutableListOf<String>()
+//                    val livelihoods = mutableListOf<String>()
+//                    val photo = Photo(
+//                        personalPhoto = cursor.getBlob(23), // Assuming personal photo is at index 10
+//                        familyPhoto = cursor.getBlob(24),   // Assuming family photo is at index 11
+//                        livelihoodPhoto = cursor.getBlob(25) // Assuming livelihood photo is at index 12
+//                    )
+//
+//                    // Extract beneficiary data
+//                    val precinct = cursor.getString(12)
+//                    val fullname = cursor.getString(13)
+//                    val birthdate = cursor.getString(14)
+//                    if (precinct != null && fullname != null && birthdate != null) {
+//                        beneficiaries.add(Beneficiary(precinct, fullname, birthdate))
+//                    }
+//
+//                    // Extract skill data
+//                    val skill = cursor.getString(17)
+//                    if (skill != null) {
+//                        skills.add(skill)
+//                    }
+//
+//                    // Extract livelihood data
+//                    val livelihood = cursor.getString(20)
+//                    if (livelihood != null) {
+//                        livelihoods.add(livelihood)
+//                    }
+//
+//                    val profileWithDetails = ProfileWithDetails(profile, beneficiaries, skills, livelihoods, photo)
+//                    profilesWithDetails.add(profileWithDetails)
+//                }
+//            }
+//        } catch (e: Exception) {
+//            // Handle any exceptions here
+//            e.printStackTrace()
+//        } finally {
+//            cursor?.close()
+//            db?.close()
+//        }
+//
+//        return profilesWithDetails
+//    }
 
     }

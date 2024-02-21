@@ -57,4 +57,10 @@ dependencies {
     implementation ("androidx.cardview:cardview:1.0.0")
 
     implementation ("com.google.android.gms:play-services-location:21.1.0")
+
+    implementation ("com.github.bumptech.glide:glide:4.12.0")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
+
+    implementation ("com.github.KhairoHumsi:Printer-ktx:1.0.1")
+    implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
 }

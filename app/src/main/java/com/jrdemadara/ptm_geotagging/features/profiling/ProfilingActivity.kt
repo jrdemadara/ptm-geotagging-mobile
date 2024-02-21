@@ -2,12 +2,15 @@ package com.jrdemadara.ptm_geotagging.features.profiling
 
 import android.Manifest
 import android.app.DatePickerDialog
+import android.bluetooth.BluetoothManager
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.location.Location
 import android.opengl.Visibility
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -23,6 +26,7 @@ import android.widget.TextView
 import android.widget.Toast
 import android.widget.ViewFlipper
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -43,6 +47,7 @@ import com.jrdemadara.ptm_geotagging.server.LocalDatabase
 import java.io.ByteArrayOutputStream
 import java.util.Calendar
 import java.util.UUID
+
 
 class ProfilingActivity : AppCompatActivity() {
     private lateinit var localDatabase: LocalDatabase
@@ -106,6 +111,7 @@ class ProfilingActivity : AppCompatActivity() {
     private lateinit var imageViewFamily: ImageView
     private lateinit var imageViewLivelihood: ImageView
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profiling)
@@ -411,9 +417,9 @@ class ProfilingActivity : AppCompatActivity() {
     private fun savePhoto(profileID: String){
             val isSaved = localDatabase.savePhotos(
                 profileID,
-                capturedImagePersonal.decodeToString(),
-                capturedImageFamily.decodeToString(),
-                capturedImageLivelihood.decodeToString())
+                capturedImagePersonal,
+                capturedImageFamily,
+                capturedImageLivelihood)
             if (isSaved) {
                 textViewSaveMessage.visibility = View.VISIBLE
                 textViewSaveMessage.setTextColor(Color.GREEN)
@@ -562,7 +568,7 @@ class ProfilingActivity : AppCompatActivity() {
     // Function to convert Bitmap to byte array
     private fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
         val stream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
         return stream.toByteArray()
     }
 
@@ -588,6 +594,43 @@ class ProfilingActivity : AppCompatActivity() {
                 }
             }
     }
+
+//    @RequiresApi(Build.VERSION_CODES.S)
+//    private fun printReceipt(profileCode: String) {
+//        val bluetoothManager = applicationContext.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+//        bluetoothManager.adapter
+//        if (!bluetoothManager.adapter.isEnabled) {
+//            Toast.makeText(applicationContext, "Please check your bluetooth connection.", Toast.LENGTH_LONG).show()
+//        } else {
+//            checkPermission()
+//
+//            val printer = EscPosPrinter(BluetoothPrintersConnections.selectFirstPaired(), 203, 48f, 32)
+//            printer
+//                .printFormattedText(
+//                    "[C]<img>${PrinterTextParserImg.bitmapToHexadecimalString(
+//                        printer,
+//                        this.applicationContext.resources.getDrawableForDensity(
+//                            R.drawable.recieptlogo,
+//                            DisplayMetrics.DENSITY_MEDIUM
+//                        )
+//                    )}</img>\n" +
+//                            "[L]<b>Agent:</b>[R]<b>${agent.uppercase(Locale.ROOT)}</b>\n" +
+//                            "[L]<b>Area:</b>[R]<b>$location</b>\n" +
+//                            "[L]<b>Draw Date:</b>[R]<b>$drawDate</b>\n" +
+//                            "[L]<b>Bet Time:</b>[R]<b>$betTime</b>\n" +
+//                            "[L]<b>Draw Time:</b>[R]<b>$drawTime</b>\n" +
+//                            "[L]<b>Trans Code:[R]<font size='normal'>$transCode</font>\n" +
+//                            "[C]--------------------------------\n" +
+//                            "[L]BET[C]WIN[R]AMOUNT\n" +
+//                            "[C]--------------------------------\n" +
+//                            "$bets" +
+//                            "[C]--------------------------------\n" +
+//                            "[L]<b>TOTAL AMOUNT:</b>[R]<b>$totalAmount</b>\n" +
+//                            "[C]--------------------------------\n" +
+//                            "[C]<qrcode size='15'>$transCode</qrcode>\n".trimIndent()
+//                )
+//        }
+//    }
 
     //* Check Permission
     override fun onRequestPermissionsResult(
@@ -620,6 +663,7 @@ class ProfilingActivity : AppCompatActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     private fun checkPermission(){
         // Check for location permissions and request if not granted
         if (ActivityCompat.checkSelfPermission(
@@ -655,11 +699,54 @@ class ProfilingActivity : AppCompatActivity() {
             )
             return
         }
+
+        // Check for bluetooth permissions and request if not granted
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.BLUETOOTH
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.BLUETOOTH),
+                BLUETOOTH_PERMISSION_CODE
+            )
+            return
+        }
+
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.BLUETOOTH_CONNECT
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.BLUETOOTH_CONNECT),
+                BLUETOOTH_CONNECT_PERMISSION_CODE
+            )
+            return
+        }
+
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.BLUETOOTH_SCAN
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.BLUETOOTH_SCAN),
+                BLUETOOTH_SCAN_PERMISSION_CODE
+            )
+            return
+        }
     }
 
     companion object {
         private const val PERMISSIONS_REQUEST_LOCATION = 100
         private const val CAMERA_PERMISSION_CODE = 100
+        private const val BLUETOOTH_PERMISSION_CODE = 100
+        private const val BLUETOOTH_CONNECT_PERMISSION_CODE = 100
+        private const val BLUETOOTH_SCAN_PERMISSION_CODE = 100
     }
 
     override fun onSupportNavigateUp(): Boolean {
