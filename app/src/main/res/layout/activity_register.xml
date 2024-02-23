@@ -10,9 +10,10 @@
         android:id="@+id/buttonRegister"
         android:layout_width="match_parent"
         android:layout_height="58dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginBottom="52dp"
+        android:background="@drawable/ic_round_button"
         android:fontFamily="@font/roboto_mono"
         android:text="@string/register"
         android:textSize="16sp"
@@ -23,9 +24,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="22dp"
-        android:layout_marginTop="124dp"
-        android:layout_marginEnd="22dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -33,19 +34,39 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:id="@+id/textView31"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_mono_bold"
+            android:text="Register"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/textView32"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:fontFamily="@font/roboto_mono"
+            android:text="Join us. Make a difference. Sign up!"
+            android:textSize="16sp" />
+
+        <TextView
             android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="38dp"
+            android:fontFamily="@font/roboto_mono"
             android:text="Fullname" />
 
         <EditText
             android:id="@+id/editTextFullname"
             android:layout_width="match_parent"
             android:layout_height="52dp"
+            android:layout_marginTop="8dp"
             android:background="@drawable/ic_round_edittext"
             android:ems="10"
             android:inputType="text"
-            android:paddingStart="12dp"
+            android:paddingStart="16dp"
             android:paddingEnd="12dp"
             android:text="hero"
             android:textAlignment="textStart"
@@ -55,16 +76,19 @@
             android:id="@+id/textView2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:fontFamily="@font/roboto_mono"
             android:text="Email" />
 
         <EditText
             android:id="@+id/editTextEmail"
             android:layout_width="match_parent"
             android:layout_height="52dp"
+            android:layout_marginTop="8dp"
             android:background="@drawable/ic_round_edittext"
             android:ems="10"
             android:inputType="textEmailAddress"
-            android:paddingStart="12dp"
+            android:paddingStart="16dp"
             android:paddingEnd="12dp"
             android:text="hero@mail.com" />
 
@@ -72,14 +96,17 @@
             android:id="@+id/textView3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:fontFamily="@font/roboto_mono"
             android:text="Municipality" />
 
         <Spinner
             android:id="@+id/spinnerMunicipality"
             android:layout_width="match_parent"
             android:layout_height="52dp"
+            android:layout_marginTop="8dp"
             android:background="@drawable/ic_round_edittext"
-            android:paddingStart="12dp"
+            android:paddingStart="16dp"
             android:paddingEnd="12dp"
             android:spinnerMode="dialog" />
 
@@ -87,16 +114,19 @@
             android:id="@+id/textView4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:fontFamily="@font/roboto_mono"
             android:text="Password" />
 
         <EditText
             android:id="@+id/editTextPassword"
             android:layout_width="match_parent"
             android:layout_height="52dp"
+            android:layout_marginTop="8dp"
             android:background="@drawable/ic_round_edittext"
             android:ems="10"
             android:inputType="textPassword"
-            android:paddingStart="12dp"
+            android:paddingStart="16dp"
             android:paddingEnd="12dp"
             android:text="password" />
 
@@ -104,15 +134,19 @@
             android:id="@+id/textView5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:fontFamily="@font/roboto_mono"
             android:text="Confirm Password" />
 
         <EditText
             android:id="@+id/editTextConfirmPassword"
             android:layout_width="match_parent"
             android:layout_height="52dp"
+            android:layout_marginTop="8dp"
             android:background="@drawable/ic_round_edittext"
             android:ems="10"
             android:inputType="text|textPassword"
+            android:paddingStart="16dp"
             android:text="password" />
 
     </LinearLayout>

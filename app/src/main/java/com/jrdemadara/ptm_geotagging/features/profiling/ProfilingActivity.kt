@@ -15,6 +15,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -44,6 +45,9 @@ import com.jrdemadara.ptm_geotagging.features.profiling.livelihood.LivelihoodsAd
 import com.jrdemadara.ptm_geotagging.features.profiling.skill.Skills
 import com.jrdemadara.ptm_geotagging.features.profiling.skill.SkillsAdapter
 import com.jrdemadara.ptm_geotagging.server.LocalDatabase
+import com.khairo.escposprinter.EscPosPrinter
+import com.khairo.escposprinter.connection.bluetooth.BluetoothPrintersConnections
+import com.khairo.escposprinter.textparser.PrinterTextParserImg
 import java.io.ByteArrayOutputStream
 import java.util.Calendar
 import java.util.UUID
@@ -316,6 +320,7 @@ class ProfilingActivity : AppCompatActivity() {
                 saveSkills(uuid.toString())
                 saveLivelihood(uuid.toString())
                 savePhoto(uuid.toString())
+                printReceipt("1234567890")
                 Handler(Looper.getMainLooper()).postDelayed({
                     resetComponents()
                     val intent = Intent(applicationContext, ProfilesActivity::class.java)
@@ -595,74 +600,26 @@ class ProfilingActivity : AppCompatActivity() {
             }
     }
 
-//    @RequiresApi(Build.VERSION_CODES.S)
-//    private fun printReceipt(profileCode: String) {
-//        val bluetoothManager = applicationContext.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-//        bluetoothManager.adapter
-//        if (!bluetoothManager.adapter.isEnabled) {
-//            Toast.makeText(applicationContext, "Please check your bluetooth connection.", Toast.LENGTH_LONG).show()
-//        } else {
-//            checkPermission()
-//
-//            val printer = EscPosPrinter(BluetoothPrintersConnections.selectFirstPaired(), 203, 48f, 32)
-//            printer
-//                .printFormattedText(
-//                    "[C]<img>${PrinterTextParserImg.bitmapToHexadecimalString(
-//                        printer,
-//                        this.applicationContext.resources.getDrawableForDensity(
-//                            R.drawable.recieptlogo,
-//                            DisplayMetrics.DENSITY_MEDIUM
-//                        )
-//                    )}</img>\n" +
-//                            "[L]<b>Agent:</b>[R]<b>${agent.uppercase(Locale.ROOT)}</b>\n" +
-//                            "[L]<b>Area:</b>[R]<b>$location</b>\n" +
-//                            "[L]<b>Draw Date:</b>[R]<b>$drawDate</b>\n" +
-//                            "[L]<b>Bet Time:</b>[R]<b>$betTime</b>\n" +
-//                            "[L]<b>Draw Time:</b>[R]<b>$drawTime</b>\n" +
-//                            "[L]<b>Trans Code:[R]<font size='normal'>$transCode</font>\n" +
-//                            "[C]--------------------------------\n" +
-//                            "[L]BET[C]WIN[R]AMOUNT\n" +
-//                            "[C]--------------------------------\n" +
-//                            "$bets" +
-//                            "[C]--------------------------------\n" +
-//                            "[L]<b>TOTAL AMOUNT:</b>[R]<b>$totalAmount</b>\n" +
-//                            "[C]--------------------------------\n" +
-//                            "[C]<qrcode size='15'>$transCode</qrcode>\n".trimIndent()
-//                )
-//        }
-//    }
+    @RequiresApi(Build.VERSION_CODES.S)
+    private fun printReceipt(profileCode: String) {
+        val bluetoothManager = applicationContext.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        bluetoothManager.adapter
+        if (!bluetoothManager.adapter.isEnabled) {
+            Toast.makeText(applicationContext, "Please check your bluetooth connection.", Toast.LENGTH_LONG).show()
+        } else {
+            checkPermission()
 
-    //* Check Permission
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        when (requestCode) {
-            PERMISSIONS_REQUEST_LOCATION -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission granted, get the location
-                    getLastLocation()
-                } else {
-                    // Permission denied for location
-                    // Handle this case or inform the user
-                }
-            }
-            CAMERA_PERMISSION_CODE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission granted for camera, open camera
-                    //openCamera()
-                } else {
-                    // Permission denied for camera
-                    // Handle this case or inform the user
-                }
-            }
-            // Add more cases for other permissions if needed
+            val printer = EscPosPrinter(BluetoothPrintersConnections.selectFirstPaired(), 203, 48f, 32)
+            printer
+                .printFormattedText(
+                    "[C]<b>PTM KAPAMILYA</b>\n" +
+                            "[C]<font size='normal'>Digital Identification</font> \n" +
+                            "[C]<qrcode size='32'>$profileCode</qrcode>\n".trimIndent()
+                )
         }
     }
 
+    //* Check Permission
     @RequiresApi(Build.VERSION_CODES.S)
     private fun checkPermission(){
         // Check for location permissions and request if not granted
