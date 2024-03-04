@@ -75,32 +75,34 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun register() {
-        if (editTextPassword.text.toString() == editTextConfirmPassword.text.toString()){
-            val retrofit = NodeServer.getRetrofitInstance(accessToken).create(ApiInterface::class.java)
-            val filter = HashMap<String, String>()
-            filter["name"] = editTextFullname.text.toString()
-            filter["email"] = editTextEmail.text.toString()
-            filter["municipality"] = spinnerMunicipality.selectedItem.toString()
-            filter["password"] = editTextPassword.text.toString()
-            filter["device_id"] =  Build.ID
-            filter["is_admin"] = false.toString()
+        if (editTextFullname.text.isNotEmpty() && editTextEmail.text.isNotEmpty() && editTextPassword.text.isNotEmpty() ) {
+            if (editTextPassword.text.toString() == editTextConfirmPassword.text.toString()){
+                val retrofit = NodeServer.getRetrofitInstance(accessToken).create(ApiInterface::class.java)
+                val filter = HashMap<String, String>()
+                filter["name"] = editTextFullname.text.toString()
+                filter["email"] = editTextEmail.text.toString()
+                filter["municipality"] = spinnerMunicipality.selectedItem.toString()
+                filter["password"] = editTextPassword.text.toString()
+                filter["device_id"] =  Build.ID
+                filter["is_admin"] = false.toString()
 
-            retrofit.registerUser(filter).enqueue(object : Callback<ResponseBody?> {
-                override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
+                retrofit.registerUser(filter).enqueue(object : Callback<ResponseBody?> {
+                    override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
+                        val intent = Intent(applicationContext, LoginActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    }
 
-                    Toast.makeText(applicationContext, response.headers().toString(), Toast.LENGTH_SHORT).show()
-                    val intent = Intent(applicationContext, LoginActivity::class.java)
-                    startActivity(intent)
-                    finish()
-                }
-
-                override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
-                    Log.e("Request Failure", t.message.toString())
-                    Toast.makeText(applicationContext, t.message.toString(), Toast.LENGTH_SHORT).show()
-                }
-            })
-        } else {
-            Toast.makeText(applicationContext, "Password doesn't match.", Toast.LENGTH_SHORT).show()
+                    override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
+                        Log.e("Request Failure", t.message.toString())
+                    }
+                })
+            } else {
+                Toast.makeText(applicationContext, "Password doesn't match.", Toast.LENGTH_SHORT).show()
+            }
+        }else {
+            Toast.makeText(applicationContext, "Please fill the required fields.", Toast.LENGTH_SHORT).show()
         }
+
     }
 }

@@ -38,6 +38,7 @@ class LocalDatabase(context: Context):
             private const val PROFILE_PHONE_COL = "phone"
             private const val PROFILE_LAT_COL = "lat"
             private const val PROFILE_LON_COL = "lon"
+            private const val PROFILE_QR_COL = "qrcode"
             private const val PROFILE_IS_UPLOADED_COL = "is_uploaded"
 
             /* Beneficiaries Table */
@@ -83,6 +84,7 @@ class LocalDatabase(context: Context):
                             PROFILE_PHONE_COL + " TEXT," +
                             PROFILE_LAT_COL + " TEXT," +
                             PROFILE_LON_COL + " TEXT," +
+                            PROFILE_QR_COL + " TEXT," +
                             PROFILE_IS_UPLOADED_COL + " INTEGER)"
                     )
 
@@ -188,6 +190,7 @@ class LocalDatabase(context: Context):
         phone: String?,
         latitude: String?,
         longitude: String?,
+        qrcode: String?
     ): Boolean {
         return try {
             val db = this.writableDatabase
@@ -224,6 +227,7 @@ class LocalDatabase(context: Context):
             values.put(PROFILE_PHONE_COL, phone)
             values.put(PROFILE_LAT_COL, latitude)
             values.put(PROFILE_LON_COL, longitude)
+            values.put(PROFILE_QR_COL, qrcode)
             values.put(PROFILE_IS_UPLOADED_COL, 0)
             db.insert(TABLE_PROFILES, null, values)
 
@@ -485,6 +489,7 @@ class LocalDatabase(context: Context):
                         phone = cursor.getString(7),
                         lat = cursor.getString(8),
                         lon = cursor.getString(9),
+                        qrcode = cursor.getString(10),
                     )
                 )
             } while (cursor.moveToNext())
@@ -604,79 +609,4 @@ class LocalDatabase(context: Context):
         db.update(TABLE_PROFILES, values, "$PROFILE_ID_COL = ?", arrayOf(profileID))
         db.close()
     }
-
-//    fun getProfilesWithDetails(): List<ProfileWithDetails> {
-//        val selectQuery = """
-//        SELECT * FROM $TABLE_PROFILES
-//        LEFT JOIN $TABLE_BENEFICIARIES ON $TABLE_PROFILES.$PROFILE_ID_COL = $TABLE_BENEFICIARIES.$BENEFICIARY_PROFILE_ID_COL
-//        LEFT JOIN $TABLE_SKILLS ON $TABLE_PROFILES.$PROFILE_ID_COL = $TABLE_SKILLS.$SKILL_PROFILE_ID_COL
-//        LEFT JOIN $TABLE_LIVELIHOOD ON $TABLE_PROFILES.$PROFILE_ID_COL = $TABLE_LIVELIHOOD.$LIVELIHOOD_PROFILE_ID_COL
-//        LEFT JOIN $TABLE_PHOTOS ON $TABLE_PROFILES.$PROFILE_ID_COL = $TABLE_PHOTOS.$PHOTO_PROFILE_ID_COL
-//        WHERE $TABLE_PROFILES.$PROFILE_IS_UPLOADED_COL = 0
-//    """
-//        val db = this.readableDatabase
-//        val cursor = db.rawQuery(selectQuery, null)
-//
-//        val profilesWithDetails = mutableListOf<ProfileWithDetails>()
-//
-//        try {
-//            cursor.use {
-//                while (cursor.moveToNext()) {
-//                    val profile = Profile(
-//                        id = cursor.getString(0),
-//                        lastname = cursor.getString(1),
-//                        firstname = cursor.getString(2),
-//                        middlename = cursor.getString(3),
-//                        extension = cursor.getString(4),
-//                        birthdate = cursor.getString(5),
-//                        occupation = cursor.getString(6),
-//                        phone = cursor.getString(7),
-//                        lat = cursor.getString(8),
-//                        lon = cursor.getString(9),
-//                    )
-//
-//                    val beneficiaries = mutableListOf<Beneficiary>()
-//                    val skills = mutableListOf<String>()
-//                    val livelihoods = mutableListOf<String>()
-//                    val photo = Photo(
-//                        personalPhoto = cursor.getBlob(23), // Assuming personal photo is at index 10
-//                        familyPhoto = cursor.getBlob(24),   // Assuming family photo is at index 11
-//                        livelihoodPhoto = cursor.getBlob(25) // Assuming livelihood photo is at index 12
-//                    )
-//
-//                    // Extract beneficiary data
-//                    val precinct = cursor.getString(12)
-//                    val fullname = cursor.getString(13)
-//                    val birthdate = cursor.getString(14)
-//                    if (precinct != null && fullname != null && birthdate != null) {
-//                        beneficiaries.add(Beneficiary(precinct, fullname, birthdate))
-//                    }
-//
-//                    // Extract skill data
-//                    val skill = cursor.getString(17)
-//                    if (skill != null) {
-//                        skills.add(skill)
-//                    }
-//
-//                    // Extract livelihood data
-//                    val livelihood = cursor.getString(20)
-//                    if (livelihood != null) {
-//                        livelihoods.add(livelihood)
-//                    }
-//
-//                    val profileWithDetails = ProfileWithDetails(profile, beneficiaries, skills, livelihoods, photo)
-//                    profilesWithDetails.add(profileWithDetails)
-//                }
-//            }
-//        } catch (e: Exception) {
-//            // Handle any exceptions here
-//            e.printStackTrace()
-//        } finally {
-//            cursor?.close()
-//            db?.close()
-//        }
-//
-//        return profilesWithDetails
-//    }
-
     }

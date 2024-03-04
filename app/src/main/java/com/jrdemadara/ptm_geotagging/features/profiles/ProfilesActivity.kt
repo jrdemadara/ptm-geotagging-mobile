@@ -14,6 +14,7 @@ import android.view.Window
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -21,6 +22,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jrdemadara.ptm_geotagging.R
+import com.jrdemadara.ptm_geotagging.features.login.LoginActivity
 import com.jrdemadara.ptm_geotagging.features.profiling.ProfilingActivity
 import com.jrdemadara.ptm_geotagging.server.ApiInterface
 import com.jrdemadara.ptm_geotagging.server.LocalDatabase
@@ -67,8 +69,7 @@ class ProfilesActivity : AppCompatActivity() {
         toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.logout -> {
-                    println("Logout")
-                    true
+                    logout()
                 }
                 R.id.about -> {
                     // Handle click on the menu item
@@ -121,6 +122,7 @@ class ProfilesActivity : AppCompatActivity() {
                             profileData.put("phone", profile.phone)
                             profileData.put("lat", profile.lat)
                             profileData.put("lon", profile.lon)
+                            profileData.put("qrcode", profile.qrcode)
 
                             val beneficiariesArray = JSONArray()
                             val beneficiaries = localDatabase.getBeneficiaries(profile.id)
@@ -211,9 +213,37 @@ class ProfilesActivity : AppCompatActivity() {
                         }
                     } else {
                         Toast.makeText(applicationContext, "There is nothing to upload.", Toast.LENGTH_SHORT).show()
+                        loadingDialog.dismiss()
                     }
             }
         }
+    }
+
+    private fun logout(){
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Logout")
+            .setMessage("Are you sure you want to logout?")
+
+        builder.setPositiveButton("Yes") { dialog, _ ->
+            getSharedPreferences("pref_app", MODE_PRIVATE)
+                .edit()
+                .putString(prefAccessToken, "")
+                .apply()
+            val intent = Intent(applicationContext, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
+            dialog.dismiss()
+        }
+
+        // Add "No" button and its action
+        builder.setNegativeButton("No") { dialog, _ ->
+            dialog.dismiss()
+        }
+        val dialog: AlertDialog = builder.create()
+        dialog.show()
+
+
+
     }
 
     private fun showLoadingDialog(): Dialog {

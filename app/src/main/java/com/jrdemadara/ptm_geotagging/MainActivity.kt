@@ -97,7 +97,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-        @RequiresApi(Build.VERSION_CODES.S)
+    @RequiresApi(Build.VERSION_CODES.S)
     private fun testPrint() {
         val bluetoothManager = applicationContext.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothManager.adapter

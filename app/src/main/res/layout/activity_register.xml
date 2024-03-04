@@ -68,7 +68,6 @@
             android:inputType="text"
             android:paddingStart="16dp"
             android:paddingEnd="12dp"
-            android:text="hero"
             android:textAlignment="textStart"
             android:textAllCaps="false" />
 
@@ -89,8 +88,7 @@
             android:ems="10"
             android:inputType="textEmailAddress"
             android:paddingStart="16dp"
-            android:paddingEnd="12dp"
-            android:text="hero@mail.com" />
+            android:paddingEnd="12dp" />
 
         <TextView
             android:id="@+id/textView3"
@@ -106,7 +104,7 @@
             android:layout_height="52dp"
             android:layout_marginTop="8dp"
             android:background="@drawable/ic_round_edittext"
-            android:paddingStart="16dp"
+            android:paddingStart="8dp"
             android:paddingEnd="12dp"
             android:spinnerMode="dialog" />
 
@@ -127,8 +125,7 @@
             android:ems="10"
             android:inputType="textPassword"
             android:paddingStart="16dp"
-            android:paddingEnd="12dp"
-            android:text="password" />
+            android:paddingEnd="12dp" />
 
         <TextView
             android:id="@+id/textView5"
@@ -146,8 +143,7 @@
             android:background="@drawable/ic_round_edittext"
             android:ems="10"
             android:inputType="text|textPassword"
-            android:paddingStart="16dp"
-            android:text="password" />
+            android:paddingStart="16dp" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

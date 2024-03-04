@@ -65,6 +65,7 @@ class ProfilingActivity : AppCompatActivity() {
     private var longitude: Double = 0.0
     private var flip: Int = 1
     private lateinit var uuid: UUID
+    private lateinit var qrcode: UUID
 
     //* Profile Variables
     private lateinit var editTextLastname: EditText
@@ -305,6 +306,7 @@ class ProfilingActivity : AppCompatActivity() {
         checkLivelihoodList()
 
         buttonSave.setOnClickListener {
+            qrcode = UUID.randomUUID()
             if (editTextLastname.text.isNotEmpty() &&
                 editTextFirstname.text.isNotEmpty() &&
                 editTextMiddlename.text.isNotEmpty() &&
@@ -320,7 +322,7 @@ class ProfilingActivity : AppCompatActivity() {
                 saveSkills(uuid.toString())
                 saveLivelihood(uuid.toString())
                 savePhoto(uuid.toString())
-                printReceipt("1234567890")
+                printReceipt(qrcode)
                 Handler(Looper.getMainLooper()).postDelayed({
                     resetComponents()
                     val intent = Intent(applicationContext, ProfilesActivity::class.java)
@@ -349,7 +351,8 @@ class ProfilingActivity : AppCompatActivity() {
                 editTextOccupation.text.toString().trim(),
                 editTextPhone.text.toString().trim(),
                 latitude.toString(),
-                longitude.toString())
+                longitude.toString(),
+                qrcode.toString())
             if (isSaved) {
                 textViewSaveMessage.visibility = View.VISIBLE
                 textViewSaveMessage.setTextColor(Color.GREEN)
@@ -601,7 +604,7 @@ class ProfilingActivity : AppCompatActivity() {
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
-    private fun printReceipt(profileCode: String) {
+    private fun printReceipt(profileCode: UUID) {
         val bluetoothManager = applicationContext.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothManager.adapter
         if (!bluetoothManager.adapter.isEnabled) {

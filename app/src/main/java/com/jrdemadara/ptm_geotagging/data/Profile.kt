@@ -11,4 +11,5 @@ data class Profile(
     val phone: String,
     val lat: String,
     val lon: String,
+    val qrcode: String,
 )
