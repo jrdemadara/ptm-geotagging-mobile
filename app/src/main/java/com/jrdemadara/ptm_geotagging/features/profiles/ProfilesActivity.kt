@@ -1,7 +1,6 @@
 package com.jrdemadara.ptm_geotagging.features.profiles
 
 import android.app.Dialog
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
@@ -21,6 +20,9 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanIntentResult
+import com.journeyapps.barcodescanner.ScanOptions
 import com.jrdemadara.ptm_geotagging.R
 import com.jrdemadara.ptm_geotagging.features.login.LoginActivity
 import com.jrdemadara.ptm_geotagging.features.profiling.ProfilingActivity
@@ -29,8 +31,6 @@ import com.jrdemadara.ptm_geotagging.server.LocalDatabase
 import com.jrdemadara.ptm_geotagging.server.NodeServer
 import com.jrdemadara.ptm_geotagging.util.NetworkChecker
 import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -63,7 +63,6 @@ class ProfilesActivity : AppCompatActivity() {
         textViewUploaded = findViewById(R.id.textViewUploaded)
         textViewNotUploaded = findViewById(R.id.textViewNotUploaded)
 
-
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
         toolbar.setOnMenuItemClickListener { item ->
@@ -71,9 +70,8 @@ class ProfilesActivity : AppCompatActivity() {
                 R.id.logout -> {
                     logout()
                 }
-                R.id.about -> {
-                    // Handle click on the menu item
-                    true
+                R.id.scan -> {
+                    barcodeLauncher.launch(ScanOptions())
                 }
                 R.id.upload -> {
                     uploadProfile()
@@ -83,7 +81,6 @@ class ProfilesActivity : AppCompatActivity() {
         }
 
         loadData()
-
         floatingButtonAdd.setOnClickListener {
             val intent = Intent(applicationContext, ProfilingActivity::class.java)
             startActivity(intent)
@@ -216,6 +213,29 @@ class ProfilesActivity : AppCompatActivity() {
                         loadingDialog.dismiss()
                     }
             }
+        }
+    }
+
+    private val barcodeLauncher = registerForActivityResult(
+        ScanContract()
+    ) { result: ScanIntentResult ->
+        if (result.contents == null) {
+            Toast.makeText(applicationContext, "QR Scanner has been cancelled", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(applicationContext, result.contents, Toast.LENGTH_LONG).show()
+            //todo: create checker in local database
+//            val isValid: Boolean = localDatabase.checkBetValidity(result.contents)
+//            if (isValid) {
+//                val isClaimed: Boolean = localDatabase.checkClaim(result.contents)
+//                if (isClaimed) {
+//                    resultStatus("Already Claimed", "Transaction Code ${result.contents} is already claimed", 0)
+//                } else {
+//                    localDatabase.claimBet(result.contents)
+//                    showSuccess()
+//                }
+//            } else {
+//                resultStatus("Invalid Receipt", "Transaction Code ${result.contents} is invalid", 0)
+//            }
         }
     }
 

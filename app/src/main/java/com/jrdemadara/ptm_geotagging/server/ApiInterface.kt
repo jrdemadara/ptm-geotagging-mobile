@@ -1,5 +1,7 @@
 package com.jrdemadara.ptm_geotagging.server
 
+import com.jrdemadara.ptm_geotagging.data.Assistance
+import com.jrdemadara.ptm_geotagging.data.Members
 import com.jrdemadara.ptm_geotagging.data.Municipality
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -19,6 +21,15 @@ interface ApiInterface {
     @Headers("Content-Type:application/json")
     @GET("municipality")
     fun getMunicipalities(): Call<List<Municipality>>
+
+    @Headers("Content-Type:application/json")
+    @GET("initialize-member")
+    fun getMembers(@QueryMap filter: HashMap<String, String>): Call<List<Members>>
+
+    @Headers("Content-Type:application/json")
+    @GET("initialize-assistance")
+    fun getAssistance(@QueryMap filter: HashMap<String, String>): Call<List<Assistance>>
+
 
     @Headers("Content-Type:application/json")
     @POST("register")

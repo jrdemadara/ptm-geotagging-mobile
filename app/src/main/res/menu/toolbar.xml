@@ -10,11 +10,11 @@
         android:title="Sync"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/about"
+        android:id="@+id/scan"
         android:checkable="true"
         android:enabled="true"
-        android:icon="@drawable/info"
-        android:title="About"
+        android:icon="@drawable/scan_line"
+        android:title="scan"
         app:showAsAction="always" />
     <item
         android:id="@+id/logout"

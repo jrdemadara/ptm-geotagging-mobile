@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.jrdemadara.ptm_geotagging.data.Assistance
 import com.jrdemadara.ptm_geotagging.data.Beneficiary
 import com.jrdemadara.ptm_geotagging.data.Livelihood
 import com.jrdemadara.ptm_geotagging.data.Photo
@@ -26,6 +27,9 @@ class LocalDatabase(context: Context):
             private const val TABLE_SKILLS = "skills"
             private const val TABLE_PHOTOS = "photos"
             private const val TABLE_MUNICIPALITIES = "municipalities"
+            private const val TABLE_MEMBERS = "members"
+            private const val TABLE_ASSISTANCE = "assistance"
+            private const val TABLE_ASSISTANCE_TYPE = "assistance_type"
 
             /* Profiles Table */
             private const val PROFILE_ID_COL = "id"
@@ -39,6 +43,7 @@ class LocalDatabase(context: Context):
             private const val PROFILE_LAT_COL = "lat"
             private const val PROFILE_LON_COL = "lon"
             private const val PROFILE_QR_COL = "qrcode"
+            private const val PROFILE_HASPTMID_COL = "has_ptmid"
             private const val PROFILE_IS_UPLOADED_COL = "is_uploaded"
 
             /* Beneficiaries Table */
@@ -68,6 +73,31 @@ class LocalDatabase(context: Context):
             /* Municipalities Table */
             private const val MUNICIPALITY_NAME_COL = "name"
 
+            /* Members Table */
+            private const val MEMBER_ID_COL = "id"
+            private const val MEMBER_PRECINCT_COL = "precinct"
+            private const val MEMBER_LASTNAME_COL = "lastname"
+            private const val MEMBER_FIRSTNAME_COL = "firstname"
+            private const val MEMBER_MIDDLENAME_COL = "middlename"
+            private const val MEMBER_EXTENSION_COL = "extension"
+            private const val MEMBER_BIRTHDATE_COL = "birthdate"
+            private const val MEMBER_CONTACT_COL = "contact"
+            private const val MEMBER_OCCUPATION_COL = "occupation"
+            private const val MEMBER_ISPTMID_COL = "is_ptmid"
+            private const val MEMBER_ASSISTANCE_COL = "assistance"
+            private const val MEMBER_AMOUNT_COL = "amount"
+            private const val MEMBER_RELEASED_AT_COL = "released_at"
+
+            /* Assistance Table */
+            private const val ASSISTANCE_ID = "id"
+            private const val ASSISTANCE_ASSISTANCE_COL = "assistance"
+            private const val ASSISTANCE_AMOUNT_COL = "amount"
+            private const val ASSISTANCE_RELEASED_AT_COL = "released_at"
+            private const val ASSISTANCE_PROFILE_ID_COL = "profile_id"
+
+            /* Assistance Type Table */
+            private const val ASSISTANCE_TYPE = "assistance_type"
+
         }
 
         override fun onCreate(db: SQLiteDatabase?) {
@@ -85,6 +115,7 @@ class LocalDatabase(context: Context):
                             PROFILE_LAT_COL + " TEXT," +
                             PROFILE_LON_COL + " TEXT," +
                             PROFILE_QR_COL + " TEXT," +
+                            PROFILE_HASPTMID_COL + " INTEGER," +
                             PROFILE_IS_UPLOADED_COL + " INTEGER)"
                     )
 
@@ -130,12 +161,49 @@ class LocalDatabase(context: Context):
                             MUNICIPALITY_NAME_COL + " TEXT)"
                     )
 
+            val createMembersTable = (
+                    "CREATE TABLE " +
+                            TABLE_MEMBERS + " (" +
+                            MEMBER_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            MEMBER_PRECINCT_COL + " TEXT," +
+                            MEMBER_LASTNAME_COL + " TEXT," +
+                            MEMBER_FIRSTNAME_COL + " TEXT," +
+                            MEMBER_MIDDLENAME_COL + " TEXT," +
+                            MEMBER_EXTENSION_COL + " TEXT," +
+                            MEMBER_BIRTHDATE_COL + " TEXT," +
+                            MEMBER_CONTACT_COL + " TEXT," +
+                            MEMBER_OCCUPATION_COL + " TEXT," +
+                            MEMBER_ASSISTANCE_COL + " TEXT," +
+                            MEMBER_AMOUNT_COL + " TEXT," +
+                            MEMBER_RELEASED_AT_COL + " TEXT)"
+
+                    )
+
+            val createAssistanceTable = (
+                    "CREATE TABLE " +
+                            TABLE_ASSISTANCE + " (" +
+                            ASSISTANCE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            ASSISTANCE_ASSISTANCE_COL + " TEXT," +
+                            ASSISTANCE_AMOUNT_COL + " TEXT," +
+                            ASSISTANCE_RELEASED_AT_COL + " TEXT," +
+                            ASSISTANCE_PROFILE_ID_COL + " TEXT)"
+                    )
+
+            val createAssistanceTypeTable = (
+                    "CREATE TABLE " +
+                            TABLE_ASSISTANCE_TYPE + " (" +
+                            ASSISTANCE_TYPE + " TEXT)"
+                    )
+
             db?.execSQL(createProfilesTable)
             db?.execSQL(createBeneficiariesTable)
             db?.execSQL(createLivelihoodsTable)
             db?.execSQL(createSkillsTable)
             db?.execSQL(createPhotosTable)
             db?.execSQL(createMunicipalitiesTable)
+            db?.execSQL(createMembersTable)
+            db?.execSQL(createAssistanceTable)
+            db?.execSQL(createAssistanceTypeTable)
         }
 
         override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -145,12 +213,27 @@ class LocalDatabase(context: Context):
             db?.execSQL("DROP TABLE IF EXISTS $TABLE_SKILLS")
             db?.execSQL("DROP TABLE IF EXISTS $TABLE_PHOTOS")
             db?.execSQL("DROP TABLE IF EXISTS $TABLE_MUNICIPALITIES")
+            db?.execSQL("DROP TABLE IF EXISTS $TABLE_MEMBERS")
+            db?.execSQL("DROP TABLE IF EXISTS $TABLE_ASSISTANCE")
+            db?.execSQL("DROP TABLE IF EXISTS $TABLE_ASSISTANCE_TYPE")
             onCreate(db)
         }
 
         fun truncateTables() {
             val db = this.writableDatabase
             db.delete(TABLE_MUNICIPALITIES, null, null)
+            db.close()
+        }
+
+        fun truncateMembers() {
+            val db = this.writableDatabase
+            db.delete(TABLE_MEMBERS, null, null)
+            db.close()
+        }
+
+        fun truncateAssistanceType() {
+            val db = this.writableDatabase
+            db.delete(TABLE_ASSISTANCE_TYPE, null, null)
             db.close()
         }
 
@@ -162,6 +245,49 @@ class LocalDatabase(context: Context):
             db.insert(TABLE_MUNICIPALITIES, null, values)
             db.close()
         }
+
+    /* Members */
+        fun updateMembers(
+            precinct: String? ,
+            lastName: String?,
+            firstName: String?,
+            middleName: String?,
+            extension: String?,
+            birthdate: String?,
+            contact: String?,
+            occupation: String?,
+            isPTMID: String?,
+            assistance: String?,
+            amount: String?,
+            dateAvailed: String?
+        ) {
+            val db = this.writableDatabase
+            val values = ContentValues()
+            values.put(MEMBER_PRECINCT_COL, precinct)
+            values.put(MEMBER_LASTNAME_COL, lastName)
+            values.put(MEMBER_FIRSTNAME_COL, firstName)
+            values.put(MEMBER_MIDDLENAME_COL, middleName)
+            values.put(MEMBER_EXTENSION_COL, extension)
+            values.put(MEMBER_BIRTHDATE_COL, birthdate)
+            values.put(MEMBER_CONTACT_COL, contact)
+            values.put(MEMBER_OCCUPATION_COL, occupation)
+            values.put(MEMBER_ISPTMID_COL, isPTMID)
+            values.put(MEMBER_ASSISTANCE_COL, assistance)
+            values.put(MEMBER_AMOUNT_COL, amount)
+            values.put(MEMBER_RELEASED_AT_COL, dateAvailed)
+            db.insert(TABLE_MEMBERS, null, values)
+            db.close()
+        }
+
+    fun updateAssistanceType(
+        assistance: String?,
+    ) {
+        val db = this.writableDatabase
+        val values = ContentValues()
+        values.put(ASSISTANCE_TYPE, assistance)
+        db.insert(TABLE_ASSISTANCE_TYPE, null, values)
+        db.close()
+    }
 
         fun getMunicipalities(): ArrayList<String> {
             val modules: ArrayList<String> = ArrayList()
@@ -190,7 +316,8 @@ class LocalDatabase(context: Context):
         phone: String?,
         latitude: String?,
         longitude: String?,
-        qrcode: String?
+        qrcode: String?,
+        hasPTMID: Int?
     ): Boolean {
         return try {
             val db = this.writableDatabase
@@ -229,6 +356,7 @@ class LocalDatabase(context: Context):
             values.put(PROFILE_LON_COL, longitude)
             values.put(PROFILE_QR_COL, qrcode)
             values.put(PROFILE_IS_UPLOADED_COL, 0)
+            values.put(PROFILE_HASPTMID_COL, hasPTMID)
             db.insert(TABLE_PROFILES, null, values)
 
             db.close()
@@ -406,6 +534,52 @@ class LocalDatabase(context: Context):
             values.put(PHOTO_LIVELIHOOD_COL, photoLivelihood)
             values.put(PHOTO_PROFILE_ID_COL, id)
             db.insert(TABLE_PHOTOS, null, values)
+
+            db.close()
+            true // Data saved successfully
+        } catch (e: Exception) {
+            // Handle any exceptions here
+            e.printStackTrace()
+            false // Data not saved successfully
+        }
+    }
+
+    fun saveAssistance(
+        id: String?,
+        assistance: String?,
+        amount: String?,
+        releasedAt: String?
+    ): Boolean {
+        return try {
+            val db = this.writableDatabase
+
+            // Check if the assistance already exists for the given profile ID
+            val cursor = db.query(
+                TABLE_ASSISTANCE,
+                arrayOf(ASSISTANCE_ASSISTANCE_COL),
+                "$ASSISTANCE_PROFILE_ID_COL = ? AND $ASSISTANCE_ASSISTANCE_COL = ?",
+                arrayOf(id, assistance),
+                null,
+                null,
+                null
+            )
+
+            if (cursor != null && cursor.count > 0) {
+                // Assistance already exists for the given profile ID, don't save the data
+                cursor.close()
+                db.close()
+                return false
+            }
+
+            cursor?.close()
+
+            // Assistance doesn't exist for the given profile ID, proceed with saving the data
+            val values = ContentValues()
+            values.put(ASSISTANCE_ASSISTANCE_COL, assistance)
+            values.put(ASSISTANCE_AMOUNT_COL, amount)
+            values.put(ASSISTANCE_RELEASED_AT_COL, releasedAt)
+            values.put(ASSISTANCE_PROFILE_ID_COL, id)
+            db.insert(TABLE_ASSISTANCE, null, values)
 
             db.close()
             true // Data saved successfully
@@ -594,6 +768,35 @@ class LocalDatabase(context: Context):
                         personal = cursor.getBlob(1),
                         family = cursor.getBlob(2),
                         livelihood = cursor.getBlob(3),
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return data
+    }
+
+    fun getAssistance(qrcode: String, assistance: String): ArrayList<Assistance> {
+        val db = this.readableDatabase
+        val query = "SELECT *  FROM $TABLE_PROFILES t1\n" +
+                "INNER JOIN $TABLE_ASSISTANCE t2 ON t1.$PROFILE_ID_COL = t2.$ASSISTANCE_PROFILE_ID_COL" +
+                " WHERE $PROFILE_QR_COL = '$qrcode' AND t2.$ASSISTANCE_ASSISTANCE_COL = '$assistance'"
+        val data: ArrayList<Assistance> = ArrayList()
+        val cursor: Cursor?
+        try {
+            cursor = db.rawQuery(query, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(query)
+            return ArrayList()
+        }
+        if (cursor.moveToFirst()) {
+            do {
+                data.add(
+                    Assistance(
+                        assistance = cursor.getString(1),
+                        amount = cursor.getString(2),
+                        releasedAt = cursor.getString(3),
                     )
                 )
             } while (cursor.moveToNext())
