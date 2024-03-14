@@ -57,16 +57,10 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
         buttonGetStarted.setOnClickListener{
-            checkFirstStart()
-        }
-    }
-
-    private fun checkFirstStart(){
-            //* App is already initialized
-            //* Proceed to login
             val intent = Intent(applicationContext, RegisterActivity::class.java)
             startActivity(intent)
             finish()
+        }
     }
 
     private fun updateMunicipalities() {

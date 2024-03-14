@@ -352,7 +352,9 @@ class ProfilingActivity : AppCompatActivity() {
                 editTextPhone.text.toString().trim(),
                 latitude.toString(),
                 longitude.toString(),
-                qrcode.toString())
+                qrcode.toString(),
+                //fixme: required actual data
+                0)
             if (isSaved) {
                 textViewSaveMessage.visibility = View.VISIBLE
                 textViewSaveMessage.setTextColor(Color.GREEN)

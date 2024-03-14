@@ -3,6 +3,8 @@ package com.jrdemadara.ptm_geotagging.features.initialize
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.jrdemadara.ptm_geotagging.R
 import com.jrdemadara.ptm_geotagging.data.Assistance
@@ -56,6 +58,7 @@ class InitializeActivity : AppCompatActivity() {
                             localDatabase.truncateMembers()
                             for (x in list) {
                                 savedCount++
+                                val hasPTMID = if (x.isptmid == "NO") 0 else 1
                                 localDatabase.updateMembers(
                                     x.precinct,
                                     x.lastname,
@@ -65,7 +68,7 @@ class InitializeActivity : AppCompatActivity() {
                                     x.birthdate,
                                     x.contact,
                                     x.occupation,
-                                    x.isptmid,
+                                    hasPTMID,
                                     x.assistance,
                                     x.amount,
                                     x.dateavailed
@@ -79,6 +82,8 @@ class InitializeActivity : AppCompatActivity() {
                         }
                     }
                     override fun onFailure(call: Call<List<Members>?>, t: Throwable) {
+                        Log.e("Request Failure", t.message.toString())
+
                     }
                 })
             }
@@ -92,19 +97,17 @@ class InitializeActivity : AppCompatActivity() {
                 val retrofit = NodeServer.getRetrofitInstance(accessToken).create(ApiInterface::class.java)
                 val filter = HashMap<String, String>()
                 filter["assistance"] = municipality
-                retrofit.getAssistance(filter).enqueue(object : Callback<List<Assistance>?> {
+                retrofit.getAssistanceType(filter).enqueue(object : Callback<List<Assistance>?> {
                     override fun onResponse(
                         call: Call<List<Assistance>?>,
                         response: Response<List<Assistance>?>
                     ){
                         //Update Members
                         val list: List<Assistance>? = response.body()
-                        var savedCount = 0
                         assert(list != null)
                         if (list != null) {
                             localDatabase.truncateAssistanceType()
                             for (x in list) {
-                                savedCount++
                                 localDatabase.updateAssistanceType(
                                     x.assistance,
                                 )

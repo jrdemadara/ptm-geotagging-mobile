@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import com.jrdemadara.ptm_geotagging.R
+import com.jrdemadara.ptm_geotagging.features.initialize.InitializeActivity
 import com.jrdemadara.ptm_geotagging.features.profiles.ProfilesActivity
 import com.jrdemadara.ptm_geotagging.server.ApiInterface
 import com.jrdemadara.ptm_geotagging.server.LocalDatabase
@@ -60,13 +61,13 @@ class LoginActivity : AppCompatActivity() {
                         // Now you have the access token, you can use it as needed
                         if (accessToken != null) {
                             saveAccessToken(accessToken)
-                            val intent = Intent(applicationContext, ProfilesActivity::class.java)
+                            val intent = Intent(applicationContext, InitializeActivity::class.java)
                             startActivity(intent)
                             finish()
                         }
                     } else {
                         // Handle unsuccessful response
-                        Log.e("Response Error", "Unsuccessful response: ${response.code()}")
+                        Toast.makeText(applicationContext, "Login failed", Toast.LENGTH_SHORT).show()
                     }
 
                 }

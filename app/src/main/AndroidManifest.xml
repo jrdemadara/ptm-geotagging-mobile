@@ -23,6 +23,7 @@
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
@@ -31,7 +32,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Ptmgeotagging"
         android:usesCleartextTraffic="true"
-        tools:targetApi="31">
+        tools:targetApi="tiramisu">
         <activity
             android:name=".features.assistance.AssistanceActivity"
             android:exported="false" />
@@ -44,6 +45,9 @@
             android:exported="false" />
         <activity
             android:name=".features.login.LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".features.initialize.InitializeActivity"
             android:exported="false" />
         <activity
             android:name=".features.register.RegisterActivity"

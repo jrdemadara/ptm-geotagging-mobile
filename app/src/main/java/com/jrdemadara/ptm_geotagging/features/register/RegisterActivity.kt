@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.lifecycleScope
@@ -37,6 +38,7 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
     private var prefApp = "pref_app"
     private var prefAccessToken = "pref_access_token"
+    private var prefMunicipality= "pref_municipality"
     private lateinit var accessToken: String
     private lateinit var buttonRegister: Button
     private lateinit var spinnerMunicipality: Spinner
@@ -44,6 +46,7 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var editTextEmail: EditText
     private lateinit var editTextPassword: EditText
     private lateinit var editTextConfirmPassword: EditText
+    private lateinit var buttonLogin: Button
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,10 +61,17 @@ class RegisterActivity : AppCompatActivity() {
         editTextEmail = findViewById(R.id.editTextEmail)
         editTextPassword = findViewById(R.id.editTextPassword)
         editTextConfirmPassword = findViewById(R.id.editTextConfirmPassword)
+        buttonLogin = findViewById(R.id.buttonLogin)
         populateSpinner()
 
         buttonRegister.setOnClickListener{
             register()
+        }
+
+        buttonLogin.setOnClickListener {
+            val intent = Intent(applicationContext, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
         }
     }
 
@@ -88,6 +98,7 @@ class RegisterActivity : AppCompatActivity() {
 
                 retrofit.registerUser(filter).enqueue(object : Callback<ResponseBody?> {
                     override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
+                        saveMunicipality(spinnerMunicipality.selectedItem.toString())
                         val intent = Intent(applicationContext, LoginActivity::class.java)
                         startActivity(intent)
                         finish()
@@ -104,5 +115,12 @@ class RegisterActivity : AppCompatActivity() {
             Toast.makeText(applicationContext, "Please fill the required fields.", Toast.LENGTH_SHORT).show()
         }
 
+    }
+
+    private fun saveMunicipality(municipality: String?) {
+        getSharedPreferences("pref_app", MODE_PRIVATE)
+            .edit()
+            .putString(prefMunicipality, municipality)
+            .apply()
     }
 }

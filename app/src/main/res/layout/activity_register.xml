@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#f4f8fb"
     tools:context=".features.register.RegisterActivity">
 
     <Button
@@ -12,13 +13,14 @@
         android:layout_height="58dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="52dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/ic_round_button"
         android:fontFamily="@font/roboto_mono"
         android:text="@string/register"
         android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/buttonLogin"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
     <LinearLayout
@@ -45,10 +47,10 @@
             android:id="@+id/textView32"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="4dp"
             android:fontFamily="@font/roboto_mono"
-            android:text="Join us. Make a difference. Sign up!"
-            android:textSize="16sp" />
+            android:text="Make a difference. Sign up!"
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/textView"
@@ -56,7 +58,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="38dp"
             android:fontFamily="@font/roboto_mono"
-            android:text="Fullname" />
+            android:text="Fullname"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/editTextFullname"
@@ -77,7 +80,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:fontFamily="@font/roboto_mono"
-            android:text="Email" />
+            android:text="Email"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/editTextEmail"
@@ -96,7 +100,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:fontFamily="@font/roboto_mono"
-            android:text="Municipality" />
+            android:text="Municipality"
+            android:textSize="16sp" />
 
         <Spinner
             android:id="@+id/spinnerMunicipality"
@@ -114,7 +119,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:fontFamily="@font/roboto_mono"
-            android:text="Password" />
+            android:text="Password"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/editTextPassword"
@@ -133,7 +139,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:fontFamily="@font/roboto_mono"
-            android:text="Confirm Password" />
+            android:text="Confirm Password"
+            android:textSize="16sp" />
 
         <EditText
             android:id="@+id/editTextConfirmPassword"
@@ -146,4 +153,21 @@
             android:paddingStart="16dp" />
 
     </LinearLayout>
+
+    <Button
+        android:id="@+id/buttonLogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/ic_round_outlined_button"
+        android:fontFamily="@font/roboto_mono"
+        android:text="Login"
+        android:textColor="#673AB7"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

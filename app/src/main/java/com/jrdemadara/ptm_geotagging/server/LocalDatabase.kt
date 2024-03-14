@@ -10,7 +10,6 @@ import com.jrdemadara.ptm_geotagging.data.Beneficiary
 import com.jrdemadara.ptm_geotagging.data.Livelihood
 import com.jrdemadara.ptm_geotagging.data.Photo
 import com.jrdemadara.ptm_geotagging.data.Profile
-import com.jrdemadara.ptm_geotagging.data.ProfileWithDetails
 import com.jrdemadara.ptm_geotagging.features.profiling.skill.Skills
 
 class LocalDatabase(context: Context):
@@ -83,7 +82,7 @@ class LocalDatabase(context: Context):
             private const val MEMBER_BIRTHDATE_COL = "birthdate"
             private const val MEMBER_CONTACT_COL = "contact"
             private const val MEMBER_OCCUPATION_COL = "occupation"
-            private const val MEMBER_ISPTMID_COL = "is_ptmid"
+            private const val MEMBER_ISPTMID_COL = "has_ptmid"
             private const val MEMBER_ASSISTANCE_COL = "assistance"
             private const val MEMBER_AMOUNT_COL = "amount"
             private const val MEMBER_RELEASED_AT_COL = "released_at"
@@ -173,6 +172,7 @@ class LocalDatabase(context: Context):
                             MEMBER_BIRTHDATE_COL + " TEXT," +
                             MEMBER_CONTACT_COL + " TEXT," +
                             MEMBER_OCCUPATION_COL + " TEXT," +
+                            MEMBER_ISPTMID_COL + " INTEGER," +
                             MEMBER_ASSISTANCE_COL + " TEXT," +
                             MEMBER_AMOUNT_COL + " TEXT," +
                             MEMBER_RELEASED_AT_COL + " TEXT)"
@@ -248,18 +248,18 @@ class LocalDatabase(context: Context):
 
     /* Members */
         fun updateMembers(
-            precinct: String? ,
-            lastName: String?,
-            firstName: String?,
-            middleName: String?,
-            extension: String?,
-            birthdate: String?,
-            contact: String?,
-            occupation: String?,
-            isPTMID: String?,
-            assistance: String?,
-            amount: String?,
-            dateAvailed: String?
+        precinct: String?,
+        lastName: String?,
+        firstName: String?,
+        middleName: String?,
+        extension: String?,
+        birthdate: String?,
+        contact: String?,
+        occupation: String?,
+        isPTMID: Int,
+        assistance: String?,
+        amount: String?,
+        dateAvailed: String?
         ) {
             val db = this.writableDatabase
             val values = ContentValues()
@@ -279,14 +279,14 @@ class LocalDatabase(context: Context):
             db.close()
         }
 
-    fun updateAssistanceType(
-        assistance: String?,
-    ) {
-        val db = this.writableDatabase
-        val values = ContentValues()
-        values.put(ASSISTANCE_TYPE, assistance)
-        db.insert(TABLE_ASSISTANCE_TYPE, null, values)
-        db.close()
+        fun updateAssistanceType(
+            assistance: String?,
+        ) {
+            val db = this.writableDatabase
+            val values = ContentValues()
+            values.put(ASSISTANCE_TYPE, assistance)
+            db.insert(TABLE_ASSISTANCE_TYPE, null, values)
+            db.close()
     }
 
         fun getMunicipalities(): ArrayList<String> {

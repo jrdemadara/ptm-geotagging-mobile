@@ -28,7 +28,7 @@ interface ApiInterface {
 
     @Headers("Content-Type:application/json")
     @GET("initialize-assistance")
-    fun getAssistance(@QueryMap filter: HashMap<String, String>): Call<List<Assistance>>
+    fun getAssistanceType(@QueryMap filter: HashMap<String, String>): Call<List<Assistance>>
 
 
     @Headers("Content-Type:application/json")
@@ -38,10 +38,6 @@ interface ApiInterface {
     @Headers("Content-Type:application/json")
     @POST("login")
     fun loginUser(@QueryMap filter: HashMap<String, String>): Call<ResponseBody>
-
-//    @Headers("Content-Type:application/json")
-//    @POST("profile")
-//    fun uploadProfile(@QueryMap filter: HashMap<String, Any>): Call<ResponseBody>
 
     @Multipart
     @POST("profile")
