@@ -12,7 +12,7 @@ class LivelihoodsAdapter(private val livelihood: List<Livelihood>) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LivelihoodViewHolder {
         val itemView = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_livelihoodl, parent, false)
+            .inflate(R.layout.item_livelihood, parent, false)
         return LivelihoodViewHolder(itemView)
     }
 

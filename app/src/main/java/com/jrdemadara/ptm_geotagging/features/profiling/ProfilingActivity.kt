@@ -9,15 +9,14 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.location.Location
-import android.opengl.Visibility
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.View
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.DatePicker
 import android.widget.EditText
@@ -32,6 +31,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
+import androidx.core.text.set
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -42,12 +42,12 @@ import com.jrdemadara.ptm_geotagging.features.profiling.beneficiary.Beneficiarie
 import com.jrdemadara.ptm_geotagging.features.profiling.beneficiary.BeneficiariesAdapter
 import com.jrdemadara.ptm_geotagging.features.profiling.livelihood.Livelihood
 import com.jrdemadara.ptm_geotagging.features.profiling.livelihood.LivelihoodsAdapter
+import com.jrdemadara.ptm_geotagging.features.profiling.search.SearchMemberActivity
 import com.jrdemadara.ptm_geotagging.features.profiling.skill.Skills
 import com.jrdemadara.ptm_geotagging.features.profiling.skill.SkillsAdapter
 import com.jrdemadara.ptm_geotagging.server.LocalDatabase
 import com.khairo.escposprinter.EscPosPrinter
 import com.khairo.escposprinter.connection.bluetooth.BluetoothPrintersConnections
-import com.khairo.escposprinter.textparser.PrinterTextParserImg
 import java.io.ByteArrayOutputStream
 import java.util.Calendar
 import java.util.UUID
@@ -59,6 +59,7 @@ class ProfilingActivity : AppCompatActivity() {
     private lateinit var buttonNext: Button
     private lateinit var buttonPrevious: Button
     private lateinit var buttonSave: Button
+    private lateinit var buttonSearchMember: Button
     private lateinit var textViewSaveMessage: TextView
     private lateinit var viewFlipper: ViewFlipper
     private var latitude: Double = 0.0
@@ -75,6 +76,7 @@ class ProfilingActivity : AppCompatActivity() {
     private lateinit var editTextBirthdate: EditText
     private lateinit var editTextOccupation: EditText
     private lateinit var editTextPhone: EditText
+    private var hasPTMID: Int = 0
 
     //* Beneficiary Variables
     private lateinit var recyclerViewBeneficiary: RecyclerView
@@ -116,6 +118,8 @@ class ProfilingActivity : AppCompatActivity() {
     private lateinit var imageViewFamily: ImageView
     private lateinit var imageViewLivelihood: ImageView
 
+
+
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,6 +135,7 @@ class ProfilingActivity : AppCompatActivity() {
         buttonSave = findViewById(R.id.buttonSave)
         buttonNext = findViewById(R.id.buttonNextView)
         buttonPrevious = findViewById(R.id.buttonPreviousView)
+        buttonSearchMember = findViewById(R.id.buttonSearchMember)
         textViewSaveMessage = findViewById(R.id.textViewSaveMessage)
         uuid = UUID.randomUUID()
         //* Initialize Profile Variable
@@ -183,6 +188,9 @@ class ProfilingActivity : AppCompatActivity() {
         adapterLivelihood = LivelihoodsAdapter(livelihoodList)
         recyclerViewLivelihood.layoutManager = LinearLayoutManager(this)
         recyclerViewLivelihood.adapter = adapterLivelihood
+
+        getIntentDataFromMemberSearch()
+
         checkPermission()
         getLastLocation()
 
@@ -338,6 +346,42 @@ class ProfilingActivity : AppCompatActivity() {
             }
 
         }
+
+        buttonSearchMember.setOnClickListener {
+            val intent = Intent(applicationContext, SearchMemberActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+    }
+
+    private fun getIntentDataFromMemberSearch(){
+        if (intent.hasExtra("lastname")){
+            editTextLastname.setText(intent.getStringExtra("lastname").toString())
+        }
+        if (intent.hasExtra("firstname")){
+            editTextFirstname.setText(intent.getStringExtra("firstname").toString())
+        }
+        if (intent.hasExtra("middlename")){
+            editTextMiddlename.setText(intent.getStringExtra("middlename").toString())
+        }
+        if (intent.hasExtra("extension")){
+            editTextExtension.setText(intent.getStringExtra("extension").toString())
+        }
+        if (intent.hasExtra("birthdate")){
+            editTextBirthdate.setText(intent.getStringExtra("birthdate").toString())
+        }
+        if (intent.hasExtra("birthdate")){
+            editTextBirthdate.setText(intent.getStringExtra("birthdate").toString())
+        }
+        if (intent.hasExtra("contact")){
+            editTextPhone.setText(intent.getStringExtra("contact").toString())
+        }
+        if (intent.hasExtra("occupation")){
+            editTextOccupation.setText(intent.getStringExtra("occupation").toString())
+        }
+        if (intent.hasExtra("hasptmid")){
+            hasPTMID = intent.getStringExtra("hasptmid")?.toInt()!!
+        }
     }
 
     private fun saveProfile(profileID: String){
@@ -353,8 +397,8 @@ class ProfilingActivity : AppCompatActivity() {
                 latitude.toString(),
                 longitude.toString(),
                 qrcode.toString(),
-                //fixme: required actual data
-                0)
+                hasPTMID
+            )
             if (isSaved) {
                 textViewSaveMessage.visibility = View.VISIBLE
                 textViewSaveMessage.setTextColor(Color.GREEN)

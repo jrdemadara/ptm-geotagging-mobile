@@ -8,8 +8,10 @@ import android.database.sqlite.SQLiteOpenHelper
 import com.jrdemadara.ptm_geotagging.data.Assistance
 import com.jrdemadara.ptm_geotagging.data.Beneficiary
 import com.jrdemadara.ptm_geotagging.data.Livelihood
+import com.jrdemadara.ptm_geotagging.data.Members
 import com.jrdemadara.ptm_geotagging.data.Photo
 import com.jrdemadara.ptm_geotagging.data.Profile
+import com.jrdemadara.ptm_geotagging.data.SearchMembers
 import com.jrdemadara.ptm_geotagging.features.profiling.skill.Skills
 
 class LocalDatabase(context: Context):
@@ -83,9 +85,6 @@ class LocalDatabase(context: Context):
             private const val MEMBER_CONTACT_COL = "contact"
             private const val MEMBER_OCCUPATION_COL = "occupation"
             private const val MEMBER_ISPTMID_COL = "has_ptmid"
-            private const val MEMBER_ASSISTANCE_COL = "assistance"
-            private const val MEMBER_AMOUNT_COL = "amount"
-            private const val MEMBER_RELEASED_AT_COL = "released_at"
 
             /* Assistance Table */
             private const val ASSISTANCE_ID = "id"
@@ -172,10 +171,7 @@ class LocalDatabase(context: Context):
                             MEMBER_BIRTHDATE_COL + " TEXT," +
                             MEMBER_CONTACT_COL + " TEXT," +
                             MEMBER_OCCUPATION_COL + " TEXT," +
-                            MEMBER_ISPTMID_COL + " INTEGER," +
-                            MEMBER_ASSISTANCE_COL + " TEXT," +
-                            MEMBER_AMOUNT_COL + " TEXT," +
-                            MEMBER_RELEASED_AT_COL + " TEXT)"
+                            MEMBER_ISPTMID_COL + " INTEGER)"
 
                     )
 
@@ -257,9 +253,6 @@ class LocalDatabase(context: Context):
         contact: String?,
         occupation: String?,
         isPTMID: Int,
-        assistance: String?,
-        amount: String?,
-        dateAvailed: String?
         ) {
             val db = this.writableDatabase
             val values = ContentValues()
@@ -272,9 +265,6 @@ class LocalDatabase(context: Context):
             values.put(MEMBER_CONTACT_COL, contact)
             values.put(MEMBER_OCCUPATION_COL, occupation)
             values.put(MEMBER_ISPTMID_COL, isPTMID)
-            values.put(MEMBER_ASSISTANCE_COL, assistance)
-            values.put(MEMBER_AMOUNT_COL, amount)
-            values.put(MEMBER_RELEASED_AT_COL, dateAvailed)
             db.insert(TABLE_MEMBERS, null, values)
             db.close()
         }
@@ -797,6 +787,41 @@ class LocalDatabase(context: Context):
                         assistance = cursor.getString(1),
                         amount = cursor.getString(2),
                         releasedAt = cursor.getString(3),
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return data
+    }
+
+    /* Search Worker */
+    fun searchMember(name: String?): ArrayList<SearchMembers> {
+        val db = this.readableDatabase
+        val query = "SELECT * FROM $TABLE_MEMBERS\n" +
+                "WHERE $MEMBER_LASTNAME_COL || ' ' || $MEMBER_FIRSTNAME_COL || ' ' || $MEMBER_MIDDLENAME_COL LIKE '%$name%' "
+        val data: ArrayList<SearchMembers> = ArrayList()
+        val cursor: Cursor?
+        try {
+            cursor = db.rawQuery(query, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(query)
+            return ArrayList()
+        }
+        if (cursor.moveToFirst()) {
+            do {
+                data.add(
+                    SearchMembers(
+                        precinct = cursor.getString(1),
+                        lastname = cursor.getString(2),
+                        firstname = cursor.getString(3),
+                        middlename = cursor.getString(4),
+                        extension = cursor.getString(5),
+                        birthdate = cursor.getString(6),
+                        contact = cursor.getString(7),
+                        occupation = cursor.getString(8),
+                        isptmid = cursor.getInt(9),
                     )
                 )
             } while (cursor.moveToNext())

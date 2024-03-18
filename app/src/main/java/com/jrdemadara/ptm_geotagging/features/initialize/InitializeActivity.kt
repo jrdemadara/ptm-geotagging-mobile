@@ -58,20 +58,21 @@ class InitializeActivity : AppCompatActivity() {
                             localDatabase.truncateMembers()
                             for (x in list) {
                                 savedCount++
+                                val precinct = if (x.precinct.isNullOrEmpty()) "" else x.precinct
+                                val birthdate = if (x.birthdate.isNullOrEmpty()) "" else x.birthdate
+                                val contact = if (x.contact.isNullOrEmpty()) "" else x.contact
+                                val occupation = if (x.occupation.isNullOrEmpty()) "" else x.occupation
                                 val hasPTMID = if (x.isptmid == "NO") 0 else 1
                                 localDatabase.updateMembers(
-                                    x.precinct,
-                                    x.lastname,
-                                    x.firstname,
-                                    x.middlename,
-                                    x.extension,
-                                    x.birthdate,
-                                    x.contact,
-                                    x.occupation,
-                                    hasPTMID,
-                                    x.assistance,
-                                    x.amount,
-                                    x.dateavailed
+                                    precinct,
+                                    x.lastname.lowercase(),
+                                    x.firstname.lowercase(),
+                                    x.middlename.lowercase(),
+                                    x.extension.lowercase(),
+                                    birthdate,
+                                    contact,
+                                    occupation,
+                                    hasPTMID
                                 )
                             }
                             if (membersCount == savedCount){

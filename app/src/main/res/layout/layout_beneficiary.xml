@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="#f4f8fb">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -55,13 +56,6 @@
             android:layout_marginTop="16dp"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/textView15"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/roboto_mono"
-                android:text="Precinct" />
-
             <EditText
                 android:id="@+id/editTextPrecinct"
                 android:layout_width="match_parent"
@@ -70,49 +64,39 @@
                 android:background="@drawable/ic_round_edittext"
                 android:ems="10"
                 android:fontFamily="@font/roboto_mono"
+                android:hint="Precinct"
                 android:inputType="text"
-                android:paddingStart="16dp" />
-
-            <TextView
-                android:id="@+id/textView16"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:fontFamily="@font/roboto_mono"
-                android:text="Fullname" />
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp" />
 
             <EditText
                 android:id="@+id/editTextBeneficiaryName"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:background="@drawable/ic_round_edittext"
                 android:ems="10"
                 android:fontFamily="@font/roboto_mono"
+                android:hint="Fullname"
                 android:inputType="text"
-                android:paddingStart="16dp" />
-
-            <TextView
-                android:id="@+id/textView17"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:fontFamily="@font/roboto_mono"
-                android:text="Birthdate" />
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp" />
 
             <EditText
                 android:id="@+id/editTextBeneficiaryBirthdate"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:background="@drawable/ic_round_edittext"
                 android:clickable="true"
                 android:ems="10"
                 android:focusable="false"
                 android:fontFamily="@font/roboto_mono"
+                android:hint="Birthdate"
                 android:inputType="text"
                 android:longClickable="false"
-                android:paddingStart="16dp" />
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp" />
 
             <LinearLayout
                 android:layout_width="fill_parent"

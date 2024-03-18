@@ -1,6 +1,6 @@
 package com.jrdemadara.ptm_geotagging.data
 
-data class Members(
+data class SearchMembers(
     val precinct: String,
     val lastname: String,
     val firstname: String,
@@ -9,5 +9,5 @@ data class Members(
     val birthdate: String,
     val contact: String,
     val occupation: String,
-    val isptmid: String,
+    val isptmid: Int,
 )

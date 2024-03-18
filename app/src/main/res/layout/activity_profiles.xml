@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#f4f8fb"
     tools:context=".features.profiles.ProfilesActivity">
 
     <LinearLayout
@@ -20,9 +21,11 @@
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
             android:minHeight="?attr/actionBarSize"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
             android:theme="?attr/actionBarTheme"
             app:menu="@menu/toolbar"
-            app:navigationIcon="@drawable/ic_launcher_foreground" />
+            app:navigationIcon="@drawable/logo" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -35,6 +38,7 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="#f4f8fb"
                 android:padding="10dp">
 
                 <ImageView
@@ -75,6 +79,7 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="#f4f8fb"
                 android:padding="10dp">
 
                 <ImageView
@@ -115,6 +120,7 @@
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="#f4f8fb"
                 android:padding="10dp">
 
                 <ImageView
