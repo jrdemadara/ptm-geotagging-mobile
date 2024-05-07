@@ -1,9 +1,11 @@
 package com.jrdemadara.ptm_geotagging.features.profiling.search
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.jrdemadara.ptm_geotagging.R
 import com.jrdemadara.ptm_geotagging.data.Members
@@ -33,8 +35,11 @@ class SearchAdapter : RecyclerView.Adapter<SearchAdapter.ViewHolder>()  {
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val current = mList[position]
-        holder.itemView.setOnClickListener { onClickItem?.invoke(current) }
-        holder.memberTextView.text =                 buildString {
+        holder.itemView.setOnClickListener {
+            onClickItem?.invoke(current)
+        }
+
+        holder.memberTextView.text = buildString {
             append(current.lastname.replaceFirstChar (Char::uppercase))
             append(", ")
             append(current.firstname.replaceFirstChar (Char::uppercase))

@@ -12,4 +12,5 @@ data class Profile(
     val lat: String,
     val lon: String,
     val qrcode: String,
+    val hasptmid: Int,
 )

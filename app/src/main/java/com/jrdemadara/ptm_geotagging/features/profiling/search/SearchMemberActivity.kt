@@ -9,6 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.doAfterTextChanged
@@ -17,15 +18,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.jrdemadara.ptm_geotagging.R
 import com.jrdemadara.ptm_geotagging.data.Members
 import com.jrdemadara.ptm_geotagging.data.SearchMembers
+import com.jrdemadara.ptm_geotagging.features.profiles.ProfilesActivity
 import com.jrdemadara.ptm_geotagging.features.profiling.ProfilingActivity
 import com.jrdemadara.ptm_geotagging.server.LocalDatabase
+import com.jrdemadara.ptm_geotagging.util.capitalizeWords
 
 class SearchMemberActivity : AppCompatActivity() {
     private lateinit var localDatabase: LocalDatabase
     //* Search Variables
     private lateinit var recyclerViewSearch: RecyclerView
     private var adapterSearch: SearchAdapter? = null
-    private var membersList: ArrayList<SearchMembers> = ArrayList()
     private lateinit var editTextSearchMember: EditText
     private lateinit var textViewSelectedName: TextView
     private lateinit var buttonSelectMember: Button
@@ -33,6 +35,11 @@ class SearchMemberActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_search_member)
+        val toolbar: Toolbar = findViewById(R.id.materialToolbarSearch)
+        setSupportActionBar(toolbar)
+
+        // Enable the back arrow button
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         localDatabase = LocalDatabase(this@SearchMemberActivity)
         // Initialize Search
         recyclerViewSearch = findViewById(R.id.recyclerViewSearchMember)
@@ -60,13 +67,13 @@ class SearchMemberActivity : AppCompatActivity() {
 
         adapterSearch!!.setOnClickItem {
             textViewSelectedName.text = buildString {
-                append(it.lastname.replaceFirstChar (Char::uppercase))
+                append(it.lastname.capitalizeWords())
                 append(", ")
-                append(it.firstname.replaceFirstChar (Char::uppercase))
+                append(it.firstname.capitalizeWords())
                 append(" ")
-                append(it.middlename.replaceFirstChar (Char::uppercase))
+                append(it.middlename.capitalizeWords())
                 append(" ")
-                append(it.extension.replaceFirstChar (Char::uppercase))
+                append(it.extension.capitalizeWords())
             }
             lastname = it.lastname
             firstname = it.firstname
@@ -91,4 +98,11 @@ class SearchMemberActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
+    override fun onSupportNavigateUp(): Boolean {
+        val intent = Intent(applicationContext, ProfilingActivity::class.java)
+        startActivity(intent)
+        finish()
+        return true
+    }
+
 }

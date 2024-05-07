@@ -6,6 +6,7 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.jrdemadara.ptm_geotagging.data.Assistance
+import com.jrdemadara.ptm_geotagging.data.AssistanceType
 import com.jrdemadara.ptm_geotagging.data.Beneficiary
 import com.jrdemadara.ptm_geotagging.data.Livelihood
 import com.jrdemadara.ptm_geotagging.data.Members
@@ -14,236 +15,236 @@ import com.jrdemadara.ptm_geotagging.data.Profile
 import com.jrdemadara.ptm_geotagging.data.SearchMembers
 import com.jrdemadara.ptm_geotagging.features.profiling.skill.Skills
 
-class LocalDatabase(context: Context):
-    SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION)  {
+class LocalDatabase(context: Context) :
+    SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
-        companion object {
-            private const val DATABASE_NAME = "geotagging"
-            private const val DATABASE_VERSION = 1
+    companion object {
+        private const val DATABASE_NAME = "geotagging"
+        private const val DATABASE_VERSION = 1
 
-            /* Tables */
-            private const val TABLE_PROFILES = "profiles"
-            private const val TABLE_BENEFICIARIES = "beneficiaries"
-            private const val TABLE_LIVELIHOOD = "livelihoods"
-            private const val TABLE_SKILLS = "skills"
-            private const val TABLE_PHOTOS = "photos"
-            private const val TABLE_MUNICIPALITIES = "municipalities"
-            private const val TABLE_MEMBERS = "members"
-            private const val TABLE_ASSISTANCE = "assistance"
-            private const val TABLE_ASSISTANCE_TYPE = "assistance_type"
+        /* Tables */
+        private const val TABLE_PROFILES = "profiles"
+        private const val TABLE_BENEFICIARIES = "beneficiaries"
+        private const val TABLE_LIVELIHOOD = "livelihoods"
+        private const val TABLE_SKILLS = "skills"
+        private const val TABLE_PHOTOS = "photos"
+        private const val TABLE_MUNICIPALITIES = "municipalities"
+        private const val TABLE_MEMBERS = "members"
+        private const val TABLE_ASSISTANCE = "assistance"
+        private const val TABLE_ASSISTANCE_TYPE = "assistance_type"
 
-            /* Profiles Table */
-            private const val PROFILE_ID_COL = "id"
-            private const val PROFILE_LASTNAME_COL = "lastname"
-            private const val PROFILE_FIRSTNAME_COL = "firstname"
-            private const val PROFILE_MIDDLENAME_COL = "middlename"
-            private const val PROFILE_EXTENSION_COL = "extension"
-            private const val PROFILE_BIRTHDATE_COL = "birthdate"
-            private const val PROFILE_OCCUPATION_COL = "occupation"
-            private const val PROFILE_PHONE_COL = "phone"
-            private const val PROFILE_LAT_COL = "lat"
-            private const val PROFILE_LON_COL = "lon"
-            private const val PROFILE_QR_COL = "qrcode"
-            private const val PROFILE_HASPTMID_COL = "has_ptmid"
-            private const val PROFILE_IS_UPLOADED_COL = "is_uploaded"
+        /* Profiles Table */
+        private const val PROFILE_ID_COL = "id"
+        private const val PROFILE_LASTNAME_COL = "lastname"
+        private const val PROFILE_FIRSTNAME_COL = "firstname"
+        private const val PROFILE_MIDDLENAME_COL = "middlename"
+        private const val PROFILE_EXTENSION_COL = "extension"
+        private const val PROFILE_BIRTHDATE_COL = "birthdate"
+        private const val PROFILE_OCCUPATION_COL = "occupation"
+        private const val PROFILE_PHONE_COL = "phone"
+        private const val PROFILE_LAT_COL = "lat"
+        private const val PROFILE_LON_COL = "lon"
+        private const val PROFILE_QR_COL = "qrcode"
+        private const val PROFILE_HASPTMID_COL = "has_ptmid"
+        private const val PROFILE_IS_UPLOADED_COL = "is_uploaded"
 
-            /* Beneficiaries Table */
-            private const val BENEFICIARY_ID_COL = "id"
-            private const val BENEFICIARY_PRECINCT_COL = "precinct"
-            private const val BENEFICIARY_FULLNAME_COL = "fullname"
-            private const val BENEFICIARY_BIRTHDATE_COL = "birthdate"
-            private const val BENEFICIARY_PROFILE_ID_COL = "profile_id"
+        /* Beneficiaries Table */
+        private const val BENEFICIARY_ID_COL = "id"
+        private const val BENEFICIARY_PRECINCT_COL = "precinct"
+        private const val BENEFICIARY_FULLNAME_COL = "fullname"
+        private const val BENEFICIARY_BIRTHDATE_COL = "birthdate"
+        private const val BENEFICIARY_PROFILE_ID_COL = "profile_id"
 
-            /* Livelihoods Table */
-            private const val LIVELIHOOD_ID_COL = "id"
-            private const val LIVELIHOOD_LIVELIHOOD_COL = "livelihood"
-            private const val LIVELIHOOD_PROFILE_ID_COL = "profile_id"
+        /* Livelihoods Table */
+        private const val LIVELIHOOD_ID_COL = "id"
+        private const val LIVELIHOOD_LIVELIHOOD_COL = "livelihood"
+        private const val LIVELIHOOD_PROFILE_ID_COL = "profile_id"
 
-            /* Skills Table */
-            private const val SKILL_ID_COL = "id"
-            private const val SKILL_SKILL_COL = "skill"
-            private const val SKILL_PROFILE_ID_COL = "profile_id"
+        /* Skills Table */
+        private const val SKILL_ID_COL = "id"
+        private const val SKILL_SKILL_COL = "skill"
+        private const val SKILL_PROFILE_ID_COL = "profile_id"
 
-            /* Photos Table */
-            private const val PHOTO_ID_COL = "id"
-            private const val PHOTO_PERSONAL_COL = "photo_personal"
-            private const val PHOTO_FAMILY_COL = "photo_family"
-            private const val PHOTO_LIVELIHOOD_COL = "photo_livelihood"
-            private const val PHOTO_PROFILE_ID_COL = "profile_id"
+        /* Photos Table */
+        private const val PHOTO_ID_COL = "id"
+        private const val PHOTO_PERSONAL_COL = "photo_personal"
+        private const val PHOTO_FAMILY_COL = "photo_family"
+        private const val PHOTO_LIVELIHOOD_COL = "photo_livelihood"
+        private const val PHOTO_PROFILE_ID_COL = "profile_id"
 
-            /* Municipalities Table */
-            private const val MUNICIPALITY_NAME_COL = "name"
+        /* Municipalities Table */
+        private const val MUNICIPALITY_NAME_COL = "name"
 
-            /* Members Table */
-            private const val MEMBER_ID_COL = "id"
-            private const val MEMBER_PRECINCT_COL = "precinct"
-            private const val MEMBER_LASTNAME_COL = "lastname"
-            private const val MEMBER_FIRSTNAME_COL = "firstname"
-            private const val MEMBER_MIDDLENAME_COL = "middlename"
-            private const val MEMBER_EXTENSION_COL = "extension"
-            private const val MEMBER_BIRTHDATE_COL = "birthdate"
-            private const val MEMBER_CONTACT_COL = "contact"
-            private const val MEMBER_OCCUPATION_COL = "occupation"
-            private const val MEMBER_ISPTMID_COL = "has_ptmid"
+        /* Members Table */
+        private const val MEMBER_ID_COL = "id"
+        private const val MEMBER_PRECINCT_COL = "precinct"
+        private const val MEMBER_LASTNAME_COL = "lastname"
+        private const val MEMBER_FIRSTNAME_COL = "firstname"
+        private const val MEMBER_MIDDLENAME_COL = "middlename"
+        private const val MEMBER_EXTENSION_COL = "extension"
+        private const val MEMBER_BIRTHDATE_COL = "birthdate"
+        private const val MEMBER_CONTACT_COL = "contact"
+        private const val MEMBER_OCCUPATION_COL = "occupation"
+        private const val MEMBER_ISPTMID_COL = "has_ptmid"
 
-            /* Assistance Table */
-            private const val ASSISTANCE_ID = "id"
-            private const val ASSISTANCE_ASSISTANCE_COL = "assistance"
-            private const val ASSISTANCE_AMOUNT_COL = "amount"
-            private const val ASSISTANCE_RELEASED_AT_COL = "released_at"
-            private const val ASSISTANCE_PROFILE_ID_COL = "profile_id"
+        /* Assistance Table */
+        private const val ASSISTANCE_ID = "id"
+        private const val ASSISTANCE_ASSISTANCE_COL = "assistance"
+        private const val ASSISTANCE_AMOUNT_COL = "amount"
+        private const val ASSISTANCE_RELEASED_AT_COL = "released_at"
+        private const val ASSISTANCE_PROFILE_ID_COL = "profile_id"
 
-            /* Assistance Type Table */
-            private const val ASSISTANCE_TYPE = "assistance_type"
+        /* Assistance Type Table */
+        private const val ASSISTANCE_TYPE = "assistance_type"
 
-        }
+    }
 
-        override fun onCreate(db: SQLiteDatabase?) {
-            val createProfilesTable = (
-                    "CREATE TABLE " +
-                            TABLE_PROFILES + " (" +
-                            PROFILE_ID_COL + " TEXT, " +
-                            PROFILE_LASTNAME_COL + " TEXT," +
-                            PROFILE_FIRSTNAME_COL + " TEXT," +
-                            PROFILE_MIDDLENAME_COL + " TEXT," +
-                            PROFILE_EXTENSION_COL + " TEXT," +
-                            PROFILE_BIRTHDATE_COL + " TEXT," +
-                            PROFILE_OCCUPATION_COL + " TEXT," +
-                            PROFILE_PHONE_COL + " TEXT," +
-                            PROFILE_LAT_COL + " TEXT," +
-                            PROFILE_LON_COL + " TEXT," +
-                            PROFILE_QR_COL + " TEXT," +
-                            PROFILE_HASPTMID_COL + " INTEGER," +
-                            PROFILE_IS_UPLOADED_COL + " INTEGER)"
-                    )
+    override fun onCreate(db: SQLiteDatabase?) {
+        val createProfilesTable = (
+                "CREATE TABLE " +
+                        TABLE_PROFILES + " (" +
+                        PROFILE_ID_COL + " TEXT, " +
+                        PROFILE_LASTNAME_COL + " TEXT," +
+                        PROFILE_FIRSTNAME_COL + " TEXT," +
+                        PROFILE_MIDDLENAME_COL + " TEXT," +
+                        PROFILE_EXTENSION_COL + " TEXT," +
+                        PROFILE_BIRTHDATE_COL + " TEXT," +
+                        PROFILE_OCCUPATION_COL + " TEXT," +
+                        PROFILE_PHONE_COL + " TEXT," +
+                        PROFILE_LAT_COL + " TEXT," +
+                        PROFILE_LON_COL + " TEXT," +
+                        PROFILE_QR_COL + " TEXT," +
+                        PROFILE_HASPTMID_COL + " INTEGER," +
+                        PROFILE_IS_UPLOADED_COL + " INTEGER)"
+                )
 
-            val createBeneficiariesTable = (
-                    "CREATE TABLE " +
-                            TABLE_BENEFICIARIES + " (" +
-                            BENEFICIARY_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                            BENEFICIARY_PRECINCT_COL + " TEXT," +
-                            BENEFICIARY_FULLNAME_COL + " TEXT," +
-                            BENEFICIARY_BIRTHDATE_COL + " TEXT," +
-                            BENEFICIARY_PROFILE_ID_COL + " TEXT)"
-                    )
+        val createBeneficiariesTable = (
+                "CREATE TABLE " +
+                        TABLE_BENEFICIARIES + " (" +
+                        BENEFICIARY_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        BENEFICIARY_PRECINCT_COL + " TEXT," +
+                        BENEFICIARY_FULLNAME_COL + " TEXT," +
+                        BENEFICIARY_BIRTHDATE_COL + " TEXT," +
+                        BENEFICIARY_PROFILE_ID_COL + " TEXT)"
+                )
 
-            val createLivelihoodsTable = (
-                    "CREATE TABLE " +
-                            TABLE_LIVELIHOOD + " (" +
-                            LIVELIHOOD_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                            LIVELIHOOD_LIVELIHOOD_COL + " TEXT," +
-                            LIVELIHOOD_PROFILE_ID_COL + " TEXT)"
-                    )
+        val createLivelihoodsTable = (
+                "CREATE TABLE " +
+                        TABLE_LIVELIHOOD + " (" +
+                        LIVELIHOOD_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        LIVELIHOOD_LIVELIHOOD_COL + " TEXT," +
+                        LIVELIHOOD_PROFILE_ID_COL + " TEXT)"
+                )
 
-            val createSkillsTable = (
-                    "CREATE TABLE " +
-                            TABLE_SKILLS + " (" +
-                            SKILL_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                            SKILL_SKILL_COL + " TEXT," +
-                            SKILL_PROFILE_ID_COL + " TEXT)"
-                    )
+        val createSkillsTable = (
+                "CREATE TABLE " +
+                        TABLE_SKILLS + " (" +
+                        SKILL_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        SKILL_SKILL_COL + " TEXT," +
+                        SKILL_PROFILE_ID_COL + " TEXT)"
+                )
 
-            val createPhotosTable = (
-                    "CREATE TABLE " +
-                            TABLE_PHOTOS + " (" +
-                            PHOTO_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                            PHOTO_PERSONAL_COL + " BLOB," +
-                            PHOTO_FAMILY_COL + " BLOB," +
-                            PHOTO_LIVELIHOOD_COL + " BLOB," +
-                            PHOTO_PROFILE_ID_COL + " TEXT)"
-                    )
+        val createPhotosTable = (
+                "CREATE TABLE " +
+                        TABLE_PHOTOS + " (" +
+                        PHOTO_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        PHOTO_PERSONAL_COL + " BLOB," +
+                        PHOTO_FAMILY_COL + " BLOB," +
+                        PHOTO_LIVELIHOOD_COL + " BLOB," +
+                        PHOTO_PROFILE_ID_COL + " TEXT)"
+                )
 
-            val createMunicipalitiesTable = (
-                    "CREATE TABLE " +
-                            TABLE_MUNICIPALITIES + " (" +
-                            MUNICIPALITY_NAME_COL + " TEXT)"
-                    )
+        val createMunicipalitiesTable = (
+                "CREATE TABLE " +
+                        TABLE_MUNICIPALITIES + " (" +
+                        MUNICIPALITY_NAME_COL + " TEXT)"
+                )
 
-            val createMembersTable = (
-                    "CREATE TABLE " +
-                            TABLE_MEMBERS + " (" +
-                            MEMBER_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                            MEMBER_PRECINCT_COL + " TEXT," +
-                            MEMBER_LASTNAME_COL + " TEXT," +
-                            MEMBER_FIRSTNAME_COL + " TEXT," +
-                            MEMBER_MIDDLENAME_COL + " TEXT," +
-                            MEMBER_EXTENSION_COL + " TEXT," +
-                            MEMBER_BIRTHDATE_COL + " TEXT," +
-                            MEMBER_CONTACT_COL + " TEXT," +
-                            MEMBER_OCCUPATION_COL + " TEXT," +
-                            MEMBER_ISPTMID_COL + " INTEGER)"
+        val createMembersTable = (
+                "CREATE TABLE " +
+                        TABLE_MEMBERS + " (" +
+                        MEMBER_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        MEMBER_PRECINCT_COL + " TEXT," +
+                        MEMBER_LASTNAME_COL + " TEXT," +
+                        MEMBER_FIRSTNAME_COL + " TEXT," +
+                        MEMBER_MIDDLENAME_COL + " TEXT," +
+                        MEMBER_EXTENSION_COL + " TEXT," +
+                        MEMBER_BIRTHDATE_COL + " TEXT," +
+                        MEMBER_CONTACT_COL + " TEXT," +
+                        MEMBER_OCCUPATION_COL + " TEXT," +
+                        MEMBER_ISPTMID_COL + " INTEGER)"
 
-                    )
+                )
 
-            val createAssistanceTable = (
-                    "CREATE TABLE " +
-                            TABLE_ASSISTANCE + " (" +
-                            ASSISTANCE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                            ASSISTANCE_ASSISTANCE_COL + " TEXT," +
-                            ASSISTANCE_AMOUNT_COL + " TEXT," +
-                            ASSISTANCE_RELEASED_AT_COL + " TEXT," +
-                            ASSISTANCE_PROFILE_ID_COL + " TEXT)"
-                    )
+        val createAssistanceTable = (
+                "CREATE TABLE " +
+                        TABLE_ASSISTANCE + " (" +
+                        ASSISTANCE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        ASSISTANCE_ASSISTANCE_COL + " TEXT," +
+                        ASSISTANCE_AMOUNT_COL + " TEXT," +
+                        ASSISTANCE_RELEASED_AT_COL + " DATETIME DEFAULT CURRENT_TIMESTAMP," +
+                        ASSISTANCE_PROFILE_ID_COL + " TEXT)"
+                )
 
-            val createAssistanceTypeTable = (
-                    "CREATE TABLE " +
-                            TABLE_ASSISTANCE_TYPE + " (" +
-                            ASSISTANCE_TYPE + " TEXT)"
-                    )
+        val createAssistanceTypeTable = (
+                "CREATE TABLE " +
+                        TABLE_ASSISTANCE_TYPE + " (" +
+                        ASSISTANCE_TYPE + " TEXT)"
+                )
 
-            db?.execSQL(createProfilesTable)
-            db?.execSQL(createBeneficiariesTable)
-            db?.execSQL(createLivelihoodsTable)
-            db?.execSQL(createSkillsTable)
-            db?.execSQL(createPhotosTable)
-            db?.execSQL(createMunicipalitiesTable)
-            db?.execSQL(createMembersTable)
-            db?.execSQL(createAssistanceTable)
-            db?.execSQL(createAssistanceTypeTable)
-        }
+        db?.execSQL(createProfilesTable)
+        db?.execSQL(createBeneficiariesTable)
+        db?.execSQL(createLivelihoodsTable)
+        db?.execSQL(createSkillsTable)
+        db?.execSQL(createPhotosTable)
+        db?.execSQL(createMunicipalitiesTable)
+        db?.execSQL(createMembersTable)
+        db?.execSQL(createAssistanceTable)
+        db?.execSQL(createAssistanceTypeTable)
+    }
 
-        override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-            db?.execSQL("DROP TABLE IF EXISTS $TABLE_PROFILES")
-            db?.execSQL("DROP TABLE IF EXISTS $TABLE_BENEFICIARIES")
-            db?.execSQL("DROP TABLE IF EXISTS $TABLE_LIVELIHOOD")
-            db?.execSQL("DROP TABLE IF EXISTS $TABLE_SKILLS")
-            db?.execSQL("DROP TABLE IF EXISTS $TABLE_PHOTOS")
-            db?.execSQL("DROP TABLE IF EXISTS $TABLE_MUNICIPALITIES")
-            db?.execSQL("DROP TABLE IF EXISTS $TABLE_MEMBERS")
-            db?.execSQL("DROP TABLE IF EXISTS $TABLE_ASSISTANCE")
-            db?.execSQL("DROP TABLE IF EXISTS $TABLE_ASSISTANCE_TYPE")
-            onCreate(db)
-        }
+    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_PROFILES")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_BENEFICIARIES")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_LIVELIHOOD")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_SKILLS")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_PHOTOS")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_MUNICIPALITIES")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_MEMBERS")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_ASSISTANCE")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_ASSISTANCE_TYPE")
+        onCreate(db)
+    }
 
-        fun truncateTables() {
-            val db = this.writableDatabase
-            db.delete(TABLE_MUNICIPALITIES, null, null)
-            db.close()
-        }
+    fun truncateTables() {
+        val db = this.writableDatabase
+        db.delete(TABLE_MUNICIPALITIES, null, null)
+        db.close()
+    }
 
-        fun truncateMembers() {
-            val db = this.writableDatabase
-            db.delete(TABLE_MEMBERS, null, null)
-            db.close()
-        }
+    fun truncateMembers() {
+        val db = this.writableDatabase
+        db.delete(TABLE_MEMBERS, null, null)
+        db.close()
+    }
 
-        fun truncateAssistanceType() {
-            val db = this.writableDatabase
-            db.delete(TABLE_ASSISTANCE_TYPE, null, null)
-            db.close()
-        }
+    fun truncateAssistanceType() {
+        val db = this.writableDatabase
+        db.delete(TABLE_ASSISTANCE_TYPE, null, null)
+        db.close()
+    }
 
-        /* Municipalities */
-        fun updateMunicipalities(name: String?) {
-            val db = this.writableDatabase
-            val values = ContentValues()
-            values.put(MUNICIPALITY_NAME_COL, name)
-            db.insert(TABLE_MUNICIPALITIES, null, values)
-            db.close()
-        }
+    /* Municipalities */
+    fun updateMunicipalities(name: String?) {
+        val db = this.writableDatabase
+        val values = ContentValues()
+        values.put(MUNICIPALITY_NAME_COL, name)
+        db.insert(TABLE_MUNICIPALITIES, null, values)
+        db.close()
+    }
 
     /* Members */
-        fun updateMembers(
+    fun updateMembers(
         precinct: String?,
         lastName: String?,
         firstName: String?,
@@ -253,46 +254,46 @@ class LocalDatabase(context: Context):
         contact: String?,
         occupation: String?,
         isPTMID: Int,
-        ) {
-            val db = this.writableDatabase
-            val values = ContentValues()
-            values.put(MEMBER_PRECINCT_COL, precinct)
-            values.put(MEMBER_LASTNAME_COL, lastName)
-            values.put(MEMBER_FIRSTNAME_COL, firstName)
-            values.put(MEMBER_MIDDLENAME_COL, middleName)
-            values.put(MEMBER_EXTENSION_COL, extension)
-            values.put(MEMBER_BIRTHDATE_COL, birthdate)
-            values.put(MEMBER_CONTACT_COL, contact)
-            values.put(MEMBER_OCCUPATION_COL, occupation)
-            values.put(MEMBER_ISPTMID_COL, isPTMID)
-            db.insert(TABLE_MEMBERS, null, values)
-            db.close()
-        }
-
-        fun updateAssistanceType(
-            assistance: String?,
-        ) {
-            val db = this.writableDatabase
-            val values = ContentValues()
-            values.put(ASSISTANCE_TYPE, assistance)
-            db.insert(TABLE_ASSISTANCE_TYPE, null, values)
-            db.close()
+    ) {
+        val db = this.writableDatabase
+        val values = ContentValues()
+        values.put(MEMBER_PRECINCT_COL, precinct)
+        values.put(MEMBER_LASTNAME_COL, lastName)
+        values.put(MEMBER_FIRSTNAME_COL, firstName)
+        values.put(MEMBER_MIDDLENAME_COL, middleName)
+        values.put(MEMBER_EXTENSION_COL, extension)
+        values.put(MEMBER_BIRTHDATE_COL, birthdate)
+        values.put(MEMBER_CONTACT_COL, contact)
+        values.put(MEMBER_OCCUPATION_COL, occupation)
+        values.put(MEMBER_ISPTMID_COL, isPTMID)
+        db.insert(TABLE_MEMBERS, null, values)
+        db.close()
     }
 
-        fun getMunicipalities(): ArrayList<String> {
-            val modules: ArrayList<String> = ArrayList()
-            val selectQuery = "SELECT name FROM $TABLE_MUNICIPALITIES ORDER BY name ASC"
-            val db = this.readableDatabase
-            val cursor = db.rawQuery(selectQuery, null)
-            if (cursor.moveToFirst()) {
-                do {
-                    modules.add(cursor.getString(0))
-                } while (cursor.moveToNext())
-            }
-            cursor.close()
-            db.close()
-            return modules
+    fun updateAssistanceType(
+        assistance: String?,
+    ) {
+        val db = this.writableDatabase
+        val values = ContentValues()
+        values.put(ASSISTANCE_TYPE, assistance)
+        db.insert(TABLE_ASSISTANCE_TYPE, null, values)
+        db.close()
+    }
+
+    fun getMunicipalities(): ArrayList<String> {
+        val modules: ArrayList<String> = ArrayList()
+        val selectQuery = "SELECT name FROM $TABLE_MUNICIPALITIES ORDER BY name ASC"
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(selectQuery, null)
+        if (cursor.moveToFirst()) {
+            do {
+                modules.add(cursor.getString(0))
+            } while (cursor.moveToNext())
         }
+        cursor.close()
+        db.close()
+        return modules
+    }
 
     /* Save Attendance */
     fun saveProfile(
@@ -538,7 +539,6 @@ class LocalDatabase(context: Context):
         id: String?,
         assistance: String?,
         amount: String?,
-        releasedAt: String?
     ): Boolean {
         return try {
             val db = this.writableDatabase
@@ -546,7 +546,7 @@ class LocalDatabase(context: Context):
             // Check if the assistance already exists for the given profile ID
             val cursor = db.query(
                 TABLE_ASSISTANCE,
-                arrayOf(ASSISTANCE_ASSISTANCE_COL),
+                arrayOf(ASSISTANCE_ID),
                 "$ASSISTANCE_PROFILE_ID_COL = ? AND $ASSISTANCE_ASSISTANCE_COL = ?",
                 arrayOf(id, assistance),
                 null,
@@ -567,7 +567,6 @@ class LocalDatabase(context: Context):
             val values = ContentValues()
             values.put(ASSISTANCE_ASSISTANCE_COL, assistance)
             values.put(ASSISTANCE_AMOUNT_COL, amount)
-            values.put(ASSISTANCE_RELEASED_AT_COL, releasedAt)
             values.put(ASSISTANCE_PROFILE_ID_COL, id)
             db.insert(TABLE_ASSISTANCE, null, values)
 
@@ -654,6 +653,7 @@ class LocalDatabase(context: Context):
                         lat = cursor.getString(8),
                         lon = cursor.getString(9),
                         qrcode = cursor.getString(10),
+                        hasptmid = cursor.getInt(11),
                     )
                 )
             } while (cursor.moveToNext())
@@ -664,7 +664,8 @@ class LocalDatabase(context: Context):
 
     fun getBeneficiaries(profileID: String): ArrayList<Beneficiary> {
         val db = this.readableDatabase
-        val query = "SELECT *  FROM $TABLE_BENEFICIARIES WHERE $BENEFICIARY_PROFILE_ID_COL = '$profileID'"
+        val query =
+            "SELECT *  FROM $TABLE_BENEFICIARIES WHERE $BENEFICIARY_PROFILE_ID_COL = '$profileID'"
         val data: ArrayList<Beneficiary> = ArrayList()
         val cursor: Cursor?
         try {
@@ -716,7 +717,8 @@ class LocalDatabase(context: Context):
 
     fun getLivelihood(profileID: String): ArrayList<Livelihood> {
         val db = this.readableDatabase
-        val query = "SELECT *  FROM $TABLE_LIVELIHOOD WHERE $LIVELIHOOD_PROFILE_ID_COL = '$profileID'"
+        val query =
+            "SELECT *  FROM $TABLE_LIVELIHOOD WHERE $LIVELIHOOD_PROFILE_ID_COL = '$profileID'"
         val data: ArrayList<Livelihood> = ArrayList()
         val cursor: Cursor?
         try {
@@ -766,11 +768,9 @@ class LocalDatabase(context: Context):
         return data
     }
 
-    fun getAssistance(qrcode: String, assistance: String): ArrayList<Assistance> {
+    fun getAssistance(profileID: String): ArrayList<Assistance> {
         val db = this.readableDatabase
-        val query = "SELECT *  FROM $TABLE_PROFILES t1\n" +
-                "INNER JOIN $TABLE_ASSISTANCE t2 ON t1.$PROFILE_ID_COL = t2.$ASSISTANCE_PROFILE_ID_COL" +
-                " WHERE $PROFILE_QR_COL = '$qrcode' AND t2.$ASSISTANCE_ASSISTANCE_COL = '$assistance'"
+        val query = "SELECT *  FROM $TABLE_ASSISTANCE WHERE $ASSISTANCE_PROFILE_ID_COL = '$profileID'"
         val data: ArrayList<Assistance> = ArrayList()
         val cursor: Cursor?
         try {
@@ -793,6 +793,82 @@ class LocalDatabase(context: Context):
         }
         cursor.close()
         return data
+    }
+
+    fun getAssistance(profileID: String, assistance: String): ArrayList<Assistance> {
+        val db = this.readableDatabase
+        val query = "SELECT * FROM $TABLE_ASSISTANCE" +
+                " WHERE $ASSISTANCE_PROFILE_ID_COL = '$profileID' AND $ASSISTANCE_ASSISTANCE_COL = '$assistance'"
+        val data: ArrayList<Assistance> = ArrayList()
+        val cursor: Cursor?
+        try {
+            cursor = db.rawQuery(query, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(query)
+            return ArrayList()
+        }
+        if (cursor.moveToFirst()) {
+            do {
+                data.add(
+                    Assistance(
+                        assistance = cursor.getString(1),
+                        amount = cursor.getString(2),
+                        releasedAt = cursor.getString(3),
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return data
+    }
+
+    fun getAssistanceType(): ArrayList<String> {
+        val data: ArrayList<String> = ArrayList()
+        val selectQuery =
+            "SELECT $ASSISTANCE_TYPE FROM $TABLE_ASSISTANCE_TYPE ORDER BY $ASSISTANCE_TYPE ASC"
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(selectQuery, null)
+        if (cursor.moveToFirst()) {
+            do {
+                data.add(cursor.getString(0))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return data
+    }
+
+    fun getProfileID(qrcode: String): String {
+        var id = ""
+        val selectQuery =
+            "SELECT $PROFILE_ID_COL FROM $TABLE_PROFILES WHERE $PROFILE_QR_COL = '${qrcode}'"
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(selectQuery, null)
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                id = cursor.getString(0)
+            }
+            cursor.close()
+        }
+        db.close()
+        return id
+    }
+
+    fun getProfileName(qrcode: String): String {
+        var name = ""
+        val selectQuery =
+            "SELECT lastname || ', ' || firstname || ' ' || middlename || ' ' || extension AS fullname  FROM $TABLE_PROFILES WHERE $PROFILE_QR_COL = '${qrcode}'"
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(selectQuery, null)
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                name = cursor.getString(0)
+            }
+            cursor.close()
+        }
+        db.close()
+        return name
     }
 
     /* Search Worker */
@@ -837,4 +913,4 @@ class LocalDatabase(context: Context):
         db.update(TABLE_PROFILES, values, "$PROFILE_ID_COL = ?", arrayOf(profileID))
         db.close()
     }
-    }
+}

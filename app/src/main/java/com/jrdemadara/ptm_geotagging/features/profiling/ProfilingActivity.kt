@@ -46,6 +46,7 @@ import com.jrdemadara.ptm_geotagging.features.profiling.search.SearchMemberActiv
 import com.jrdemadara.ptm_geotagging.features.profiling.skill.Skills
 import com.jrdemadara.ptm_geotagging.features.profiling.skill.SkillsAdapter
 import com.jrdemadara.ptm_geotagging.server.LocalDatabase
+import com.jrdemadara.ptm_geotagging.util.capitalizeWords
 import com.khairo.escposprinter.EscPosPrinter
 import com.khairo.escposprinter.connection.bluetooth.BluetoothPrintersConnections
 import java.io.ByteArrayOutputStream
@@ -356,19 +357,16 @@ class ProfilingActivity : AppCompatActivity() {
 
     private fun getIntentDataFromMemberSearch(){
         if (intent.hasExtra("lastname")){
-            editTextLastname.setText(intent.getStringExtra("lastname").toString())
+            editTextLastname.setText(intent.getStringExtra("lastname").toString().capitalizeWords())
         }
         if (intent.hasExtra("firstname")){
-            editTextFirstname.setText(intent.getStringExtra("firstname").toString())
+            editTextFirstname.setText(intent.getStringExtra("firstname").toString().capitalizeWords())
         }
         if (intent.hasExtra("middlename")){
-            editTextMiddlename.setText(intent.getStringExtra("middlename").toString())
+            editTextMiddlename.setText(intent.getStringExtra("middlename").toString().capitalizeWords())
         }
         if (intent.hasExtra("extension")){
-            editTextExtension.setText(intent.getStringExtra("extension").toString())
-        }
-        if (intent.hasExtra("birthdate")){
-            editTextBirthdate.setText(intent.getStringExtra("birthdate").toString())
+            editTextExtension.setText(intent.getStringExtra("extension").toString().capitalizeWords())
         }
         if (intent.hasExtra("birthdate")){
             editTextBirthdate.setText(intent.getStringExtra("birthdate").toString())
@@ -377,10 +375,11 @@ class ProfilingActivity : AppCompatActivity() {
             editTextPhone.setText(intent.getStringExtra("contact").toString())
         }
         if (intent.hasExtra("occupation")){
-            editTextOccupation.setText(intent.getStringExtra("occupation").toString())
+            editTextOccupation.setText(intent.getStringExtra("occupation").toString().capitalizeWords())
         }
         if (intent.hasExtra("hasptmid")){
-            hasPTMID = intent.getStringExtra("hasptmid")?.toInt()!!
+            hasPTMID = intent.getIntExtra("hasptmid", 0)
+
         }
     }
 
@@ -625,8 +624,6 @@ class ProfilingActivity : AppCompatActivity() {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
         return stream.toByteArray()
     }
-
-
 
     private fun getLastLocation() {
         if (ActivityCompat.checkSelfPermission(

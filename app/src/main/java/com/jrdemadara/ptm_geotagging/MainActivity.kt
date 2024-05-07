@@ -101,10 +101,10 @@ class MainActivity : AppCompatActivity() {
             checkPermission()
 
             val printer = EscPosPrinter(BluetoothPrintersConnections.selectFirstPaired(), 203, 48f, 32)
-            printer
-                .printFormattedText(
-                    "[C]I am ready to print."
-                )
+//            printer
+//                .printFormattedText(
+//                    "[C]I am ready to print."
+//                )
         }
     }
 

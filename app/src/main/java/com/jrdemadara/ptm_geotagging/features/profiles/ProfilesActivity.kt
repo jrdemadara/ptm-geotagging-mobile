@@ -20,10 +20,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.journeyapps.barcodescanner.ScanContract
-import com.journeyapps.barcodescanner.ScanIntentResult
-import com.journeyapps.barcodescanner.ScanOptions
 import com.jrdemadara.ptm_geotagging.R
+import com.jrdemadara.ptm_geotagging.features.assistance.AssistanceActivity
 import com.jrdemadara.ptm_geotagging.features.login.LoginActivity
 import com.jrdemadara.ptm_geotagging.features.profiling.ProfilingActivity
 import com.jrdemadara.ptm_geotagging.server.ApiInterface
@@ -40,6 +38,7 @@ import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import retrofit2.http.Multipart
 
 class ProfilesActivity : AppCompatActivity() {
     private lateinit var networkChecker: NetworkChecker
@@ -70,8 +69,10 @@ class ProfilesActivity : AppCompatActivity() {
                 R.id.logout -> {
                     logout()
                 }
-                R.id.scan -> {
-                    barcodeLauncher.launch(ScanOptions())
+                R.id.aid -> {
+                    val intent = Intent(applicationContext, AssistanceActivity::class.java)
+                    startActivity(intent)
+                    finish()
                 }
                 R.id.upload -> {
                     uploadProfile()
@@ -106,6 +107,23 @@ class ProfilesActivity : AppCompatActivity() {
                 val profileData = JSONObject()
                 //* Get profile data
                 val profiles = localDatabase.getProfiles()
+                val profileIDArrayList = ArrayList<String>()
+                //* Personal Photo
+                var personalByteArray: ByteArray = byteArrayOf(0)
+                val base64StringPersonal = Base64.encodeToString(personalByteArray, Base64.DEFAULT)
+                val personalPhotoPart = base64StringPersonal.toRequestBody("image/jpeg".toMediaTypeOrNull())
+                val personalPhoto = MultipartBody.Part.createFormData("personalPhoto", "personalPhoto.jpg", personalPhotoPart)
+
+                var familyByteArray: ByteArray = byteArrayOf(0)
+                val base64StringFamily = Base64.encodeToString(familyByteArray, Base64.DEFAULT)
+                val familyPhotoPart = base64StringFamily.toRequestBody("image/jpeg".toMediaTypeOrNull())
+                val familyPhoto = MultipartBody.Part.createFormData("familyPhoto", "familyPhoto.jpg", familyPhotoPart)
+
+                var livelihoodByteArray: ByteArray = byteArrayOf(0)
+                val base64StringLivelihood = Base64.encodeToString(livelihoodByteArray, Base64.DEFAULT)
+                val livelihoodPhotoPart = base64StringLivelihood.toRequestBody("image/jpeg".toMediaTypeOrNull())
+                val livelihoodPhoto = MultipartBody.Part.createFormData("livelihoodPhoto", "livelihoodPhoto.jpg", livelihoodPhotoPart)
+
                 //* Iterate profile array
                 // Use a coroutine to execute the Retrofit calls sequentially
                     if (profiles.isNotEmpty()){
@@ -120,24 +138,28 @@ class ProfilesActivity : AppCompatActivity() {
                             profileData.put("lat", profile.lat)
                             profileData.put("lon", profile.lon)
                             profileData.put("qrcode", profile.qrcode)
-
+                            profileData.put("hasptmid", profile.hasptmid)
+                            profileIDArrayList.add(profile.id)
                             val beneficiariesArray = JSONArray()
                             val beneficiaries = localDatabase.getBeneficiaries(profile.id)
-                            beneficiaries.forEach { beneficiary ->
-                                val beneficiaryObject = JSONObject().apply {
-                                    put("precinct", beneficiary.precinct)
-                                    put("fullname", beneficiary.fullname)
-                                    put("birthdate", beneficiary.birthdate)
+                            if (beneficiaries.isNotEmpty()){
+                                beneficiaries.forEach {
+                                    val beneficiaryObject = JSONObject().apply {
+                                        put("precinct", it.precinct)
+                                        put("fullname", it.fullname)
+                                        put("birthdate", it.birthdate)
+                                    }
+                                    beneficiariesArray.put(beneficiaryObject)
                                 }
-                                beneficiariesArray.put(beneficiaryObject)
+                                profileData.put("beneficiaries", beneficiariesArray)
                             }
-                            profileData.put("beneficiaries", beneficiariesArray)
+
 
                             val skillsArray = JSONArray()
                             val skills = localDatabase.getSkills(profile.id)
                             if (skills.isNotEmpty()){
-                                skills.forEach { skill ->
-                                    skillsArray.put(skill.skill)
+                                skills.forEach {
+                                    skillsArray.put(it.skill)
                                 }
                                 profileData.put("skills", skillsArray)
                             }
@@ -145,69 +167,70 @@ class ProfilesActivity : AppCompatActivity() {
                             val livelihoodArray = JSONArray()
                             val livelihoods = localDatabase.getLivelihood(profile.id)
                             if (livelihoods.isNotEmpty()){
-                                livelihoods.forEach { livelihood ->
-                                    livelihoodArray.put(livelihood.livelihood)
+                                livelihoods.forEach {
+                                    livelihoodArray.put(it.livelihood)
                                 }
                                 profileData.put("livelihoods", livelihoodArray)
                             }
 
+                            val assistanceArray = JSONArray()
+                            val assistance = localDatabase.getAssistance(profile.id)
+                            if (assistance.isNotEmpty()){
+                                assistance.forEach {
+                                    val assistanceObject = JSONObject().apply {
+                                        put("assistance", it.assistance)
+                                        put("amount", it.amount)
+                                        put("released_at", it.releasedAt)
+                                    }
+                                    assistanceArray.put(assistanceObject)
+                                }
+                                profileData.put("assistance", assistanceArray)
+                            }
+
                             val photos = localDatabase.getPhotos(profile.id)
                             if (photos.isNotEmpty()) {
-                                photos.forEach { img ->
-                                    val personalByteArray = img.personal
-                                    val familyByteArray = img.family
-                                    val livelihoodByteArray = img.livelihood
-
-                                    val base64StringPersonal = Base64.encodeToString(personalByteArray, Base64.DEFAULT)
-                                    val personalPhotoPart = base64StringPersonal.toRequestBody("image/jpeg".toMediaTypeOrNull())
-                                    val personalPhoto = MultipartBody.Part.createFormData("personalPhoto", "personalPhoto.jpg", personalPhotoPart)
-
-
-                                    val base64StringFamily = Base64.encodeToString(familyByteArray, Base64.DEFAULT)
-                                    val familyPhotoPart = base64StringFamily.toRequestBody("image/jpeg".toMediaTypeOrNull())
-                                    val familyPhoto = MultipartBody.Part.createFormData("familyPhoto", "familyPhoto.jpg", familyPhotoPart)
-
-
-                                    val base64StringLivelihood = Base64.encodeToString(livelihoodByteArray, Base64.DEFAULT)
-                                    val livelihoodPhotoPart = base64StringLivelihood.toRequestBody("image/jpeg".toMediaTypeOrNull())
-                                    val livelihoodPhoto = MultipartBody.Part.createFormData("livelihoodPhoto", "livelihoodPhoto.jpg", livelihoodPhotoPart)
-
-                                    // Execute the Retrofit request outside the loop
-                                    retrofit.uploadProfile(profileData.toString().toRequestBody(), personalPhoto, familyPhoto, livelihoodPhoto).enqueue(object : Callback<ResponseBody?> {
-                                        override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
-                                            if (response.isSuccessful) {
-                                                if (response.code() == 201) {
-                                                    // Data uploaded successfully
-                                                    Toast.makeText(applicationContext, "Successfully saved.", Toast.LENGTH_SHORT).show()
-                                                    localDatabase.markUploaded(profile.id)
-                                                    loadData()
-                                                    loadingDialog.dismiss()
-                                                } else {
-                                                    // Handle unsuccessful response
-                                                    Toast.makeText(applicationContext, "Failed to save profile.", Toast.LENGTH_SHORT).show()
-                                                    loadData()
-                                                    loadingDialog.dismiss()
-                                                }
-                                            } else {
-                                                // Handle unsuccessful response
-                                                Toast.makeText(applicationContext, "Something went wrong.\nStatusCode: ${response.code()}", Toast.LENGTH_SHORT).show()
-                                                loadingDialog.dismiss()
-                                            }
-                                        }
-
-                                        override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
-                                            // Handle failure
-                                            Toast.makeText(applicationContext, "Upload failed.\nPlease try again.", Toast.LENGTH_SHORT).show()
-                                            loadingDialog.dismiss()
-                                        }
-                                    })
-
+                                photos.forEach {
+                                    personalByteArray = it.personal
+                                    familyByteArray = it.family
+                                    livelihoodByteArray = it.livelihood
                                 }
 
 
                             }
 
                         }
+                        // Execute the Retrofit request outside the loop
+                        retrofit.uploadProfile(profileData.toString().toRequestBody(), personalPhoto, familyPhoto, livelihoodPhoto).enqueue(object : Callback<ResponseBody?> {
+                            override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
+                                if (response.isSuccessful) {
+                                    if (response.code() == 201) {
+                                        // Data uploaded successfully
+                                        Toast.makeText(applicationContext, "Successfully saved.", Toast.LENGTH_SHORT).show()
+                                        profileIDArrayList.forEach {
+                                            localDatabase.markUploaded(it)
+                                        }
+
+                                        loadData()
+                                        loadingDialog.dismiss()
+                                    } else {
+                                        // Handle unsuccessful response
+                                        Toast.makeText(applicationContext, "Failed to save profile.", Toast.LENGTH_SHORT).show()
+                                        loadData()
+                                        loadingDialog.dismiss()
+                                    }
+                                } else {
+                                    // Handle unsuccessful response
+                                    Toast.makeText(applicationContext, "Something went wrong.\nStatusCode: ${response.code()}", Toast.LENGTH_SHORT).show()
+                                    loadingDialog.dismiss()
+                                }
+                            }
+
+                            override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
+                                // Handle failure
+                                Toast.makeText(applicationContext, t.message.toString(), Toast.LENGTH_SHORT).show()
+                                loadingDialog.dismiss()
+                            }
+                        })
                     } else {
                         Toast.makeText(applicationContext, "There is nothing to upload.", Toast.LENGTH_SHORT).show()
                         loadingDialog.dismiss()
@@ -216,28 +239,6 @@ class ProfilesActivity : AppCompatActivity() {
         }
     }
 
-    private val barcodeLauncher = registerForActivityResult(
-        ScanContract()
-    ) { result: ScanIntentResult ->
-        if (result.contents == null) {
-            Toast.makeText(applicationContext, "QR Scanner has been cancelled", Toast.LENGTH_SHORT).show()
-        } else {
-            Toast.makeText(applicationContext, result.contents, Toast.LENGTH_LONG).show()
-            //todo: create checker in local database
-//            val isValid: Boolean = localDatabase.checkBetValidity(result.contents)
-//            if (isValid) {
-//                val isClaimed: Boolean = localDatabase.checkClaim(result.contents)
-//                if (isClaimed) {
-//                    resultStatus("Already Claimed", "Transaction Code ${result.contents} is already claimed", 0)
-//                } else {
-//                    localDatabase.claimBet(result.contents)
-//                    showSuccess()
-//                }
-//            } else {
-//                resultStatus("Invalid Receipt", "Transaction Code ${result.contents} is invalid", 0)
-//            }
-        }
-    }
 
     private fun logout(){
         val builder = AlertDialog.Builder(this)
@@ -261,9 +262,6 @@ class ProfilesActivity : AppCompatActivity() {
         }
         val dialog: AlertDialog = builder.create()
         dialog.show()
-
-
-
     }
 
     private fun showLoadingDialog(): Dialog {
@@ -271,7 +269,7 @@ class ProfilesActivity : AppCompatActivity() {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setCancelable(false)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        dialog.setContentView(R.layout.upload_dialog) // Create a layout file for the dialog
+        dialog.setContentView(R.layout.dialog_upload) // Create a layout file for the dialog
 
         val imageView = dialog.findViewById<ImageView>(R.id.imageViewUpload)
         Glide.with(this@ProfilesActivity).load(R.drawable.progress).apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE)).into(imageView)
