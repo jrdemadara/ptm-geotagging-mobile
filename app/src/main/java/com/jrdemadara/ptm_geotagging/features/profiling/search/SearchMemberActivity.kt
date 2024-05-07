@@ -75,6 +75,7 @@ class SearchMemberActivity : AppCompatActivity() {
                 append(" ")
                 append(it.extension.capitalizeWords())
             }
+            precinct = it.precinct
             lastname = it.lastname
             firstname = it.firstname
             middlename = it.middlename
@@ -87,6 +88,7 @@ class SearchMemberActivity : AppCompatActivity() {
 
         buttonSelectMember.setOnClickListener {
             val intent = Intent(this@SearchMemberActivity, ProfilingActivity::class.java)
+            intent.putExtra("precinct", precinct)
             intent.putExtra("lastname", lastname)
             intent.putExtra("firstname", firstname)
             intent.putExtra("middlename", middlename)

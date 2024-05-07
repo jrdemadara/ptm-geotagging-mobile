@@ -35,6 +35,7 @@ class LocalDatabase(context: Context) :
 
         /* Profiles Table */
         private const val PROFILE_ID_COL = "id"
+        private const val PROFILE_PRECINCT_COL = "precinct"
         private const val PROFILE_LASTNAME_COL = "lastname"
         private const val PROFILE_FIRSTNAME_COL = "firstname"
         private const val PROFILE_MIDDLENAME_COL = "middlename"
@@ -104,6 +105,7 @@ class LocalDatabase(context: Context) :
                 "CREATE TABLE " +
                         TABLE_PROFILES + " (" +
                         PROFILE_ID_COL + " TEXT, " +
+                        PROFILE_PRECINCT_COL + " TEXT," +
                         PROFILE_LASTNAME_COL + " TEXT," +
                         PROFILE_FIRSTNAME_COL + " TEXT," +
                         PROFILE_MIDDLENAME_COL + " TEXT," +
@@ -298,6 +300,7 @@ class LocalDatabase(context: Context) :
     /* Save Attendance */
     fun saveProfile(
         id: String?,
+        precinct: String?,
         lastname: String?,
         firstname: String?,
         middlename: String?,
@@ -317,8 +320,8 @@ class LocalDatabase(context: Context) :
             val cursor = db.query(
                 TABLE_PROFILES,
                 arrayOf(PROFILE_ID_COL),
-                "$PROFILE_LASTNAME_COL = ? AND $PROFILE_FIRSTNAME_COL = ?",
-                arrayOf(lastname, firstname),
+                "$PROFILE_PRECINCT_COL = ? AND $PROFILE_LASTNAME_COL = ? AND $PROFILE_FIRSTNAME_COL = ?",
+                arrayOf(precinct, lastname, firstname),
                 null,
                 null,
                 null
@@ -336,6 +339,7 @@ class LocalDatabase(context: Context) :
             // Profile doesn't exist, proceed with saving the data
             val values = ContentValues()
             values.put(PROFILE_ID_COL, id)
+            values.put(PROFILE_PRECINCT_COL, precinct)
             values.put(PROFILE_LASTNAME_COL, lastname)
             values.put(PROFILE_FIRSTNAME_COL, firstname)
             values.put(PROFILE_MIDDLENAME_COL, middlename)
@@ -349,7 +353,6 @@ class LocalDatabase(context: Context) :
             values.put(PROFILE_IS_UPLOADED_COL, 0)
             values.put(PROFILE_HASPTMID_COL, hasPTMID)
             db.insert(TABLE_PROFILES, null, values)
-
             db.close()
             true // Data saved successfully
         } catch (e: Exception) {
@@ -643,17 +646,18 @@ class LocalDatabase(context: Context) :
                 data.add(
                     Profile(
                         id = cursor.getString(0),
-                        lastname = cursor.getString(1),
-                        firstname = cursor.getString(2),
-                        middlename = cursor.getString(3),
-                        extension = cursor.getString(4),
-                        birthdate = cursor.getString(5),
-                        occupation = cursor.getString(6),
-                        phone = cursor.getString(7),
-                        lat = cursor.getString(8),
-                        lon = cursor.getString(9),
-                        qrcode = cursor.getString(10),
-                        hasptmid = cursor.getInt(11),
+                        precinct = cursor.getString(1),
+                        lastname = cursor.getString(2),
+                        firstname = cursor.getString(3),
+                        middlename = cursor.getString(4),
+                        extension = cursor.getString(5),
+                        birthdate = cursor.getString(6),
+                        occupation = cursor.getString(7),
+                        phone = cursor.getString(8),
+                        lat = cursor.getString(9),
+                        lon = cursor.getString(10),
+                        qrcode = cursor.getString(11),
+                        hasptmid = cursor.getInt(12),
                     )
                 )
             } while (cursor.moveToNext())

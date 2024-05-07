@@ -113,12 +113,12 @@ class ProfilesActivity : AppCompatActivity() {
                 val base64StringPersonal = Base64.encodeToString(personalByteArray, Base64.DEFAULT)
                 val personalPhotoPart = base64StringPersonal.toRequestBody("image/jpeg".toMediaTypeOrNull())
                 val personalPhoto = MultipartBody.Part.createFormData("personalPhoto", "personalPhoto.jpg", personalPhotoPart)
-
+                //* Family Photo
                 var familyByteArray: ByteArray = byteArrayOf(0)
                 val base64StringFamily = Base64.encodeToString(familyByteArray, Base64.DEFAULT)
                 val familyPhotoPart = base64StringFamily.toRequestBody("image/jpeg".toMediaTypeOrNull())
                 val familyPhoto = MultipartBody.Part.createFormData("familyPhoto", "familyPhoto.jpg", familyPhotoPart)
-
+                //* Livelihood Photo
                 var livelihoodByteArray: ByteArray = byteArrayOf(0)
                 val base64StringLivelihood = Base64.encodeToString(livelihoodByteArray, Base64.DEFAULT)
                 val livelihoodPhotoPart = base64StringLivelihood.toRequestBody("image/jpeg".toMediaTypeOrNull())
@@ -128,6 +128,7 @@ class ProfilesActivity : AppCompatActivity() {
                 // Use a coroutine to execute the Retrofit calls sequentially
                     if (profiles.isNotEmpty()){
                         profiles.forEach { profile ->
+                            profileData.put("precinct", profile.precinct)
                             profileData.put("lastname", profile.lastname)
                             profileData.put("firstname", profile.firstname)
                             profileData.put("middlename", profile.middlename)

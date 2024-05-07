@@ -25,6 +25,7 @@ import retrofit2.Response
 class LoginActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
     private var prefAccessToken= "pref_access_token"
+    private var prefMunicipality= "pref_municipality"
     private lateinit var accessToken: String
     private lateinit var buttonLogin: Button
     private lateinit var editTextLoginEmail: EditText
@@ -57,10 +58,12 @@ class LoginActivity : AppCompatActivity() {
                         val responseBody = response.body()?.string() // Convert response body to string
                         val jsonObject = responseBody?.let { JSONObject(it) }
                         val accessToken = jsonObject?.getString("access_token")
+                        val municipality = jsonObject?.getString("municipality")
 
                         // Now you have the access token, you can use it as needed
                         if (accessToken != null) {
                             saveAccessToken(accessToken)
+                            saveMunicipality(municipality)
                             val intent = Intent(applicationContext, InitializeActivity::class.java)
                             startActivity(intent)
                             finish()
@@ -87,5 +90,14 @@ class LoginActivity : AppCompatActivity() {
             .edit()
             .putString(prefAccessToken, accessToken)
             .apply()
+    }
+
+    private fun saveMunicipality(municipality: String?) {
+        if (municipality != null) {
+            getSharedPreferences("pref_app", MODE_PRIVATE)
+                .edit()
+                .putString(prefMunicipality, municipality.uppercase())
+                .apply()
+        }
     }
 }

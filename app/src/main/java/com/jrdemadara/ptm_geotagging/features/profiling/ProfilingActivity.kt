@@ -70,6 +70,7 @@ class ProfilingActivity : AppCompatActivity() {
     private lateinit var qrcode: UUID
 
     //* Profile Variables
+    private lateinit var editTextProfilePrecinct: EditText
     private lateinit var editTextLastname: EditText
     private lateinit var editTextFirstname: EditText
     private lateinit var editTextMiddlename: EditText
@@ -140,6 +141,7 @@ class ProfilingActivity : AppCompatActivity() {
         textViewSaveMessage = findViewById(R.id.textViewSaveMessage)
         uuid = UUID.randomUUID()
         //* Initialize Profile Variable
+        editTextProfilePrecinct = findViewById(R.id.editTextProfilePrecinct)
         editTextLastname = findViewById(R.id.editTextLastname)
         editTextFirstname = findViewById(R.id.editTextFirstname)
         editTextMiddlename = findViewById(R.id.editTextMiddlename)
@@ -316,7 +318,8 @@ class ProfilingActivity : AppCompatActivity() {
 
         buttonSave.setOnClickListener {
             qrcode = UUID.randomUUID()
-            if (editTextLastname.text.isNotEmpty() &&
+            if (editTextProfilePrecinct.text.isNotEmpty() &&
+                editTextLastname.text.isNotEmpty() &&
                 editTextFirstname.text.isNotEmpty() &&
                 editTextMiddlename.text.isNotEmpty() &&
                 editTextBirthdate.text.isNotEmpty() &&
@@ -356,6 +359,9 @@ class ProfilingActivity : AppCompatActivity() {
     }
 
     private fun getIntentDataFromMemberSearch(){
+        if (intent.hasExtra("precinct")){
+            editTextProfilePrecinct.setText(intent.getStringExtra("precinct").toString().capitalizeWords())
+        }
         if (intent.hasExtra("lastname")){
             editTextLastname.setText(intent.getStringExtra("lastname").toString().capitalizeWords())
         }
@@ -386,6 +392,7 @@ class ProfilingActivity : AppCompatActivity() {
     private fun saveProfile(profileID: String){
             val isSaved = localDatabase.saveProfile(
                 profileID,
+                editTextProfilePrecinct.text.toString().trim(),
                 editTextLastname.text.toString().trim(),
                 editTextFirstname.text.toString().trim(),
                 editTextMiddlename.text.toString().trim(),
@@ -497,6 +504,7 @@ class ProfilingActivity : AppCompatActivity() {
         capturedImageLivelihood = byteArrayOf()
         buttonNext.text = "Next"
 
+        editTextProfilePrecinct.text.clear()
         editTextLastname.text.clear()
         editTextLastname.text.clear()
         editTextFirstname.text.clear()
@@ -656,6 +664,13 @@ class ProfilingActivity : AppCompatActivity() {
             checkPermission()
 
             val printer = EscPosPrinter(BluetoothPrintersConnections.selectFirstPaired(), 203, 48f, 32)
+            printer
+                .printFormattedText(
+                    "[C]<b>PTM KAPAMILYA</b>\n" +
+                            "[C]<font size='normal'>Digital Identification</font> \n" +
+                            "[C]<qrcode size='32'>$profileCode</qrcode>\n".trimIndent()
+                )
+
             printer
                 .printFormattedText(
                     "[C]<b>PTM KAPAMILYA</b>\n" +
