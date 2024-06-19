@@ -3,20 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="#f4f8fb">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="560dp"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="16dp"
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/textView18"
@@ -39,116 +37,128 @@
             android:textColor="#673AB7"
             android:textSize="16sp" />
 
-        <EditText
-            android:id="@+id/editTextProfilePrecinct"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="28dp"
-            android:background="@drawable/ic_round_edittext"
-            android:ems="10"
-            android:fontFamily="@font/roboto_mono"
-            android:hint="Precinct Number"
-            android:inputType="textCapSentences|textCapWords"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp" />
+            android:layout_height="match_parent"
+            android:layout_marginTop="16dp">
 
-        <EditText
-            android:id="@+id/editTextLastname"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="28dp"
-            android:background="@drawable/ic_round_edittext"
-            android:ems="10"
-            android:fontFamily="@font/roboto_mono"
-            android:hint="Lastname"
-            android:inputType="textCapSentences|textCapWords"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/editTextFirstname"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/ic_round_edittext"
-            android:capitalize="words"
-            android:ems="10"
-            android:fontFamily="@font/roboto_mono"
-            android:hint="Firstname"
-            android:inputType="textCapSentences|textCapWords"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp" />
+                <EditText
+                    android:id="@+id/editTextProfilePrecinct"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="28dp"
+                    android:background="@drawable/ic_round_edittext"
+                    android:ems="10"
+                    android:fontFamily="@font/roboto_mono"
+                    android:hint="Precinct Number"
+                    android:inputType="textCapSentences|textCapWords"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp" />
 
-        <EditText
-            android:id="@+id/editTextMiddlename"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/ic_round_edittext"
-            android:capitalize="words"
-            android:ems="10"
-            android:fontFamily="@font/roboto_mono"
-            android:hint="Middlename"
-            android:inputType="textCapSentences|textCapWords"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp" />
+                <EditText
+                    android:id="@+id/editTextLastname"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/ic_round_edittext"
+                    android:ems="10"
+                    android:fontFamily="@font/roboto_mono"
+                    android:hint="Lastname"
+                    android:inputType="textCapSentences|textCapWords"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp" />
 
-        <EditText
-            android:id="@+id/editTextExtension"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/ic_round_edittext"
-            android:capitalize="words"
-            android:ems="10"
-            android:fontFamily="@font/roboto_mono"
-            android:hint="Extension"
-            android:inputType="textCapSentences|textCapWords"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp" />
+                <EditText
+                    android:id="@+id/editTextFirstname"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/ic_round_edittext"
+                    android:capitalize="words"
+                    android:ems="10"
+                    android:fontFamily="@font/roboto_mono"
+                    android:hint="Firstname"
+                    android:inputType="textCapSentences|textCapWords"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp" />
 
-        <EditText
-            android:id="@+id/editTextBirthdate"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/ic_round_edittext"
-            android:clickable="true"
-            android:ems="10"
-            android:focusable="false"
-            android:fontFamily="@font/roboto_mono"
-            android:hint="Birthdate"
-            android:inputType="date"
-            android:longClickable="false"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp" />
+                <EditText
+                    android:id="@+id/editTextMiddlename"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/ic_round_edittext"
+                    android:capitalize="words"
+                    android:ems="10"
+                    android:fontFamily="@font/roboto_mono"
+                    android:hint="Middlename"
+                    android:inputType="textCapSentences|textCapWords"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp" />
 
-        <EditText
-            android:id="@+id/editTextOccupation"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/ic_round_edittext"
-            android:capitalize="words"
-            android:ems="10"
-            android:fontFamily="@font/roboto_mono"
-            android:hint="Occupation"
-            android:inputType="textCapSentences|textCapWords"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp" />
+                <EditText
+                    android:id="@+id/editTextExtension"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/ic_round_edittext"
+                    android:capitalize="words"
+                    android:ems="10"
+                    android:fontFamily="@font/roboto_mono"
+                    android:hint="Extension"
+                    android:inputType="textCapSentences|textCapWords"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp" />
 
-        <EditText
-            android:id="@+id/editTextPhone"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/ic_round_edittext"
-            android:ems="10"
-            android:fontFamily="@font/roboto_mono"
-            android:hint="Phone"
-            android:inputType="phone"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp" />
+                <EditText
+                    android:id="@+id/editTextBirthdate"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/ic_round_edittext"
+                    android:clickable="true"
+                    android:ems="10"
+                    android:focusable="false"
+                    android:fontFamily="@font/roboto_mono"
+                    android:hint="Birthdate"
+                    android:inputType="date"
+                    android:longClickable="false"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp" />
+
+                <EditText
+                    android:id="@+id/editTextOccupation"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/ic_round_edittext"
+                    android:capitalize="words"
+                    android:ems="10"
+                    android:fontFamily="@font/roboto_mono"
+                    android:hint="Occupation"
+                    android:inputType="textCapSentences|textCapWords"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp" />
+
+                <EditText
+                    android:id="@+id/editTextPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/ic_round_edittext"
+                    android:ems="10"
+                    android:fontFamily="@font/roboto_mono"
+                    android:hint="Phone"
+                    android:inputType="phone"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp" />
+            </LinearLayout>
+        </ScrollView>
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
