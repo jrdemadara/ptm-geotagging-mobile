@@ -14,6 +14,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ptm-geotagging"
+rootProject.name = "PTMGeotagging"
 include(":app")
  

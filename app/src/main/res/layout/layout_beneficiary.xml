@@ -59,7 +59,7 @@
             <EditText
                 android:id="@+id/editTextPrecinct"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="48dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/ic_round_edittext"
                 android:ems="10"
@@ -72,7 +72,7 @@
             <EditText
                 android:id="@+id/editTextBeneficiaryName"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="48dp"
                 android:layout_marginTop="16dp"
                 android:background="@drawable/ic_round_edittext"
                 android:ems="10"
@@ -85,7 +85,7 @@
             <EditText
                 android:id="@+id/editTextBeneficiaryBirthdate"
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
+                android:layout_height="48dp"
                 android:layout_marginTop="16dp"
                 android:background="@drawable/ic_round_edittext"
                 android:clickable="true"

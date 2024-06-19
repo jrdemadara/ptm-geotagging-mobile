@@ -334,7 +334,7 @@ class ProfilingActivity : AppCompatActivity() {
                 saveSkills(uuid.toString())
                 saveLivelihood(uuid.toString())
                 savePhoto(uuid.toString())
-                printReceipt(qrcode)
+                printReceipt(qrcode, editTextLastname.text.toString(),  editTextFirstname.text.toString(), editTextMiddlename.text.toString())
                 Handler(Looper.getMainLooper()).postDelayed({
                     resetComponents()
                     val intent = Intent(applicationContext, ProfilesActivity::class.java)
@@ -655,7 +655,7 @@ class ProfilingActivity : AppCompatActivity() {
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
-    private fun printReceipt(profileCode: UUID) {
+    private fun printReceipt(profileCode: UUID, lastname: String, firstname: String, middlename: String) {
         val bluetoothManager = applicationContext.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothManager.adapter
         if (!bluetoothManager.adapter.isEnabled) {
@@ -666,15 +666,15 @@ class ProfilingActivity : AppCompatActivity() {
             val printer = EscPosPrinter(BluetoothPrintersConnections.selectFirstPaired(), 203, 48f, 32)
             printer
                 .printFormattedText(
-                    "[C]<b>PTM KAPAMILYA</b>\n" +
-                            "[C]<font size='normal'>Digital Identification</font> \n" +
+                    "[C]<b>${lastname.uppercase()}, ${firstname.uppercase()} ${middlename.uppercase()}</b>\n" +
+                            "[C]<font size='normal'>QR Code Identifier</font> \n" +
                             "[C]<qrcode size='32'>$profileCode</qrcode>\n".trimIndent()
                 )
 
             printer
                 .printFormattedText(
-                    "[C]<b>PTM KAPAMILYA</b>\n" +
-                            "[C]<font size='normal'>Digital Identification</font> \n" +
+                    "[C]<b>${lastname.uppercase()}, ${firstname.uppercase()} ${middlename.uppercase()}</b>\n" +
+                            "[C]<font size='normal'>QR Code Identifier</font> \n" +
                             "[C]<qrcode size='32'>$profileCode</qrcode>\n".trimIndent()
                 )
         }

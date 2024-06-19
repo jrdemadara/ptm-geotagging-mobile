@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ptm-geotagging</string>
+    <string name="app_name">PTMGeotagging</string>
     <string name="get_started">Get Started</string>
     <string name="register">Register</string>
 </resources>
