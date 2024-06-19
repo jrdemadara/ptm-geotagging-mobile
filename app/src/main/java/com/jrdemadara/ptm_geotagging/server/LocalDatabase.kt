@@ -374,9 +374,9 @@ class LocalDatabase(context: Context) :
             // Check if the precinct already exists in the database
             val cursor = db.query(
                 TABLE_BENEFICIARIES,
-                arrayOf(BENEFICIARY_PRECINCT_COL),
-                "$BENEFICIARY_PRECINCT_COL = ?",
-                arrayOf(precinct),
+                arrayOf(BENEFICIARY_FULLNAME_COL),
+                "$BENEFICIARY_FULLNAME_COL = ?",
+                arrayOf(fullname),
                 null,
                 null,
                 null
