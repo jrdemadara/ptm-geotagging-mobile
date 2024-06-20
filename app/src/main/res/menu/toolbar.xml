@@ -3,17 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/upload"
+        android:id="@+id/admin"
         android:checkable="true"
         android:enabled="true"
-        android:icon="@drawable/cloud"
-        android:title="Sync"
-        app:showAsAction="ifRoom" />
+        android:icon="@drawable/shield"
+        android:title="Admin"
+        android:visible="true"
+        app:showAsAction="always" />
     <item
         android:id="@+id/aid"
         android:checkable="true"
         android:enabled="true"
         android:icon="@drawable/hand_heart"
+        android:title="Aid"
         app:showAsAction="always" />
     <item
         android:id="@+id/logout"

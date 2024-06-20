@@ -666,6 +666,43 @@ class LocalDatabase(context: Context) :
         return data
     }
 
+    fun getAllProfiles(): ArrayList<Profile> {
+        val db = this.readableDatabase
+        val query = "SELECT *  FROM $TABLE_PROFILES"
+        val data: ArrayList<Profile> = ArrayList()
+        val cursor: Cursor?
+        try {
+            cursor = db.rawQuery(query, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(query)
+            return ArrayList()
+        }
+        if (cursor.moveToFirst()) {
+            do {
+                data.add(
+                    Profile(
+                        id = cursor.getString(0),
+                        precinct = cursor.getString(1),
+                        lastname = cursor.getString(2),
+                        firstname = cursor.getString(3),
+                        middlename = cursor.getString(4),
+                        extension = cursor.getString(5),
+                        birthdate = cursor.getString(6),
+                        occupation = cursor.getString(7),
+                        phone = cursor.getString(8),
+                        lat = cursor.getString(9),
+                        lon = cursor.getString(10),
+                        qrcode = cursor.getString(11),
+                        hasptmid = cursor.getInt(12),
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return data
+    }
+
     fun getBeneficiaries(profileID: String): ArrayList<Beneficiary> {
         val db = this.readableDatabase
         val query =
