@@ -6,11 +6,15 @@ import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Base64
+import android.util.Log
 import android.view.Menu
 import android.view.View
 import android.view.Window
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -58,15 +62,16 @@ class AdminActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         buttonUpload.setOnClickListener {
-            uploadProfile()
+            val dialog = showUploadDialog()
+            dialog.show()
         }
         buttonReupload.setOnClickListener {
-            uploadAllProfile()
+            val dialog = showForceUploadDialog()
+            dialog.show()
         }
-
     }
 
-    private fun uploadProfile(){
+    private fun uploadProfile(barangay: String?){
         //* Check network connection
         networkChecker = NetworkChecker(application)
         networkChecker.observe(this) { isConnected ->
@@ -83,122 +88,124 @@ class AdminActivity : AppCompatActivity() {
                     val profileCount = profiles.size
                     var uploaded  = 0
                     profiles.forEach { profile ->
-                        val profileData = JSONObject()
-                        val profileIDArrayList = ArrayList<String>()
-                        //* Personal Photo
-                        var personalByteArray: ByteArray = byteArrayOf(0)
-                        val base64StringPersonal = Base64.encodeToString(personalByteArray, Base64.DEFAULT)
-                        val personalPhotoPart = base64StringPersonal.toRequestBody("image/jpeg".toMediaTypeOrNull())
-                        val personalPhoto = MultipartBody.Part.createFormData("personalPhoto", "personalPhoto.jpg", personalPhotoPart)
-                        //* Family Photo
-                        var familyByteArray: ByteArray = byteArrayOf(0)
-                        val base64StringFamily = Base64.encodeToString(familyByteArray, Base64.DEFAULT)
-                        val familyPhotoPart = base64StringFamily.toRequestBody("image/jpeg".toMediaTypeOrNull())
-                        val familyPhoto = MultipartBody.Part.createFormData("familyPhoto", "familyPhoto.jpg", familyPhotoPart)
-                        //* Livelihood Photo
-                        var livelihoodByteArray: ByteArray = byteArrayOf(0)
-                        val base64StringLivelihood = Base64.encodeToString(livelihoodByteArray, Base64.DEFAULT)
-                        val livelihoodPhotoPart = base64StringLivelihood.toRequestBody("image/jpeg".toMediaTypeOrNull())
-                        val livelihoodPhoto = MultipartBody.Part.createFormData("livelihoodPhoto", "livelihoodPhoto.jpg", livelihoodPhotoPart)
+                        Thread {
+                            try {
+                                val profileData = JSONObject()
+                                val profileIDArrayList = ArrayList<String>()
 
-                        profileData.put("precinct", profile.precinct)
-                        profileData.put("lastname", profile.lastname)
-                        profileData.put("firstname", profile.firstname)
-                        profileData.put("middlename", profile.middlename)
-                        profileData.put("extension", profile.extension)
-                        profileData.put("birthdate", profile.birthdate)
-                        profileData.put("occupation", profile.occupation)
-                        profileData.put("phone", profile.phone)
-                        profileData.put("lat", profile.lat)
-                        profileData.put("lon", profile.lon)
-                        profileData.put("qrcode", profile.qrcode)
-                        profileData.put("hasptmid", profile.hasptmid)
-                        profileIDArrayList.add(profile.id)
-                        val beneficiariesArray = JSONArray()
-                        val beneficiaries = localDatabase.getBeneficiaries(profile.id)
-                        if (beneficiaries.isNotEmpty()){
-                            beneficiaries.forEach {
-                                val beneficiaryObject = JSONObject().apply {
-                                    put("precinct", it.precinct)
-                                    put("fullname", it.fullname)
-                                    put("birthdate", it.birthdate)
+                                profileData.put("precinct", profile.precinct)
+                                profileData.put("lastname", profile.lastname)
+                                profileData.put("firstname", profile.firstname)
+                                profileData.put("middlename", profile.middlename)
+                                profileData.put("extension", profile.extension)
+                                profileData.put("birthdate", profile.birthdate)
+                                profileData.put("occupation", profile.occupation)
+                                profileData.put("phone", profile.phone)
+                                profileData.put("lat", profile.lat)
+                                profileData.put("lon", profile.lon)
+                                profileData.put("qrcode", profile.qrcode)
+                                profileData.put("hasptmid", profile.hasptmid)
+                                profileData.put("barangay", barangay)
+                                profileIDArrayList.add(profile.id)
+
+                                val beneficiariesArray = JSONArray()
+                                val beneficiaries = localDatabase.getBeneficiaries(profile.id)
+                                if (beneficiaries.isNotEmpty()) {
+                                    beneficiaries.forEach {
+                                        val beneficiaryObject = JSONObject().apply {
+                                            put("precinct", it.precinct)
+                                            put("fullname", it.fullname)
+                                            put("birthdate", it.birthdate)
+                                        }
+                                        beneficiariesArray.put(beneficiaryObject)
+                                    }
+                                    profileData.put("beneficiaries", beneficiariesArray)
                                 }
-                                beneficiariesArray.put(beneficiaryObject)
-                            }
-                            profileData.put("beneficiaries", beneficiariesArray)
-                        }
 
-                        val skillsArray = JSONArray()
-                        val skills = localDatabase.getSkills(profile.id)
-                        if (skills.isNotEmpty()){
-                            skills.forEach {
-                                skillsArray.put(it.skill)
-                            }
-                            profileData.put("skills", skillsArray)
-                        }
-
-                        val livelihoodArray = JSONArray()
-                        val livelihoods = localDatabase.getLivelihood(profile.id)
-                        if (livelihoods.isNotEmpty()){
-                            livelihoods.forEach {
-                                livelihoodArray.put(it.livelihood)
-                            }
-                            profileData.put("livelihoods", livelihoodArray)
-                        }
-
-                        val assistanceArray = JSONArray()
-                        val assistance = localDatabase.getAssistance(profile.id)
-                        if (assistance.isNotEmpty()){
-                            assistance.forEach {
-                                val assistanceObject = JSONObject().apply {
-                                    put("assistance", it.assistance)
-                                    put("amount", it.amount)
-                                    put("released_at", it.releasedAt)
+                                val skillsArray = JSONArray()
+                                val skills = localDatabase.getSkills(profile.id)
+                                if (skills.isNotEmpty()) {
+                                    skills.forEach {
+                                        skillsArray.put(it.skill)
+                                    }
+                                    profileData.put("skills", skillsArray)
                                 }
-                                assistanceArray.put(assistanceObject)
-                            }
-                            profileData.put("assistance", assistanceArray)
-                        }
 
-                        val photos = localDatabase.getPhotos(profile.id)
-                        if (photos.isNotEmpty()) {
-                            photos.forEach {
-                                personalByteArray = it.personal
-                                familyByteArray = it.family
-                                livelihoodByteArray = it.livelihood
-                            }
-                        }
+                                val livelihoodArray = JSONArray()
+                                val livelihoods = localDatabase.getLivelihood(profile.id)
+                                if (livelihoods.isNotEmpty()) {
+                                    livelihoods.forEach {
+                                        livelihoodArray.put(it.livelihood)
+                                    }
+                                    profileData.put("livelihoods", livelihoodArray)
+                                }
 
-                        // Execute the Retrofit request outside the loop
-                        retrofit.uploadProfile(profileData.toString().toRequestBody(), personalPhoto, familyPhoto, livelihoodPhoto).enqueue(object : Callback<ResponseBody?> {
-                            override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
+                                val assistanceArray = JSONArray()
+                                val assistance = localDatabase.getAssistance(profile.id)
+                                if (assistance.isNotEmpty()) {
+                                    assistance.forEach {
+                                        val assistanceObject = JSONObject().apply {
+                                            put("assistance", it.assistance)
+                                            put("amount", it.amount)
+                                            put("released_at", it.releasedAt)
+                                        }
+                                        assistanceArray.put(assistanceObject)
+                                    }
+                                    profileData.put("assistance", assistanceArray)
+                                }
+
+                                val photos = localDatabase.getPhotos(profile.id)
+                                val personalByteArray = photos.firstOrNull()?.personal ?: byteArrayOf(0)
+                                val familyByteArray = photos.firstOrNull()?.family ?: byteArrayOf(0)
+                                val livelihoodByteArray = photos.firstOrNull()?.livelihood ?: byteArrayOf(0)
+
+                                fun createPhotoPart(photo: ByteArray, name: String): MultipartBody.Part {
+                                    val base64String = Base64.encodeToString(photo, Base64.DEFAULT)
+                                    val requestBody = base64String.toRequestBody("image/jpeg".toMediaTypeOrNull())
+                                    return MultipartBody.Part.createFormData(name, "$name.jpg", requestBody)
+                                }
+
+                                val personalPhoto = createPhotoPart(personalByteArray, "personalPhoto")
+                                val familyPhoto = createPhotoPart(familyByteArray, "familyPhoto")
+                                val livelihoodPhoto = createPhotoPart(livelihoodByteArray, "livelihoodPhoto")
+
+                                // Retrofit request with delay
+                                Thread.sleep(2000) // 1-second delay between requests
+
+                                val response = retrofit.uploadProfile(profileData.toString().toRequestBody(), personalPhoto, familyPhoto, livelihoodPhoto).execute()
                                 if (response.isSuccessful) {
                                     if (response.code() == 201) {
                                         uploaded++
                                         localDatabase.markUploaded(profile.id)
                                         if (profileCount == uploaded) {
-                                            Toast.makeText(applicationContext, "Successfully saved.", Toast.LENGTH_SHORT).show()
-                                            loadingDialog.dismiss()
+                                            // Update UI on the main thread
+                                            Handler(Looper.getMainLooper()).post {
+                                                Toast.makeText(applicationContext, "Successfully uploaded.", Toast.LENGTH_SHORT).show()
+                                                loadingDialog.dismiss()
+                                            }
                                         }
                                     } else {
                                         // Handle unsuccessful response
-                                        Toast.makeText(applicationContext, "Failed to save profile.", Toast.LENGTH_SHORT).show()
-
-                                        loadingDialog.dismiss()
+                                        Handler(Looper.getMainLooper()).post {
+                                            Toast.makeText(applicationContext, "Failed to save profile.", Toast.LENGTH_SHORT).show()
+                                            loadingDialog.dismiss()
+                                        }
                                     }
                                 } else {
                                     // Handle unsuccessful response
-                                    Toast.makeText(applicationContext, "Something went wrong.\nStatusCode: ${response.code()}", Toast.LENGTH_SHORT).show()
+                                    Handler(Looper.getMainLooper()).post {
+                                        Toast.makeText(applicationContext, "Something went wrong.\nStatusCode: ${response.code()}", Toast.LENGTH_SHORT).show()
+                                        loadingDialog.dismiss()
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                // Handle failure
+                                Handler(Looper.getMainLooper()).post {
+                                    Toast.makeText(applicationContext, e.message.toString(), Toast.LENGTH_SHORT).show()
                                     loadingDialog.dismiss()
                                 }
                             }
-
-                            override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
-                                // Handle failure
-                                Toast.makeText(applicationContext, t.message.toString(), Toast.LENGTH_SHORT).show()
-                                loadingDialog.dismiss()
-                            }
-                        })
+                        }.start() // Start the thread
                     }
 
                 } else {
@@ -208,7 +215,7 @@ class AdminActivity : AppCompatActivity() {
             }
         }
     }
-    private fun uploadAllProfile(){
+    private fun forceUploadProfile(barangay: String?){
         //* Check network connection
         networkChecker = NetworkChecker(application)
         networkChecker.observe(this) { isConnected ->
@@ -225,122 +232,124 @@ class AdminActivity : AppCompatActivity() {
                     val profileCount = profiles.size
                     var uploaded  = 0
                     profiles.forEach { profile ->
-                        val profileData = JSONObject()
-                        val profileIDArrayList = ArrayList<String>()
-                        //* Personal Photo
-                        var personalByteArray: ByteArray = byteArrayOf(0)
-                        val base64StringPersonal = Base64.encodeToString(personalByteArray, Base64.DEFAULT)
-                        val personalPhotoPart = base64StringPersonal.toRequestBody("image/jpeg".toMediaTypeOrNull())
-                        val personalPhoto = MultipartBody.Part.createFormData("personalPhoto", "personalPhoto.jpg", personalPhotoPart)
-                        //* Family Photo
-                        var familyByteArray: ByteArray = byteArrayOf(0)
-                        val base64StringFamily = Base64.encodeToString(familyByteArray, Base64.DEFAULT)
-                        val familyPhotoPart = base64StringFamily.toRequestBody("image/jpeg".toMediaTypeOrNull())
-                        val familyPhoto = MultipartBody.Part.createFormData("familyPhoto", "familyPhoto.jpg", familyPhotoPart)
-                        //* Livelihood Photo
-                        var livelihoodByteArray: ByteArray = byteArrayOf(0)
-                        val base64StringLivelihood = Base64.encodeToString(livelihoodByteArray, Base64.DEFAULT)
-                        val livelihoodPhotoPart = base64StringLivelihood.toRequestBody("image/jpeg".toMediaTypeOrNull())
-                        val livelihoodPhoto = MultipartBody.Part.createFormData("livelihoodPhoto", "livelihoodPhoto.jpg", livelihoodPhotoPart)
+                        Thread {
+                            try {
+                                val profileData = JSONObject()
+                                val profileIDArrayList = ArrayList<String>()
 
-                        profileData.put("precinct", profile.precinct)
-                        profileData.put("lastname", profile.lastname)
-                        profileData.put("firstname", profile.firstname)
-                        profileData.put("middlename", profile.middlename)
-                        profileData.put("extension", profile.extension)
-                        profileData.put("birthdate", profile.birthdate)
-                        profileData.put("occupation", profile.occupation)
-                        profileData.put("phone", profile.phone)
-                        profileData.put("lat", profile.lat)
-                        profileData.put("lon", profile.lon)
-                        profileData.put("qrcode", profile.qrcode)
-                        profileData.put("hasptmid", profile.hasptmid)
-                        profileIDArrayList.add(profile.id)
-                        val beneficiariesArray = JSONArray()
-                        val beneficiaries = localDatabase.getBeneficiaries(profile.id)
-                        if (beneficiaries.isNotEmpty()){
-                            beneficiaries.forEach {
-                                val beneficiaryObject = JSONObject().apply {
-                                    put("precinct", it.precinct)
-                                    put("fullname", it.fullname)
-                                    put("birthdate", it.birthdate)
+                                profileData.put("precinct", profile.precinct)
+                                profileData.put("lastname", profile.lastname)
+                                profileData.put("firstname", profile.firstname)
+                                profileData.put("middlename", profile.middlename)
+                                profileData.put("extension", profile.extension)
+                                profileData.put("birthdate", profile.birthdate)
+                                profileData.put("occupation", profile.occupation)
+                                profileData.put("phone", profile.phone)
+                                profileData.put("lat", profile.lat)
+                                profileData.put("lon", profile.lon)
+                                profileData.put("qrcode", profile.qrcode)
+                                profileData.put("hasptmid", profile.hasptmid)
+                                profileData.put("barangay", barangay)
+                                profileIDArrayList.add(profile.id)
+
+                                val beneficiariesArray = JSONArray()
+                                val beneficiaries = localDatabase.getBeneficiaries(profile.id)
+                                if (beneficiaries.isNotEmpty()) {
+                                    beneficiaries.forEach {
+                                        val beneficiaryObject = JSONObject().apply {
+                                            put("precinct", it.precinct)
+                                            put("fullname", it.fullname)
+                                            put("birthdate", it.birthdate)
+                                        }
+                                        beneficiariesArray.put(beneficiaryObject)
+                                    }
+                                    profileData.put("beneficiaries", beneficiariesArray)
                                 }
-                                beneficiariesArray.put(beneficiaryObject)
-                            }
-                            profileData.put("beneficiaries", beneficiariesArray)
-                        }
 
-                        val skillsArray = JSONArray()
-                        val skills = localDatabase.getSkills(profile.id)
-                        if (skills.isNotEmpty()){
-                            skills.forEach {
-                                skillsArray.put(it.skill)
-                            }
-                            profileData.put("skills", skillsArray)
-                        }
-
-                        val livelihoodArray = JSONArray()
-                        val livelihoods = localDatabase.getLivelihood(profile.id)
-                        if (livelihoods.isNotEmpty()){
-                            livelihoods.forEach {
-                                livelihoodArray.put(it.livelihood)
-                            }
-                            profileData.put("livelihoods", livelihoodArray)
-                        }
-
-                        val assistanceArray = JSONArray()
-                        val assistance = localDatabase.getAssistance(profile.id)
-                        if (assistance.isNotEmpty()){
-                            assistance.forEach {
-                                val assistanceObject = JSONObject().apply {
-                                    put("assistance", it.assistance)
-                                    put("amount", it.amount)
-                                    put("released_at", it.releasedAt)
+                                val skillsArray = JSONArray()
+                                val skills = localDatabase.getSkills(profile.id)
+                                if (skills.isNotEmpty()) {
+                                    skills.forEach {
+                                        skillsArray.put(it.skill)
+                                    }
+                                    profileData.put("skills", skillsArray)
                                 }
-                                assistanceArray.put(assistanceObject)
-                            }
-                            profileData.put("assistance", assistanceArray)
-                        }
 
-                        val photos = localDatabase.getPhotos(profile.id)
-                        if (photos.isNotEmpty()) {
-                            photos.forEach {
-                                personalByteArray = it.personal
-                                familyByteArray = it.family
-                                livelihoodByteArray = it.livelihood
-                            }
-                        }
+                                val livelihoodArray = JSONArray()
+                                val livelihoods = localDatabase.getLivelihood(profile.id)
+                                if (livelihoods.isNotEmpty()) {
+                                    livelihoods.forEach {
+                                        livelihoodArray.put(it.livelihood)
+                                    }
+                                    profileData.put("livelihoods", livelihoodArray)
+                                }
 
-                        // Execute the Retrofit request outside the loop
-                        retrofit.uploadProfile(profileData.toString().toRequestBody(), personalPhoto, familyPhoto, livelihoodPhoto).enqueue(object :
-                            Callback<ResponseBody?> {
-                            override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
+                                val assistanceArray = JSONArray()
+                                val assistance = localDatabase.getAssistance(profile.id)
+                                if (assistance.isNotEmpty()) {
+                                    assistance.forEach {
+                                        val assistanceObject = JSONObject().apply {
+                                            put("assistance", it.assistance)
+                                            put("amount", it.amount)
+                                            put("released_at", it.releasedAt)
+                                        }
+                                        assistanceArray.put(assistanceObject)
+                                    }
+                                    profileData.put("assistance", assistanceArray)
+                                }
+
+                                val photos = localDatabase.getPhotos(profile.id)
+                                val personalByteArray = photos.firstOrNull()?.personal ?: byteArrayOf(0)
+                                val familyByteArray = photos.firstOrNull()?.family ?: byteArrayOf(0)
+                                val livelihoodByteArray = photos.firstOrNull()?.livelihood ?: byteArrayOf(0)
+
+                                fun createPhotoPart(photo: ByteArray, name: String): MultipartBody.Part {
+                                    val base64String = Base64.encodeToString(photo, Base64.DEFAULT)
+                                    val requestBody = base64String.toRequestBody("image/jpeg".toMediaTypeOrNull())
+                                    return MultipartBody.Part.createFormData(name, "$name.jpg", requestBody)
+                                }
+
+                                val personalPhoto = createPhotoPart(personalByteArray, "personalPhoto")
+                                val familyPhoto = createPhotoPart(familyByteArray, "familyPhoto")
+                                val livelihoodPhoto = createPhotoPart(livelihoodByteArray, "livelihoodPhoto")
+
+                                // Retrofit request with delay
+                                Thread.sleep(2000) // 1-second delay between requests
+
+                                val response = retrofit.uploadProfile(profileData.toString().toRequestBody(), personalPhoto, familyPhoto, livelihoodPhoto).execute()
                                 if (response.isSuccessful) {
                                     if (response.code() == 201) {
                                         uploaded++
                                         localDatabase.markUploaded(profile.id)
                                         if (profileCount == uploaded) {
-                                            Toast.makeText(applicationContext, "Successfully saved.", Toast.LENGTH_SHORT).show()
-                                            loadingDialog.dismiss()
+                                            // Update UI on the main thread
+                                            Handler(Looper.getMainLooper()).post {
+                                                Toast.makeText(applicationContext, "Successfully uploaded.", Toast.LENGTH_SHORT).show()
+                                                loadingDialog.dismiss()
+                                            }
                                         }
                                     } else {
                                         // Handle unsuccessful response
-                                        Toast.makeText(applicationContext, "Failed to save profile.", Toast.LENGTH_SHORT).show()
-                                        loadingDialog.dismiss()
+                                        Handler(Looper.getMainLooper()).post {
+                                            Toast.makeText(applicationContext, "Failed to save profile.", Toast.LENGTH_SHORT).show()
+                                            loadingDialog.dismiss()
+                                        }
                                     }
                                 } else {
                                     // Handle unsuccessful response
-                                    Toast.makeText(applicationContext, "Something went wrong.\nStatusCode: ${response.code()}", Toast.LENGTH_SHORT).show()
+                                    Handler(Looper.getMainLooper()).post {
+                                        Toast.makeText(applicationContext, "Something went wrong.\nStatusCode: ${response.code()}", Toast.LENGTH_SHORT).show()
+                                        loadingDialog.dismiss()
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                // Handle failure
+                                Handler(Looper.getMainLooper()).post {
+                                    Toast.makeText(applicationContext, e.message.toString(), Toast.LENGTH_SHORT).show()
                                     loadingDialog.dismiss()
                                 }
                             }
-
-                            override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {
-                                // Handle failure
-                                Toast.makeText(applicationContext, t.message.toString(), Toast.LENGTH_SHORT).show()
-                                loadingDialog.dismiss()
-                            }
-                        })
+                        }.start() // Start the thread
                     }
 
                 } else {
@@ -349,6 +358,46 @@ class AdminActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun showUploadDialog(): Dialog {
+        val dialog = Dialog(this@AdminActivity)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCancelable(true)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.setContentView(R.layout.dialog_barangay) // Create a layout file for the dialog
+
+        val editTextBarangay = dialog.findViewById<EditText>(R.id.editTextBarangay)
+        val buttonUpload = dialog.findViewById<Button>(R.id.buttonUpload)
+
+        buttonUpload.setOnClickListener {
+            if (editTextBarangay.text.isNotEmpty()){
+                uploadProfile(editTextBarangay.text.toString())
+            }else {
+                Toast.makeText(applicationContext, "Please input barangay.", Toast.LENGTH_SHORT).show()
+            }
+        }
+        return dialog
+    }
+
+    private fun showForceUploadDialog(): Dialog {
+        val dialog = Dialog(this@AdminActivity)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCancelable(true)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.setContentView(R.layout.dialog_barangay) // Create a layout file for the dialog
+
+        val editTextBarangay = dialog.findViewById<EditText>(R.id.editTextBarangay)
+        val buttonUpload = dialog.findViewById<Button>(R.id.buttonUpload)
+
+        buttonUpload.setOnClickListener {
+            if (editTextBarangay.text.isNotEmpty()){
+                forceUploadProfile(editTextBarangay.text.toString())
+            }else {
+                Toast.makeText(applicationContext, "Please input barangay.", Toast.LENGTH_SHORT).show()
+            }
+        }
+        return dialog
     }
 
     private fun showLoadingDialog(): Dialog {

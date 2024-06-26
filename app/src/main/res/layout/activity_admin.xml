@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:fontFamily="@font/roboto_mono"
-            android:text="Admin Action"
+            android:text="Admin Actions"
             android:textAlignment="textStart"
             android:textColor="#191919"
             android:textSize="20sp" />
@@ -53,7 +53,8 @@
             android:layout_marginTop="16dp"
             android:background="@drawable/ic_round_button"
             android:fontFamily="@font/roboto_mono"
-            android:text="Upload" />
+            android:text="Upload"
+            app:icon="@drawable/cloud" />
 
         <Button
             android:id="@+id/buttonReupload"
@@ -62,7 +63,25 @@
             android:layout_marginTop="16dp"
             android:background="@drawable/ic_round_button"
             android:fontFamily="@font/roboto_mono"
-            android:text="Force Re-upload" />
+            android:text="Force Re-upload"
+            app:icon="@drawable/redo_dot" />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:background="?android:attr/listDivider" />
+
+        <Button
+            android:id="@+id/buttonPowerSearch"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/ic_round_button"
+            android:fontFamily="@font/roboto_mono"
+            android:text="Profile Search"
+            app:icon="@drawable/user_round_search" />
 
     </LinearLayout>
 
