@@ -6,13 +6,15 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import com.jrdemadara.ptm_geotagging.data.Assistance
-import com.jrdemadara.ptm_geotagging.data.AssistanceType
 import com.jrdemadara.ptm_geotagging.data.Beneficiary
 import com.jrdemadara.ptm_geotagging.data.Livelihood
-import com.jrdemadara.ptm_geotagging.data.Members
 import com.jrdemadara.ptm_geotagging.data.Photo
+import com.jrdemadara.ptm_geotagging.data.PowerSearchData
 import com.jrdemadara.ptm_geotagging.data.Profile
 import com.jrdemadara.ptm_geotagging.data.SearchMembers
+import com.jrdemadara.ptm_geotagging.features.profile_details.beneficiary.DetailsBeneficiaries
+import com.jrdemadara.ptm_geotagging.features.profile_details.livelihood.DetailsLivelihood
+import com.jrdemadara.ptm_geotagging.features.profile_details.skills.DetailsSkills
 import com.jrdemadara.ptm_geotagging.features.profiling.skill.Skills
 
 class LocalDatabase(context: Context) :
@@ -628,6 +630,43 @@ class LocalDatabase(context: Context) :
         return count
     }
 
+    fun getSingleProfiles(profileID: String): ArrayList<Profile> {
+        val db = this.readableDatabase
+        val query = "SELECT *  FROM $TABLE_PROFILES  WHERE $PROFILE_ID_COL = '$profileID'"
+        val data: ArrayList<Profile> = ArrayList()
+        val cursor: Cursor?
+        try {
+            cursor = db.rawQuery(query, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(query)
+            return ArrayList()
+        }
+        if (cursor.moveToFirst()) {
+            do {
+                data.add(
+                    Profile(
+                        id = cursor.getString(0),
+                        precinct = cursor.getString(1),
+                        lastname = cursor.getString(2),
+                        firstname = cursor.getString(3),
+                        middlename = cursor.getString(4),
+                        extension = cursor.getString(5),
+                        birthdate = cursor.getString(6),
+                        occupation = cursor.getString(7),
+                        phone = cursor.getString(8),
+                        lat = cursor.getString(9),
+                        lon = cursor.getString(10),
+                        qrcode = cursor.getString(11),
+                        hasptmid = cursor.getInt(12),
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return data
+    }
+
     /* Get profiles to upload */
     fun getProfiles(): ArrayList<Profile> {
         val db = this.readableDatabase
@@ -665,6 +704,8 @@ class LocalDatabase(context: Context) :
         cursor.close()
         return data
     }
+
+
 
     fun getAllProfiles(): ArrayList<Profile> {
         val db = this.readableDatabase
@@ -731,6 +772,34 @@ class LocalDatabase(context: Context) :
         return data
     }
 
+    fun getProfileBeneficiaries(profileID: String): ArrayList<DetailsBeneficiaries> {
+        val db = this.readableDatabase
+        val query =
+            "SELECT *  FROM $TABLE_BENEFICIARIES WHERE $BENEFICIARY_PROFILE_ID_COL = '$profileID'"
+        val data: ArrayList<DetailsBeneficiaries> = ArrayList()
+        val cursor: Cursor?
+        try {
+            cursor = db.rawQuery(query, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(query)
+            return ArrayList()
+        }
+        if (cursor.moveToFirst()) {
+            do {
+                data.add(
+                    DetailsBeneficiaries(
+                        precinct = cursor.getString(1),
+                        fullname = cursor.getString(2),
+                        birthdate = cursor.getString(3),
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return data
+    }
+
     fun getSkills(profileID: String): ArrayList<Skills> {
         val db = this.readableDatabase
         val query = "SELECT *  FROM $TABLE_SKILLS WHERE $SKILL_PROFILE_ID_COL = '$profileID'"
@@ -755,6 +824,31 @@ class LocalDatabase(context: Context) :
         cursor.close()
         return data
     }
+    fun getProfileSkills(profileID: String): ArrayList<DetailsSkills> {
+        val db = this.readableDatabase
+        val query = "SELECT *  FROM $TABLE_SKILLS WHERE $SKILL_PROFILE_ID_COL = '$profileID'"
+        val data: ArrayList<DetailsSkills> = ArrayList()
+        val cursor: Cursor?
+        try {
+            cursor = db.rawQuery(query, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(query)
+            return ArrayList()
+        }
+        if (cursor.moveToFirst()) {
+            do {
+                data.add(
+                    DetailsSkills(
+                        skills = cursor.getString(1),
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return data
+    }
+
 
     fun getLivelihood(profileID: String): ArrayList<Livelihood> {
         val db = this.readableDatabase
@@ -773,6 +867,32 @@ class LocalDatabase(context: Context) :
             do {
                 data.add(
                     Livelihood(
+                        livelihood = cursor.getString(1),
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return data
+    }
+
+    fun getProfileLivelihood(profileID: String): ArrayList<DetailsLivelihood> {
+        val db = this.readableDatabase
+        val query =
+            "SELECT *  FROM $TABLE_LIVELIHOOD WHERE $LIVELIHOOD_PROFILE_ID_COL = '$profileID'"
+        val data: ArrayList<DetailsLivelihood> = ArrayList()
+        val cursor: Cursor?
+        try {
+            cursor = db.rawQuery(query, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(query)
+            return ArrayList()
+        }
+        if (cursor.moveToFirst()) {
+            do {
+                data.add(
+                    DetailsLivelihood(
                         livelihood = cursor.getString(1),
                     )
                 )
@@ -939,6 +1059,79 @@ class LocalDatabase(context: Context) :
                         contact = cursor.getString(7),
                         occupation = cursor.getString(8),
                         isptmid = cursor.getInt(9),
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return data
+    }
+
+    fun getProfilesPowerSearch(): ArrayList<PowerSearchData> {
+        val db = this.readableDatabase
+        val query = "SELECT * FROM $TABLE_PROFILES"
+        val data: ArrayList<PowerSearchData> = ArrayList()
+        val cursor: Cursor?
+        try {
+            cursor = db.rawQuery(query, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(query)
+            return ArrayList()
+        }
+        if (cursor.moveToFirst()) {
+            do {
+                data.add(
+                    PowerSearchData(
+                        id = cursor.getString(0),
+                        precinct = cursor.getString(1),
+                        lastname = cursor.getString(2),
+                        firstname = cursor.getString(3),
+                        middlename = cursor.getString(4),
+                        extension = cursor.getString(5),
+                        birthdate = cursor.getString(6),
+                        occupation = cursor.getString(7),
+                        phone = cursor.getString(8),
+                        qrcode = cursor.getString(11),
+                        hasptmid = cursor.getInt(12),
+                        isUploaded = cursor.getInt(13),
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return data
+    }
+
+    fun powerSearch(name: String?): ArrayList<PowerSearchData> {
+        val db = this.readableDatabase
+        val query = "SELECT * FROM $TABLE_PROFILES\n" +
+                "WHERE $PROFILE_LASTNAME_COL || ' ' || $PROFILE_FIRSTNAME_COL || ' ' || $PROFILE_MIDDLENAME_COL LIKE '%$name%' "
+        val data: ArrayList<PowerSearchData> = ArrayList()
+        val cursor: Cursor?
+        try {
+            cursor = db.rawQuery(query, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(query)
+            return ArrayList()
+        }
+        if (cursor.moveToFirst()) {
+            do {
+                data.add(
+                    PowerSearchData(
+                        id = cursor.getString(0),
+                        precinct = cursor.getString(1),
+                        lastname = cursor.getString(2),
+                        firstname = cursor.getString(3),
+                        middlename = cursor.getString(4),
+                        extension = cursor.getString(5),
+                        birthdate = cursor.getString(6),
+                        occupation = cursor.getString(7),
+                        phone = cursor.getString(8),
+                        qrcode = cursor.getString(11),
+                        hasptmid = cursor.getInt(12),
+                        isUploaded = cursor.getInt(13),
                     )
                 )
             } while (cursor.moveToNext())

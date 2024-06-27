@@ -10,6 +10,7 @@ import android.util.Base64
 import android.view.Menu
 import android.view.View
 import android.view.Window
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -142,6 +143,12 @@ class ProfilesActivity : AppCompatActivity() {
                 Toast.makeText(applicationContext, "Incorrect Passphrase.", Toast.LENGTH_SHORT).show()
             }
         }
+
+        // Make the dialog full-screen width
+        dialog.window?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
 
         return dialog
     }

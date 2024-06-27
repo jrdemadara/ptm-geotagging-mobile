@@ -44,7 +44,7 @@
                 <ImageView
                     android:layout_width="100dp"
                     android:layout_height="match_parent"
-                    app:srcCompat="@drawable/imageplus" />
+                    app:srcCompat="@drawable/profiles" />
 
                 <TextView
                     android:id="@+id/textViewTotalProfile"
@@ -85,7 +85,7 @@
                 <ImageView
                     android:layout_width="100dp"
                     android:layout_height="match_parent"
-                    app:srcCompat="@drawable/imageplus" />
+                    app:srcCompat="@drawable/uploaded" />
 
                 <TextView
                     android:id="@+id/textViewUploaded"
@@ -126,7 +126,7 @@
                 <ImageView
                     android:layout_width="100dp"
                     android:layout_height="match_parent"
-                    app:srcCompat="@drawable/imageplus" />
+                    app:srcCompat="@drawable/notuploaded" />
 
                 <TextView
                     android:id="@+id/textViewNotUploaded"

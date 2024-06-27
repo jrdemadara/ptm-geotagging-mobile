@@ -14,9 +14,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
-import android.util.DisplayMetrics
 import android.view.View
-import android.view.WindowManager
 import android.widget.Button
 import android.widget.DatePicker
 import android.widget.EditText
@@ -31,7 +29,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
-import androidx.core.text.set
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -54,7 +51,8 @@ import java.util.Calendar
 import java.util.UUID
 
 
-class ProfilingActivity : AppCompatActivity() {
+class
+ProfilingActivity : AppCompatActivity() {
     private lateinit var localDatabase: LocalDatabase
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var buttonNext: Button
@@ -632,6 +630,8 @@ class ProfilingActivity : AppCompatActivity() {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
         return stream.toByteArray()
     }
+
+
 
     private fun getLastLocation() {
         if (ActivityCompat.checkSelfPermission(

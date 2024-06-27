@@ -34,21 +34,25 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="tiramisu">
         <activity
-            android:name=".features.Search.SearchActivity"
+            android:name=".features.profile_details.ProfileDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".features.search.PowerSearchActivity"
             android:exported="false" />
         <activity
             android:name=".features.admin.AdminActivity"
             android:exported="false" />
         <activity
             android:name=".features.profiling.search.SearchMemberActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".features.assistance.AssistanceActivity"
             android:exported="false" />
         <activity
             android:name=".features.profiling.ProfilingActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustPan" />
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".features.profiles.ProfilesActivity"
             android:exported="false" />

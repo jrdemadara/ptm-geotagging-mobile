@@ -9,24 +9,21 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Base64
-import android.util.Log
-import android.view.Menu
 import android.view.View
 import android.view.Window
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.appbar.MaterialToolbar
 import com.jrdemadara.ptm_geotagging.R
 import com.jrdemadara.ptm_geotagging.features.profiles.ProfilesActivity
+import com.jrdemadara.ptm_geotagging.features.search.PowerSearchActivity
 import com.jrdemadara.ptm_geotagging.server.ApiInterface
 import com.jrdemadara.ptm_geotagging.server.LocalDatabase
 import com.jrdemadara.ptm_geotagging.server.NodeServer
@@ -34,12 +31,8 @@ import com.jrdemadara.ptm_geotagging.util.NetworkChecker
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.ResponseBody
 import org.json.JSONArray
 import org.json.JSONObject
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 class AdminActivity : AppCompatActivity() {
     private lateinit var networkChecker: NetworkChecker
@@ -48,6 +41,7 @@ class AdminActivity : AppCompatActivity() {
     private var prefAccessToken = "pref_access_token"
     private lateinit var buttonUpload: Button
     private lateinit var buttonReupload: Button
+    private lateinit var buttonSearch: Button
     private lateinit var accessToken: String
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +50,7 @@ class AdminActivity : AppCompatActivity() {
         val toolbar = findViewById<View>(R.id.materialToolbarAdmin) as MaterialToolbar
         buttonUpload = findViewById(R.id.buttonUpload)
         buttonReupload = findViewById(R.id.buttonReupload)
+        buttonSearch = findViewById(R.id.buttonPowerSearch)
         localDatabase = LocalDatabase(this@AdminActivity)
         sharedPreferences = getSharedPreferences("pref_app", MODE_PRIVATE)
         accessToken = sharedPreferences.getString(prefAccessToken, null).toString()
@@ -68,6 +63,12 @@ class AdminActivity : AppCompatActivity() {
         buttonReupload.setOnClickListener {
             val dialog = showForceUploadDialog()
             dialog.show()
+        }
+
+        buttonSearch.setOnClickListener {
+            val intent = Intent(applicationContext, PowerSearchActivity::class.java)
+            startActivity(intent)
+            finish()
         }
     }
 
@@ -314,7 +315,7 @@ class AdminActivity : AppCompatActivity() {
                                 val livelihoodPhoto = createPhotoPart(livelihoodByteArray, "livelihoodPhoto")
 
                                 // Retrofit request with delay
-                                Thread.sleep(2000) // 1-second delay between requests
+                                Thread.sleep(5000) // 1-second delay between requests
 
                                 val response = retrofit.uploadProfile(profileData.toString().toRequestBody(), personalPhoto, familyPhoto, livelihoodPhoto).execute()
                                 if (response.isSuccessful) {
@@ -377,6 +378,13 @@ class AdminActivity : AppCompatActivity() {
                 Toast.makeText(applicationContext, "Please input barangay.", Toast.LENGTH_SHORT).show()
             }
         }
+
+        // Make the dialog full-screen width
+        dialog.window?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
+
         return dialog
     }
 
@@ -397,6 +405,13 @@ class AdminActivity : AppCompatActivity() {
                 Toast.makeText(applicationContext, "Please input barangay.", Toast.LENGTH_SHORT).show()
             }
         }
+
+        // Make the dialog full-screen width
+        dialog.window?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
+
         return dialog
     }
 
@@ -411,6 +426,12 @@ class AdminActivity : AppCompatActivity() {
         Glide.with(this@AdminActivity).load(R.drawable.progress).apply(
             RequestOptions.diskCacheStrategyOf(
                 DiskCacheStrategy.NONE)).into(imageView)
+
+        // Make the dialog full-screen width
+        dialog.window?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
 
         return dialog
     }

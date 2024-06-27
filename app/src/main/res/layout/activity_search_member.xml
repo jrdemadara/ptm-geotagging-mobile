@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -8,60 +9,61 @@
     android:background="#f4f8fb"
     tools:context=".features.profiling.search.SearchMemberActivity">
 
-    <LinearLayout
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/materialToolbarSearch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingBottom="16dp"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@drawable/moveleft"
+        app:title="Search Member"
+        app:titleTextColor="#FFFFFF" />
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/materialToolbarSearch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
-            android:minHeight="?attr/actionBarSize"
-            android:theme="?attr/actionBarTheme"
-            app:navigationIcon="@drawable/moveleft"
-            app:title="Profiling"
-            app:titleTextColor="#FFFFFF" />
+    <TextView
+        android:id="@+id/textView38"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        android:fontFamily="@font/roboto_mono"
+        android:text="Search Member"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/materialToolbarSearch" />
 
-        <TextView
-            android:id="@+id/textView38"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="16dp"
-            android:fontFamily="@font/roboto_mono"
-            android:text="Search Member"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+    <EditText
+        android:id="@+id/editTextSearchMember"
+        android:layout_width="0dp"
+        android:layout_height="52dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/ic_round_edittext"
+        android:ems="10"
+        android:hint="Type member name..."
+        android:inputType="text"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textView38" />
 
-        <EditText
-            android:id="@+id/editTextSearchMember"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/ic_round_edittext"
-            android:ems="10"
-            android:hint="Type member name..."
-            android:inputType="text"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewSearchMember"
-            android:layout_width="match_parent"
-            android:layout_height="380dp"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="18dp">
-
-        </androidx.recyclerview.widget.RecyclerView>
-
-    </LinearLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewSearchMember"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="18dp"
+        android:layout_marginBottom="18dp"
+        app:layout_constraintBottom_toTopOf="@id/textViewSelectedName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editTextSearchMember" />
 
     <TextView
         android:id="@+id/textViewSelectedName"
@@ -75,10 +77,9 @@
         android:textColor="#F44336"
         android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/buttonSelectMember"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintBottom_toTopOf="@id/buttonSelectMember"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <Button
         android:id="@+id/buttonSelectMember"
@@ -91,7 +92,9 @@
         android:background="@drawable/ic_round_button"
         android:text="Select"
         android:textColorLink="#673AB7"
+        app:icon="@drawable/user_round_plus"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

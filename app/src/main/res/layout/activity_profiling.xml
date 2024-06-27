@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,71 +8,83 @@
     android:background="#f4f8fb"
     tools:context=".features.profiling.ProfilingActivity">
 
-    <LinearLayout
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/materialToolbar3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:navigationIcon="@drawable/moveleft"
+        app:title="Profiling"
+        app:titleTextColor="#FFFFFF"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/materialToolbar3"
+    <!-- ScrollView to make ViewFlipper scrollable -->
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/materialToolbar3"
+        app:layout_constraintBottom_toTopOf="@id/bottomLinearLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
-            android:minHeight="?attr/actionBarSize"
-            android:theme="?attr/actionBarTheme"
-            app:navigationIcon="@drawable/moveleft"
-            app:title="Profiling"
-            app:titleTextColor="#FFFFFF" />
+            android:orientation="vertical">
 
-        <ViewFlipper
-            android:id="@+id/viewFlipper"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            <ViewFlipper
+                android:id="@+id/viewFlipper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <include layout="@layout/layout_profile" />
+                <include layout="@layout/layout_profile" />
 
-            <include layout="@layout/layout_beneficiary" />
+                <include layout="@layout/layout_beneficiary" />
 
-            <include layout="@layout/layout_skill" />
+                <include layout="@layout/layout_skill" />
 
-            <include layout="@layout/layout_livelihood" />
+                <include layout="@layout/layout_livelihood" />
 
-            <include layout="@layout/layout_image" />
+                <include layout="@layout/layout_image" />
 
-            <include layout="@layout/layout_confirm" />
-        </ViewFlipper>
+                <include layout="@layout/layout_confirm" />
 
-    </LinearLayout>
+            </ViewFlipper>
+
+        </LinearLayout>
+    </ScrollView>
 
     <LinearLayout
+        android:id="@+id/bottomLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:orientation="horizontal"
-        android:paddingStart="5dp"
-        android:paddingEnd="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.444"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <Button
             android:id="@+id/buttonPreviousView"
-            android:layout_width="172dp"
-            android:layout_height="52dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="18dp"
+            android:layout_width="0dp"
+            android:layout_height="54dp"
+            android:layout_weight="1"
             android:backgroundTint="#7D779B"
             android:text="Previous" />
 
         <Button
             android:id="@+id/buttonNextView"
-            android:layout_width="172dp"
-            android:layout_height="52dp"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="18dp"
+            android:layout_width="0dp"
+            android:layout_height="54dp"
+            android:layout_marginStart="16dp"
+            android:layout_weight="1"
             android:fontFamily="@font/roboto_mono"
             android:insetBottom="4dp"
             android:text="Next" />
