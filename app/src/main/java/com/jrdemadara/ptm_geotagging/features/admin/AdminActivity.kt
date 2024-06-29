@@ -48,7 +48,7 @@ class AdminActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_admin)
         val toolbar = findViewById<View>(R.id.materialToolbarAdmin) as MaterialToolbar
-        buttonUpload = findViewById(R.id.buttonUpload)
+        buttonUpload = findViewById(R.id.buttonBarangay)
         buttonReupload = findViewById(R.id.buttonReupload)
         buttonSearch = findViewById(R.id.buttonPowerSearch)
         localDatabase = LocalDatabase(this@AdminActivity)
@@ -57,12 +57,10 @@ class AdminActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         buttonUpload.setOnClickListener {
-            val dialog = showUploadDialog()
-            dialog.show()
+            uploadProfile()
         }
         buttonReupload.setOnClickListener {
-            val dialog = showForceUploadDialog()
-            dialog.show()
+            forceUploadProfile()
         }
 
         buttonSearch.setOnClickListener {
@@ -72,7 +70,7 @@ class AdminActivity : AppCompatActivity() {
         }
     }
 
-    private fun uploadProfile(barangay: String?){
+    private fun uploadProfile(){
         //* Check network connection
         networkChecker = NetworkChecker(application)
         networkChecker.observe(this) { isConnected ->
@@ -106,7 +104,8 @@ class AdminActivity : AppCompatActivity() {
                                 profileData.put("lon", profile.lon)
                                 profileData.put("qrcode", profile.qrcode)
                                 profileData.put("hasptmid", profile.hasptmid)
-                                profileData.put("barangay", barangay)
+                                profileData.put("barangay", profile.barangay)
+                                profileData.put("purok", profile.purok)
                                 profileIDArrayList.add(profile.id)
 
                                 val beneficiariesArray = JSONArray()
@@ -154,6 +153,8 @@ class AdminActivity : AppCompatActivity() {
                                     }
                                     profileData.put("assistance", assistanceArray)
                                 }
+
+
 
                                 val photos = localDatabase.getPhotos(profile.id)
                                 val personalByteArray = photos.firstOrNull()?.personal ?: byteArrayOf(0)
@@ -216,7 +217,7 @@ class AdminActivity : AppCompatActivity() {
             }
         }
     }
-    private fun forceUploadProfile(barangay: String?){
+    private fun forceUploadProfile(){
         //* Check network connection
         networkChecker = NetworkChecker(application)
         networkChecker.observe(this) { isConnected ->
@@ -250,7 +251,8 @@ class AdminActivity : AppCompatActivity() {
                                 profileData.put("lon", profile.lon)
                                 profileData.put("qrcode", profile.qrcode)
                                 profileData.put("hasptmid", profile.hasptmid)
-                                profileData.put("barangay", barangay)
+                                profileData.put("barangay", profile.barangay)
+                                profileData.put("purok", profile.purok)
                                 profileIDArrayList.add(profile.id)
 
                                 val beneficiariesArray = JSONArray()
@@ -359,60 +361,6 @@ class AdminActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    private fun showUploadDialog(): Dialog {
-        val dialog = Dialog(this@AdminActivity)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setCancelable(true)
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        dialog.setContentView(R.layout.dialog_barangay) // Create a layout file for the dialog
-
-        val editTextBarangay = dialog.findViewById<EditText>(R.id.editTextBarangay)
-        val buttonUpload = dialog.findViewById<Button>(R.id.buttonUpload)
-
-        buttonUpload.setOnClickListener {
-            if (editTextBarangay.text.isNotEmpty()){
-                uploadProfile(editTextBarangay.text.toString())
-            }else {
-                Toast.makeText(applicationContext, "Please input barangay.", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        // Make the dialog full-screen width
-        dialog.window?.setLayout(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.WRAP_CONTENT
-        )
-
-        return dialog
-    }
-
-    private fun showForceUploadDialog(): Dialog {
-        val dialog = Dialog(this@AdminActivity)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setCancelable(true)
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        dialog.setContentView(R.layout.dialog_barangay) // Create a layout file for the dialog
-
-        val editTextBarangay = dialog.findViewById<EditText>(R.id.editTextBarangay)
-        val buttonUpload = dialog.findViewById<Button>(R.id.buttonUpload)
-
-        buttonUpload.setOnClickListener {
-            if (editTextBarangay.text.isNotEmpty()){
-                forceUploadProfile(editTextBarangay.text.toString())
-            }else {
-                Toast.makeText(applicationContext, "Please input barangay.", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        // Make the dialog full-screen width
-        dialog.window?.setLayout(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.WRAP_CONTENT
-        )
-
-        return dialog
     }
 
     private fun showLoadingDialog(): Dialog {

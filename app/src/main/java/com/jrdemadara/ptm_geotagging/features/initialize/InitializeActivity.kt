@@ -5,9 +5,11 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.jrdemadara.ptm_geotagging.R
 import com.jrdemadara.ptm_geotagging.data.Assistance
+import com.jrdemadara.ptm_geotagging.data.Barangay
 import com.jrdemadara.ptm_geotagging.data.Members
 import com.jrdemadara.ptm_geotagging.features.profiles.ProfilesActivity
 import com.jrdemadara.ptm_geotagging.server.ApiInterface
@@ -35,6 +37,7 @@ class InitializeActivity : AppCompatActivity() {
         municipality = sharedPreferences.getString(prefMunicipality, null).toString()
         initializeMember()
         initializeAssistance()
+        initializeBarangay()
     }
 
     private fun initializeMember(){
@@ -83,6 +86,49 @@ class InitializeActivity : AppCompatActivity() {
                         }
                     }
                     override fun onFailure(call: Call<List<Members>?>, t: Throwable) {
+                        Log.e("Request Failure", t.message.toString())
+
+                    }
+                })
+            }
+        }
+    }
+
+    private fun initializeBarangay(){
+        networkChecker = NetworkChecker(application)
+        networkChecker.observe(this) { isConnected ->
+            if (isConnected) {
+
+                val retrofit = NodeServer.getRetrofitInstance(accessToken).create(ApiInterface::class.java)
+                val filter = HashMap<String, String>()
+                filter["municipality"] = municipality
+                retrofit.getBarangays(filter).enqueue(object : Callback<List<Barangay>?> {
+                    override fun onResponse(
+                        call: Call<List<Barangay>?>,
+                        response: Response<List<Barangay>?>
+                    ){
+                        //Update Barangay
+                        val list: List<Barangay>? = response.body()
+                        val barangaysCount = list?.size
+                        var savedCount = 0
+                        assert(list != null)
+                        if (list != null) {
+                            for (x in list) {
+                                savedCount++
+                                val barangay = x.name.ifEmpty { "" }
+                                Toast.makeText(applicationContext, barangay, Toast.LENGTH_SHORT).show()
+                                localDatabase.updateBarangays(
+                                    barangay,
+                                )
+                            }
+                            if (barangaysCount == savedCount){
+                                val intent = Intent(applicationContext, ProfilesActivity::class.java)
+                                startActivity(intent)
+                                finish()
+                            }
+                        }
+                    }
+                    override fun onFailure(call: Call<List<Barangay>?>, t: Throwable) {
                         Log.e("Request Failure", t.message.toString())
 
                     }

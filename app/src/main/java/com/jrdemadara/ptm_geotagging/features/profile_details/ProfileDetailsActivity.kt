@@ -160,13 +160,12 @@ class ProfileDetailsActivity : AppCompatActivity() {
         }
 
         buttonSingleUpload.setOnClickListener {
-            val dialog = showUploadDialog(id)
-            dialog.show()
+            uploadProfile(id)
         }
 
     }
 
-    private fun uploadProfile(barangay: String?, id: String) {
+    private fun uploadProfile(id: String) {
         networkChecker = NetworkChecker(application)
         networkChecker.observe(this) { isConnected ->
             if (isConnected) {
@@ -191,7 +190,8 @@ class ProfileDetailsActivity : AppCompatActivity() {
                             put("lon", profileData.lon)
                             put("qrcode", profileData.qrcode)
                             put("hasptmid", profileData.hasptmid)
-                            put("barangay", barangay)
+                            put("barangay", profileData.barangay)
+                            put("purok", profileData.purok)
                         }
 
                         jsonData.put("beneficiaries", localDatabase.getBeneficiaries(profileData.id).let { beneficiaries ->
@@ -281,34 +281,6 @@ class ProfileDetailsActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-
-    private fun showUploadDialog(id: String): Dialog {
-        val dialog = Dialog(this@ProfileDetailsActivity)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setCancelable(true)
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        dialog.setContentView(R.layout.dialog_barangay) // Create a layout file for the dialog
-
-        val editTextBarangay = dialog.findViewById<EditText>(R.id.editTextBarangay)
-        val buttonUpload = dialog.findViewById<Button>(R.id.buttonUpload)
-
-        buttonUpload.setOnClickListener {
-            if (editTextBarangay.text.isNotEmpty()){
-                uploadProfile(editTextBarangay.text.toString(), id)
-            }else {
-                Toast.makeText(applicationContext, "Please input barangay.", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        // Make the dialog full-screen width
-        dialog.window?.setLayout(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.WRAP_CONTENT
-        )
-
-        return dialog
     }
 
     private fun showLoadingDialog(): Dialog {

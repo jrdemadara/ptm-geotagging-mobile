@@ -2,12 +2,15 @@ package com.jrdemadara.ptm_geotagging.features.profiling
 
 import android.Manifest
 import android.app.DatePickerDialog
+import android.app.Dialog
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
@@ -15,11 +18,16 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
 import android.view.View
+import android.view.Window
+import android.view.WindowManager
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.DatePicker
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.ScrollView
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.ViewFlipper
@@ -55,11 +63,15 @@ class
 ProfilingActivity : AppCompatActivity() {
     private lateinit var localDatabase: LocalDatabase
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var sharedPreferences: SharedPreferences
+    private var prefBarangay= "pref_barangay"
+    private lateinit var barangay: String
     private lateinit var buttonNext: Button
     private lateinit var buttonPrevious: Button
     private lateinit var buttonSave: Button
     private lateinit var buttonSearchMember: Button
     private lateinit var textViewSaveMessage: TextView
+    private lateinit var textViewBarangay: TextView
     private lateinit var viewFlipper: ViewFlipper
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
@@ -137,7 +149,12 @@ ProfilingActivity : AppCompatActivity() {
         buttonPrevious = findViewById(R.id.buttonPreviousView)
         buttonSearchMember = findViewById(R.id.buttonSearchMember)
         textViewSaveMessage = findViewById(R.id.textViewSaveMessage)
+        textViewBarangay = findViewById(R.id.textViewBarangay)
         uuid = UUID.randomUUID()
+
+        sharedPreferences = getSharedPreferences("pref_app", MODE_PRIVATE)
+        barangay = sharedPreferences.getString(prefBarangay, "Click to add").toString()
+
         //* Initialize Profile Variable
         editTextProfilePrecinct = findViewById(R.id.editTextProfilePrecinct)
         editTextLastname = findViewById(R.id.editTextLastname)
@@ -194,6 +211,13 @@ ProfilingActivity : AppCompatActivity() {
 
         checkPermission()
         getLastLocation()
+
+        textViewBarangay.text = barangay
+
+        textViewBarangay.setOnClickListener {
+            val dialog = showBarangayDialog()
+            dialog.show()
+        }
 
         editTextBirthdate.setOnClickListener {
             showDatePickerDialog(editTextBirthdate)
@@ -578,6 +602,48 @@ ProfilingActivity : AppCompatActivity() {
 
         datePickerDialog.show()
     }
+
+    private fun showBarangayDialog(): Dialog {
+        val dialog = Dialog(this@ProfilingActivity)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCancelable(true)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.setContentView(R.layout.dialog_barangay) // Create a layout file for the dialog
+
+        val spinner = dialog.findViewById<Spinner>(R.id.spinnerBarangay)
+        val buttonBarangay = dialog.findViewById<Button>(R.id.buttonBarangay)
+
+        val barangays = localDatabase.getBarangays()
+
+        val adapter = ArrayAdapter(dialog.context, android.R.layout.simple_spinner_item, barangays)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner.adapter = adapter
+
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {}
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+
+        buttonBarangay.setOnClickListener {
+                getSharedPreferences("pref_app", MODE_PRIVATE)
+                    .edit()
+                    .putString(prefBarangay, spinner.selectedItem.toString())
+                    .apply()
+
+            barangay = sharedPreferences.getString(prefBarangay, null).toString()
+            textViewBarangay.text = barangay
+        }
+
+        // Make the dialog full-screen width
+        dialog.window?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
+
+        return dialog
+    }
+
+
 
     //* Image Capture
     private fun openCamera(type: String) {

@@ -157,6 +157,19 @@
                     android:inputType="phone"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp" />
+
+                <EditText
+                    android:id="@+id/editTextPurok"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/ic_round_edittext"
+                    android:ems="10"
+                    android:fontFamily="@font/roboto_mono"
+                    android:hint="Purok"
+                    android:inputType="text"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp" />
             </LinearLayout>
         </ScrollView>
 

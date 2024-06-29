@@ -31,9 +31,12 @@ class LocalDatabase(context: Context) :
         private const val TABLE_SKILLS = "skills"
         private const val TABLE_PHOTOS = "photos"
         private const val TABLE_MUNICIPALITIES = "municipalities"
+        private const val TABLE_BARANGAYS = "barangays"
         private const val TABLE_MEMBERS = "members"
         private const val TABLE_ASSISTANCE = "assistance"
         private const val TABLE_ASSISTANCE_TYPE = "assistance_type"
+        private const val TABLE_TESDA = "tesda"
+        private const val TABLE_TESDA_COURSE = "tesda_course"
 
         /* Profiles Table */
         private const val PROFILE_ID_COL = "id"
@@ -47,6 +50,8 @@ class LocalDatabase(context: Context) :
         private const val PROFILE_PHONE_COL = "phone"
         private const val PROFILE_LAT_COL = "lat"
         private const val PROFILE_LON_COL = "lon"
+        private const val PROFILE_BARANGAY_COL = "barangay"
+        private const val PROFILE_PUROK_COL = "purok"
         private const val PROFILE_QR_COL = "qrcode"
         private const val PROFILE_HASPTMID_COL = "has_ptmid"
         private const val PROFILE_IS_UPLOADED_COL = "is_uploaded"
@@ -78,6 +83,9 @@ class LocalDatabase(context: Context) :
         /* Municipalities Table */
         private const val MUNICIPALITY_NAME_COL = "name"
 
+        /* Barangays Table */
+        private const val BARANGAY_NAME_COL = "name"
+
         /* Members Table */
         private const val MEMBER_ID_COL = "id"
         private const val MEMBER_PRECINCT_COL = "precinct"
@@ -100,6 +108,16 @@ class LocalDatabase(context: Context) :
         /* Assistance Type Table */
         private const val ASSISTANCE_TYPE = "assistance_type"
 
+        /* Tesda Table */
+        private const val TESDA_ID_COL = "id"
+        private const val TESDA_NAME_COL = "name"
+        private const val TESDA_PROFILE_ID_COL = "profile_id"
+
+        /* Tesda Course Table */
+        private const val TESDA_COURSE_ID_COL = "id"
+        private const val TESDA_COURSE_NAME_COL = "name"
+        private const val TESDA_COURSE_TESDA_ID_COL = "tesda_id"
+
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
@@ -117,6 +135,8 @@ class LocalDatabase(context: Context) :
                         PROFILE_PHONE_COL + " TEXT," +
                         PROFILE_LAT_COL + " TEXT," +
                         PROFILE_LON_COL + " TEXT," +
+                        PROFILE_BARANGAY_COL + " TEXT," +
+                        PROFILE_PUROK_COL + " TEXT," +
                         PROFILE_QR_COL + " TEXT," +
                         PROFILE_HASPTMID_COL + " INTEGER," +
                         PROFILE_IS_UPLOADED_COL + " INTEGER)"
@@ -164,6 +184,12 @@ class LocalDatabase(context: Context) :
                         MUNICIPALITY_NAME_COL + " TEXT)"
                 )
 
+        val createBarangaysTable = (
+                "CREATE TABLE " +
+                        TABLE_BARANGAYS + " (" +
+                        BARANGAY_NAME_COL + " TEXT)"
+                )
+
         val createMembersTable = (
                 "CREATE TABLE " +
                         TABLE_MEMBERS + " (" +
@@ -196,6 +222,22 @@ class LocalDatabase(context: Context) :
                         ASSISTANCE_TYPE + " TEXT)"
                 )
 
+        val createTesdaTable = (
+                "CREATE TABLE " +
+                        TABLE_TESDA + " (" +
+                        TESDA_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        TESDA_NAME_COL + " TEXT," +
+                        TESDA_PROFILE_ID_COL + " TEXT)"
+                )
+
+        val createTesdaCourseTable = (
+                "CREATE TABLE " +
+                        TABLE_TESDA_COURSE + " (" +
+                        TESDA_COURSE_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        TESDA_COURSE_NAME_COL + " TEXT," +
+                        TESDA_COURSE_TESDA_ID_COL + " TEXT)"
+                )
+
         db?.execSQL(createProfilesTable)
         db?.execSQL(createBeneficiariesTable)
         db?.execSQL(createLivelihoodsTable)
@@ -205,6 +247,9 @@ class LocalDatabase(context: Context) :
         db?.execSQL(createMembersTable)
         db?.execSQL(createAssistanceTable)
         db?.execSQL(createAssistanceTypeTable)
+        db?.execSQL(createTesdaTable)
+        db?.execSQL(createTesdaCourseTable)
+        db?.execSQL(createBarangaysTable)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -214,9 +259,12 @@ class LocalDatabase(context: Context) :
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_SKILLS")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_PHOTOS")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_MUNICIPALITIES")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_BARANGAYS")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_MEMBERS")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_ASSISTANCE")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_ASSISTANCE_TYPE")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_TESDA")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_TESDA_COURSE")
         onCreate(db)
     }
 
@@ -244,6 +292,15 @@ class LocalDatabase(context: Context) :
         val values = ContentValues()
         values.put(MUNICIPALITY_NAME_COL, name)
         db.insert(TABLE_MUNICIPALITIES, null, values)
+        db.close()
+    }
+
+    /* Barangays */
+    fun updateBarangays(name: String?) {
+        val db = this.writableDatabase
+        val values = ContentValues()
+        values.put(BARANGAY_NAME_COL, name)
+        db.insert(TABLE_BARANGAYS, null, values)
         db.close()
     }
 
@@ -297,6 +354,21 @@ class LocalDatabase(context: Context) :
         cursor.close()
         db.close()
         return modules
+    }
+
+    fun getBarangays(): ArrayList<String> {
+        val barangays: ArrayList<String> = ArrayList()
+        val selectQuery = "SELECT name FROM $TABLE_BARANGAYS ORDER BY name ASC"
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(selectQuery, null)
+        if (cursor.moveToFirst()) {
+            do {
+                barangays.add(cursor.getString(0))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return barangays
     }
 
     /* Save Attendance */
@@ -657,8 +729,10 @@ class LocalDatabase(context: Context) :
                         phone = cursor.getString(8),
                         lat = cursor.getString(9),
                         lon = cursor.getString(10),
-                        qrcode = cursor.getString(11),
-                        hasptmid = cursor.getInt(12),
+                        barangay = cursor.getString(11),
+                        purok = cursor.getString(12),
+                        qrcode = cursor.getString(13),
+                        hasptmid = cursor.getInt(14),
                     )
                 )
             } while (cursor.moveToNext())
@@ -695,8 +769,10 @@ class LocalDatabase(context: Context) :
                         phone = cursor.getString(8),
                         lat = cursor.getString(9),
                         lon = cursor.getString(10),
-                        qrcode = cursor.getString(11),
-                        hasptmid = cursor.getInt(12),
+                        barangay = cursor.getString(11),
+                        purok = cursor.getString(12),
+                        qrcode = cursor.getString(13),
+                        hasptmid = cursor.getInt(14),
                     )
                 )
             } while (cursor.moveToNext())
@@ -734,8 +810,10 @@ class LocalDatabase(context: Context) :
                         phone = cursor.getString(8),
                         lat = cursor.getString(9),
                         lon = cursor.getString(10),
-                        qrcode = cursor.getString(11),
-                        hasptmid = cursor.getInt(12),
+                        barangay = cursor.getString(11),
+                        purok = cursor.getString(12),
+                        qrcode = cursor.getString(13),
+                        hasptmid = cursor.getInt(14),
                     )
                 )
             } while (cursor.moveToNext())
@@ -894,6 +972,31 @@ class LocalDatabase(context: Context) :
                 data.add(
                     DetailsLivelihood(
                         livelihood = cursor.getString(1),
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return data
+    }
+
+    fun getTesda(profileID: String): ArrayList<Skills> {
+        val db = this.readableDatabase
+        val query = "SELECT *  FROM $TABLE_SKILLS WHERE $SKILL_PROFILE_ID_COL = '$profileID'"
+        val data: ArrayList<Skills> = ArrayList()
+        val cursor: Cursor?
+        try {
+            cursor = db.rawQuery(query, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(query)
+            return ArrayList()
+        }
+        if (cursor.moveToFirst()) {
+            do {
+                data.add(
+                    Skills(
+                        skill = cursor.getString(1),
                     )
                 )
             } while (cursor.moveToNext())

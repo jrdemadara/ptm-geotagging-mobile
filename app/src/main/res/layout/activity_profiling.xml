@@ -37,6 +37,30 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:fontFamily="@font/roboto_mono"
+                android:gravity="center"
+                android:text="Geotagging for Barangay:"
+                android:textColor="#000000" />
+
+            <TextView
+                android:id="@+id/textViewBarangay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:contextClickable="false"
+                android:fontFamily="@font/roboto_mono_bold"
+                android:gravity="center"
+                android:linksClickable="false"
+                android:longClickable="true"
+                android:text="New Poblacion"
+                android:textAllCaps="true"
+                android:textColor="#F44336"
+                android:textSize="18sp" />
+
             <ViewFlipper
                 android:id="@+id/viewFlipper"
                 android:layout_width="match_parent"
