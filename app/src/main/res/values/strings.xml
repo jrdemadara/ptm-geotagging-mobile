@@ -2,4 +2,379 @@
     <string name="app_name">PTMGeotagging</string>
     <string name="get_started">Get Started</string>
     <string name="register">Register</string>
+    <string-array name="spinner_course">
+        <item>2D Animation NC III</item>
+        <item>2D Animation NC III (Superseded)</item>
+        <item>2D Game Art Development NC III</item>
+        <item>3D Animation NC III</item>
+        <item>3D Animation NC III (Superseded)</item>
+        <item>3D Game Art Development NC III</item>
+        <item>5-Axis CNC Machine Operation NC III</item>
+        <item>Able Seafarer Deck NC II (II-5)</item>
+        <item>Able Seafarer Engine NC II (III-5)</item>
+        <item>Agricultural Crops Production NC I</item>
+        <item>Agricultural Crops Production NC II</item>
+        <item>Agricultural Crops Production NC III</item>
+        <item>Agricultural Machinery Operation NC II</item>
+        <item>Agricultural Machinery Servicing (4-Wheel Tractor) NC III</item>
+        <item>Agroentrepreneurship NC II</item>
+        <item>Agroentrepreneurship NC III</item>
+        <item>Agroentrepreneurship NC IV</item>
+        <item>Air Duct Servicing NC II</item>
+        <item>Animal Health Care and Management NC III</item>
+        <item>Animal Production (Poultry-Chicken) NC II</item>
+        <item>Animal Production (Ruminants) NC II</item>
+        <item>Animal Production (Swine) NC II</item>
+        <item>Animation NC II</item>
+        <item>Animation NC II (Superseded)</item>
+        <item>Aquaculture (Grow-Out Operation) NC II</item>
+        <item>Aquaculture (Hatchery Operation) NC II</item>
+        <item>Aquaculture (Tilapia Culture) NC II</item>
+        <item>Aquaculture NC II (Superseded)</item>
+        <item>Artificial Insemination (Large Ruminants) NC II</item>
+        <item>Artificial Insemination (Swine) NC II</item>
+        <item>Assistive Rehabilitation Technology Services (Orthotics) NC II</item>
+        <item>Assistive Rehabilitation Technology Services (Prosthetics) NC II</item>
+        <item>Assistive Rehabilitation Technology Services (Wheelchair) NC II</item>
+        <item>Attractions and Theme Parks Operations NC II</item>
+        <item>Audio Production Services NC I</item>
+        <item>Auto Engine Rebuilding NC II</item>
+        <item>Automotive Body Painting/Finishing NC I</item>
+        <item>Automotive Body Painting/Finishing NC III</item>
+        <item>Automotive Body Repairing NC II</item>
+        <item>Automotive Electrical Assembly NC II</item>
+        <item>Automotive Electrical Assembly NC III</item>
+        <item>Automotive Mechanical Assembly NC II</item>
+        <item>Automotive Mechanical Assembly NC III</item>
+        <item>Automotive Painting NC II</item>
+        <item>Automotive Servicing (Chassis Repair) NC II</item>
+        <item>Automotive Servicing (Electrical Repair) NC II</item>
+        <item>Automotive Servicing (Engine Repair) NC II</item>
+        <item>Automotive Servicing NC I</item>
+        <item>Automotive Servicing NC I (Superseded)</item>
+        <item>Automotive Servicing NC II (Superseded)</item>
+        <item>Automotive Servicing NC III</item>
+        <item>Automotive Servicing NC IV</item>
+        <item>Automotive Wiring Harness Assembly NC II</item>
+        <item>Bamboo Processing (Engineered-Bamboo) NC II</item>
+        <item>Bamboo Production NC II</item>
+        <item>Barangay Health Services NC II</item>
+        <item>Barangay Health Services NC II (Superseded)</item>
+        <item>Barbering NC II</item>
+        <item>Barbering NC II (Superseded)</item>
+        <item>Barista NC II</item>
+        <item>Bartending NC II</item>
+        <item>Beauty Care (Nail Care) Services NC II</item>
+        <item>Beauty Care (Nail Enhancement Technology) Services NC III</item>
+        <item>Beauty Care (Skin Care) Services NC II</item>
+        <item>Beauty Care NC II (Superseded)</item>
+        <item>Beauty Care NC III (Superseded)</item>
+        <item>Beauty Care Services (Nail Care) NC II (Superseded)</item>
+        <item>Beauty Care Services (Nail Care) NC III (Superseded)</item>
+        <item>Beekeeping NC II</item>
+        <item>Biogas Plant Installation NC III</item>
+        <item>Biomedical Equipment Servicing NC II (Superseded)</item>
+        <item>Bookkeeping NC III</item>
+        <item>Bread and Pastry Production NC II (Superseded)</item>
+        <item>Broadband Installation (Fixed Wireless Systems) NC II</item>
+        <item>Cable TV Installation NC II</item>
+        <item>Cable TV Operation and Maintenance NC III</item>
+        <item>CAD/CAM Operation NC III</item>
+        <item>Caregiving (Clients with Special Needs) NC II</item>
+        <item>Caregiving (Elderly) NC II</item>
+        <item>Caregiving (Grade Schooler to Adolescent) NC II</item>
+        <item>Caregiving (Newborn to Pre-Schooler) NC II</item>
+        <item>Caregiving NC II</item>
+        <item>Carpentry NC II</item>
+        <item>Carpentry NC II (Superseded)</item>
+        <item>Carpentry NC III</item>
+        <item>Carpentry NC III (Superseded)</item>
+        <item>Chemical Process Operations NC III</item>
+        <item>CNC Electric Discharge Machine (EDM) Wire Cut Operation NC III</item>
+        <item>CNC Lathe Machine Operation NC II</item>
+        <item>CNC Lathe Machine Operation NC III</item>
+        <item>CNC Milling Machine Operation NC II</item>
+        <item>CNC Milling Machine Operation NC III</item>
+        <item>Commercial Air-conditioning Installation and Servicing NC III</item>
+        <item>Commercial Cooking NC III (Superseded)</item>
+        <item>Commercial Cooking NC IV (Superseded)</item>
+        <item>Commercial Refrigeration Installation and Servicing NC III</item>
+        <item>Community Nutrition Services NC II</item>
+        <item>Computer Systems Servicing NC II</item>
+        <item>Construction Lift Passenger/Material Elevator Operation NC II</item>
+        <item>Construction Painting NC II</item>
+        <item>Construction Painting NC III</item>
+        <item>Consumer Electronics Servicing NC III</item>
+        <item>Consumer Electronics Servicing NC IV</item>
+        <item>Contact Center Services NC II</item>
+        <item>Contact Tracing NC II</item>
+        <item>Cookery NC II</item>
+        <item>Cooperative Development and Management Level IV</item>
+        <item>Customer Services NC II</item>
+        <item>Dental Hygiene Level IV</item>
+        <item>Dental Hygiene Level IV (Superseded)</item>
+        <item>Dental Laboratory Technology Services (Fixed Dentures/Restorations) NC II</item>
+        <item>Dental Laboratory Technology Services (Removable Dentures/Appliances) NC II</item>
+        <item>Dental Laboratory Technology Services NC I</item>
+        <item>Dental Technology NC IV</item>
+        <item>Die Designing NC IV</item>
+        <item>Diesel Power Plant Maintenance NC III</item>
+        <item>Diesel Power Plant Operation and Maintenance NC II</item>
+        <item>Diesel Power Plant Operation and Maintenance NC III</item>
+        <item>Domestic Work NC II</item>
+        <item>Domestic Work NC II (Superseded)</item>
+        <item>Dressmaking NC II</item>
+        <item>Driving (Articulated Vehicle) NC III</item>
+        <item>Driving (Passenger Bus/Straight Truck) NC III</item>
+        <item>Driving NC II</item>
+        <item>Drying and Milling Plant Servicing NC III</item>
+        <item>Electric Discharge Machine (EDM) Sinking Operation NC II</item>
+        <item>Electric Power Distribution Line Construction NC II</item>
+        <item>Electric Power Distribution Operation and Maintenance NC III</item>
+        <item>Electric Power Distribution Operation and Maintenance NC IV</item>
+        <item>Electrical Installation and Maintenance NC II</item>
+        <item>Electrical Installation and Maintenance NC III</item>
+        <item>Electrical Installation and Maintenance NC IV</item>
+        <item>Electronic Products Assembly and Servicing NC II</item>
+        <item>Electronics Back-End Operation NC II</item>
+        <item>Electronics Front-of-line Operation NC II</item>
+        <item>Electronics/Semiconductor Production Line Machine Servicing NC III</item>
+        <item>Emergency Medical Services NC II</item>
+        <item>Emergency Medical Services NC III</item>
+        <item>Events Management Services NC III</item>
+        <item>Fashion Design (Apparel) NC III</item>
+        <item>Film and Video Postproduction NC III</item>
+        <item>Fish Capture NC I</item>
+        <item>Fish Capture NC II</item>
+        <item>Fish Products Packaging NC II</item>
+        <item>Fishing Gear Repair and Maintenance NC III</item>
+        <item>Fishport/Wharf Operation NC I</item>
+        <item>Flux-Cored Arc Welding (FCAW) NC I</item>
+        <item>Flux-Cored Arc Welding (FCAW) NC II</item>
+        <item>Flux-Cored Arc Welding (FCAW) NC III</item>
+        <item>Food and Beverage Services NC II</item>
+        <item>Food and Beverage Services NC III</item>
+        <item>Food and Beverage Services NC III (Superseded)</item>
+        <item>Food and Beverage Services NC IV</item>
+        <item>Food and Beverage Services NC IV (Superseded)</item>
+        <item>Food Processing NC I</item>
+        <item>Food Processing NC I (Superseded)</item>
+        <item>Food Processing NC II</item>
+        <item>Food Processing NC II (Superseded)</item>
+        <item>Food Processing NC III</item>
+        <item>Food Processing NC IV</item>
+        <item>Food Production (Professional Cookery) NC III</item>
+        <item>Food Production (Professional Cookery) NC IV</item>
+        <item>Footwear Making NC II (Superseded)</item>
+        <item>Forging NC II</item>
+        <item>Forging NC III</item>
+        <item>Foundry Melting/Casting NC II</item>
+        <item>Foundry Melting/Casting NC III</item>
+        <item>Foundry Molding NC II</item>
+        <item>Foundry Molding NC III</item>
+        <item>Foundry Pattern Making NC II</item>
+        <item>Foundry Pattern Making NC III</item>
+        <item>Front Office Services NC II</item>
+        <item>Front Office Services NC III</item>
+        <item>Front Office Services NC IV</item>
+        <item>Furniture Making (Finishing) NC II</item>
+        <item>Game Programming NC III</item>
+        <item>Garbage Collection NC I</item>
+        <item>Gas Metal Arc Welding (GMAW) NC I</item>
+        <item>Gas Metal Arc Welding (GMAW) NC II</item>
+        <item>Gas Metal Arc Welding (GMAW) NC III</item>
+        <item>Gas Tungsten Arc Welding (GTAW) NC II</item>
+        <item>Gas Tungsten Arc Welding (GTAW) NC IV</item>
+        <item>Gas Welding NC I</item>
+        <item>GAS Welding NC II</item>
+        <item>Grains Production NC II</item>
+        <item>Hairdressing NC II</item>
+        <item>Hairdressing NC II (Superseded)</item>
+        <item>Hairdressing NC III</item>
+        <item>Hairdressing NC III (Superseded)</item>
+        <item>Handloom Weaving (Upright) NC II</item>
+        <item>Hard Disk Drive (HDD) Front-of-line (FOL) Operations NC II</item>
+        <item>Health Care Services NC II</item>
+        <item>Heat Treatment NC II</item>
+        <item>Heavy Equipment Operation (Articulated Off-Highway Dump Truck) NC II</item>
+        <item>Heavy Equipment Operation (Backhoe Loader) NC II</item>
+        <item>Heavy Equipment Operation (Bulldozer) NC II</item>
+        <item>Heavy Equipment Operation (Concrete Pump) NC II</item>
+        <item>Heavy Equipment Operation (Container Stacker) NC II</item>
+        <item>Heavy Equipment Operation (Crawler Crane) NC II (Superseded)</item>
+        <item>Heavy Equipment Operation (Crawler Crane) NC III</item>
+        <item>Heavy Equipment Operation (Forklift) NC II</item>
+        <item>Heavy Equipment Operation (Forklift) NC II (Superseded)</item>
+        <item>Heavy Equipment Operation (Gantry Crane) NC II (Superseded)</item>
+        <item>Heavy Equipment Operation (Hydraulic Excavator) NC II</item>
+        <item>Heavy Equipment Operation (Hydraulic Excavator) NC II (Superseded)</item>
+        <item>Heavy Equipment Operation (Motor Grader) NC II</item>
+        <item>Heavy Equipment Operation (Overhead and Gantry Crane) NC III</item>
+        <item>Heavy Equipment Operation (Paver) NC II</item>
+        <item>Heavy Equipment Operation (Rigid Off-Highway Dump Truck) NC II</item>
+        <item>Heavy Equipment Operation (Rigid On-Highway Dump Truck) NC II</item>
+        <item>Heavy Equipment Operation (Rigid On-Highway Dump Truck) NC II (Superseded)</item>
+        <item>Heavy Equipment Operation (Road Roller) NC II</item>
+        <item>Heavy Equipment Operation (Rough Terrain Crane) NC III</item>
+        <item>Heavy Equipment Operation (Rough-Terrain Crane) NC II (Superseded)</item>
+        <item>Heavy Equipment Operation (Screed) NC I</item>
+        <item>Heavy Equipment Operation (Tower Crane) NC II (Superseded)</item>
+        <item>Heavy Equipment Operation (Tower Crane) NC III</item>
+        <item>Heavy Equipment Operation (Transit Mixer) NC II</item>
+        <item>Heavy Equipment Operation (Truck Mounted Crane) NC II (Superseded)</item>
+        <item>Heavy Equipment Operation (Truck Mounted Crane) NC III</item>
+        <item>Heavy Equipment Operation (Wheel Loader) NC II</item>
+        <item>Heavy Equipment Servicing (Mechanical) NC II</item>
+        <item>Hilot (Wellness Massage) NC II</item>
+        <item>Horticulture NC III</item>
+        <item>Housekeeping NC II</item>
+        <item>Housekeeping NC III</item>
+        <item>Housekeeping NC IV</item>
+        <item>Ice Plant Refrigeration Servicing NC III</item>
+        <item>Illustration NC II</item>
+        <item>Instrumentation and Control Servicing NC II (Superseded)</item>
+        <item>Instrumentation and Control Servicing NC III (Superseded)</item>
+        <item>Instrumentation and Control Servicing NC IV (Superseded)</item>
+        <item>Jewelry Making (Fine Jewelry) NC II</item>
+        <item>Jewelry Making (Fine Jewelry) NC III</item>
+        <item>Laboratory and Metrology/Calibration Services NC II</item>
+        <item>Laboratory and Metrology/Calibration Services NC III</item>
+        <item>Land-Based Transport Mobile Air-conditioning (MAC) Servicing NC II</item>
+        <item>Land-Based Transport Refrigeration Servicing NC II</item>
+        <item>Landscape Installation and Maintenance (Softscape) NC II</item>
+        <item>Lifeguard Services NC II</item>
+        <item>Lifeguard Services NC III</item>
+        <item>Lighting for Live Performances NC II</item>
+        <item>Line Construction (Electric Power Distribution) NC II (Superseded)</item>
+        <item>Local Guiding Services NC II</item>
+        <item>Machining NC I</item>
+        <item>Machining NC I (Superseded)</item>
+        <item>Machining NC II</item>
+        <item>Machining NC III</item>
+        <item>Manual Metal Arc Welding (MMAW) NC I</item>
+        <item>Manual Metal Arc Welding (MMAW) NC II</item>
+        <item>Manual Metal Arc Welding (MMAW) NC III</item>
+        <item>Manual Metal Arc Welding (MMAW) NC IV</item>
+        <item>Marine Electricity NC II</item>
+        <item>Masonry NC I</item>
+        <item>Masonry NC I (Superseded)</item>
+        <item>Masonry NC II</item>
+        <item>Masonry NC II (Superseded)</item>
+        <item>Masonry NC III</item>
+        <item>Masonry NC III (Superseded)</item>
+        <item>Massage Therapy NC II</item>
+        <item>Mechanical Drafting NC I</item>
+        <item>Mechatronics Servicing NC II</item>
+        <item>Mechatronics Servicing NC III</item>
+        <item>Mechatronics Servicing NC IV</item>
+        <item>Medical Coding and Claims Processing NC III</item>
+        <item>Medical Transcription NC II</item>
+        <item>Metal Stamping NC II</item>
+        <item>Microfinance Technology NC II</item>
+        <item>Microfinance Technology NC IV</item>
+        <item>Microinsurance Services (Mutual Benefit) NC II</item>
+        <item>Milking Operation NC II</item>
+        <item>Mobile Phones and Handheld Gadgets Servicing NC III</item>
+        <item>Mold Designing NC IV</item>
+        <item>Mold Making NC III</item>
+        <item>Moldmaking NC II</item>
+        <item>Motorcycle/Small Engine Servicing NC II</item>
+        <item>Multimodal Transport Operations and Logistics (Seafreight Import) Services NC II</item>
+        <item>Multimodal Transport Operations and Logistics (Seafreight Import) Services NC III</item>
+        <item>Multimodal Transport Operations and Logistics (Seafreight Import) Services NC IV</item>
+        <item>Ophthalmic Lens Services NC II</item>
+        <item>Organic Agriculture Production NC II</item>
+        <item>Painting Machine Operation NC II</item>
+        <item>Performing Arts (Ballroom Dancing) NC II</item>
+        <item>Performing Arts (Dance) NC II</item>
+        <item>Performing Arts (Magician) NC II</item>
+        <item>Performing Arts (Song) NC II</item>
+        <item>Pest Management (Vegetables) NC II</item>
+        <item>Pharmacy Services NC III</item>
+        <item>Photography NC II</item>
+        <item>Pipefitting (Metallic) NC II</item>
+        <item>Pipefitting NC II (Superseded)</item>
+        <item>Plant Maintenance NC I</item>
+        <item>Plastic Machine Operation NC II</item>
+        <item>Plastic Machine Operation NC III</item>
+        <item>Plumbing NC I</item>
+        <item>Plumbing NC II</item>
+        <item>Plumbing NC III</item>
+        <item>Press Machine Operation NC I</item>
+        <item>Pressurized Irrigation System Installation and Maintenance NC II</item>
+        <item>Process Inspection NC II</item>
+        <item>Process Inspection NC III</item>
+        <item>Programming (.Net Technology) NC III</item>
+        <item>Programming (JAVA) NC III</item>
+        <item>Programming (JAVA) NC III (Superseded)</item>
+        <item>Programming (Oracle Database) NC III</item>
+        <item>Public Employment Services NC IV</item>
+        <item>PV System Design NC III</item>
+        <item>PV Systems Installation NC II</item>
+        <item>PV Systems Servicing NC III</item>
+        <item>Pyrotechnics NC II</item>
+        <item>RAC Servicing (DomRAC) NC II</item>
+        <item>RAC Servicing (DomRAC) NC II (Superseded)</item>
+        <item>RAC Servicing (PACU-CRE) NC III (Superseded)</item>
+        <item>Rating Forming Part of a Navigational Watch NC II (II-4)</item>
+        <item>Rating Forming Part of an Engineering Watch NC II (III-4)</item>
+        <item>Real Estate Services NC II</item>
+        <item>Reinforcing Steel Works NC II</item>
+        <item>Rice Machinery Operations NC II</item>
+        <item>Rigging NC I</item>
+        <item>Rubber Processing NC II</item>
+        <item>Rubber Production NC II</item>
+        <item>Rubber Production NC II (Superseded)</item>
+        <item>Sanitary Landfill Operations NC II</item>
+        <item>Sanitary Landfill Operations NC III</item>
+        <item>Scaffold Erection NC II (Superseded)</item>
+        <item>Scaffolding Works NC II (Supported Type Scaffold)</item>
+        <item>Seaweed Production NC II</item>
+        <item>Security Services NC I</item>
+        <item>Security Services NC II</item>
+        <item>Semiconductor Back-End Operation NC II</item>
+        <item>Semiconductor Front-of-Line Operation NC II</item>
+        <item>Shielded Metal Arc Welding (SMAW) NC I (Superseded)</item>
+        <item>Shielded Metal Arc Welding (SMAW) NC II (Superseded)</item>
+        <item>Shielded Metal Arc Welding (SMAW) NC III (Superseded)</item>
+        <item>Shielded Metal Arc Welding (SMAW) NC IV (Superseded)</item>
+        <item>Ships\' Catering NC III (Ships\' Cooks)</item>
+        <item>Ship\'s Catering Services NC I</item>
+        <item>Slaughtering Operations (Large Animal) NC II</item>
+        <item>Slaughtering Operations (Swine) NC II</item>
+        <item>Speed Limitation Device Servicing NC II</item>
+        <item>Structural Erection NC II</item>
+        <item>Submerged Arc Welding (SAW) NC I</item>
+        <item>Submerged Arc Welding (SAW) NC II</item>
+        <item>Sugarcane Production NC II</item>
+        <item>System Formworks Installation NC II</item>
+        <item>Tailoring NC II</item>
+        <item>Technical Drafting NC II</item>
+        <item>Telecom OSP and Subscriber Line Installation (Copper Cable/POTS and DSL) NC II</item>
+        <item>Telecom OSP Installation (Fiber Optic Cable) NC II</item>
+        <item>Tile Setting NC II</item>
+        <item>Tile Setting NC II (Superseded)</item>
+        <item>Tinsmithing (Automotive Manufacturing) NC II</item>
+        <item>Tool and Die Making NC II</item>
+        <item>Tour Guiding Services NC III</item>
+        <item>Tour Packaging (Fit Ad Hoc Domestic) Services NC II</item>
+        <item>Tourism Promotion Services NC II</item>
+        <item>Trainers Methodology Level I (In-Company Trainer)</item>
+        <item>Trainers Methodology Level I (Trainer/Assessor)</item>
+        <item>Trainers Methodology Level II (Training Designer/Developer)</item>
+        <item>Transmission Line Installation and Maintenance NC II</item>
+        <item>Transmission Line Installation and Maintenance NC II (Superseded)</item>
+        <item>Transmission Line Installation and Maintenance NC III</item>
+        <item>Transmission Line Installation and Maintenance NC III (Superseded)</item>
+        <item>Transmission Line Installation and Maintenance NC IV</item>
+        <item>Transport RAC Servicing NC II (Superseded)</item>
+        <item>Travel Services NC II</item>
+        <item>Travel Services NC II (Superseded)</item>
+        <item>Visual Graphic Design NC III</item>
+        <item>Visual Graphic Design NC III (Superseded)</item>
+        <item>Warehousing Services NC II</item>
+        <item>Warehousing Services NC III</item>
+        <item>Warehousing Services NC IV</item>
+        <item>Web Development NC III</item>
+    </string-array>
 </resources>

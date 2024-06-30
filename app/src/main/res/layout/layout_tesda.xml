@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#f4f8fb">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/textView18"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_mono_bold"
+            android:text="Tesda"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/textViewTesdaEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/roboto_mono"
+            android:text="No tesda added yet"
+            android:textAlignment="center"
+            android:textColor="#E53935"
+            android:textSize="16sp"
+            android:visibility="visible" />
+
+        <ScrollView
+            android:id="@+id/scrollViewTesda"
+            android:layout_width="match_parent"
+            android:layout_height="200dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewTesda"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp">
+
+            </androidx.recyclerview.widget.RecyclerView>
+        </ScrollView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical">
+
+            <Spinner
+                android:id="@+id/spinnerTesdaName"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/ic_round_edittext" />
+
+            <Spinner
+                android:id="@+id/spinnerTesdaCourse"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/ic_round_edittext"
+                android:entries="@array/spinner_course" />
+
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:gravity="center|fill_vertical"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/buttonTesdaRemove"
+                    android:layout_width="wrap_content"
+                    android:layout_height="52dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="5dp"
+                    android:backgroundTint="#E53F71"
+                    android:fontFamily="@font/roboto_mono"
+                    android:text="Remove" />
+
+                <Button
+                    android:id="@+id/buttonTesdaAdd"
+                    android:layout_width="fill_parent"
+                    android:layout_height="52dp"
+                    android:layout_marginStart="5dp"
+                    android:backgroundTint="#F89F50"
+                    android:fontFamily="@font/roboto_mono"
+                    android:text="Add Tesda" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

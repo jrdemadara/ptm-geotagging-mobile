@@ -50,6 +50,8 @@ import com.jrdemadara.ptm_geotagging.features.profiling.livelihood.LivelihoodsAd
 import com.jrdemadara.ptm_geotagging.features.profiling.search.SearchMemberActivity
 import com.jrdemadara.ptm_geotagging.features.profiling.skill.Skills
 import com.jrdemadara.ptm_geotagging.features.profiling.skill.SkillsAdapter
+import com.jrdemadara.ptm_geotagging.features.profiling.tesda.Tesda
+import com.jrdemadara.ptm_geotagging.features.profiling.tesda.TesdaAdapter
 import com.jrdemadara.ptm_geotagging.server.LocalDatabase
 import com.jrdemadara.ptm_geotagging.util.capitalizeWords
 import com.khairo.escposprinter.EscPosPrinter
@@ -88,6 +90,7 @@ ProfilingActivity : AppCompatActivity() {
     private lateinit var editTextBirthdate: EditText
     private lateinit var editTextOccupation: EditText
     private lateinit var editTextPhone: EditText
+    private lateinit var editTextPurok: EditText
     private var hasPTMID: Int = 0
 
     //* Beneficiary Variables
@@ -115,12 +118,24 @@ ProfilingActivity : AppCompatActivity() {
     //* Livelihood Variables
     private lateinit var recyclerViewLivelihood: RecyclerView
     private lateinit var editTextLivelihood: EditText
+    private lateinit var editTextLivelihoodDetails: EditText
     private lateinit var buttonLivelihoodAdd: Button
     private lateinit var buttonLivelihoodRemove: Button
     private lateinit var textViewLivelihoodEmpty: TextView
     private lateinit var scrollViewLivelihood: ScrollView
     private val livelihoodList = mutableListOf<Livelihood>()
     private lateinit var adapterLivelihood: LivelihoodsAdapter
+
+    //* Tesda Variables
+    private lateinit var recyclerViewTesda: RecyclerView
+    private lateinit var spinnerTesdaName: Spinner
+    private lateinit var spinnerTesdaCourse: Spinner
+    private lateinit var buttonTesdaAdd: Button
+    private lateinit var buttonTesdaRemove: Button
+    private lateinit var textViewTesdaEmpty: TextView
+    private lateinit var scrollViewTesda: ScrollView
+    private val tesdaList = mutableListOf<Tesda>()
+    private lateinit var adapterTesda: TesdaAdapter
 
     //* Image Variables
     private lateinit var capturedImagePersonal: ByteArray
@@ -164,6 +179,7 @@ ProfilingActivity : AppCompatActivity() {
         editTextBirthdate = findViewById(R.id.editTextBirthdate)
         editTextOccupation = findViewById(R.id.editTextOccupation)
         editTextPhone = findViewById(R.id.editTextPhone)
+        editTextPurok = findViewById(R.id.editTextPurok)
         //* Initialize Beneficiary Variable
         recyclerViewBeneficiary = findViewById(R.id.recyclerViewBeneficiary)
         editTextPrecinct = findViewById(R.id.editTextPrecinct)
@@ -183,10 +199,19 @@ ProfilingActivity : AppCompatActivity() {
         //* Initialize Livelihood Variable
         recyclerViewLivelihood = findViewById(R.id.recyclerViewLivelihood)
         editTextLivelihood = findViewById(R.id.editTextLivelihood)
+        editTextLivelihoodDetails = findViewById(R.id.editTextLivelihoodDetails)
         buttonLivelihoodAdd = findViewById(R.id.buttonLivelihoodAdd)
         buttonLivelihoodRemove = findViewById(R.id.buttonLivelihoodRemove)
         textViewLivelihoodEmpty = findViewById(R.id.textViewLivelihoodEmpty)
         scrollViewLivelihood = findViewById(R.id.scrollViewLivelihood)
+        //* Initialize Tesda Variable
+        recyclerViewTesda = findViewById(R.id.recyclerViewTesda)
+        spinnerTesdaName = findViewById(R.id.spinnerTesdaName)
+        spinnerTesdaCourse = findViewById(R.id.spinnerTesdaCourse)
+        buttonTesdaAdd = findViewById(R.id.buttonTesdaAdd)
+        buttonTesdaRemove = findViewById(R.id.buttonTesdaRemove)
+        textViewTesdaEmpty = findViewById(R.id.textViewTesdaEmpty)
+        scrollViewTesda = findViewById(R.id.scrollViewTesda)
         //* Initialize Image Variable
         capturedImagePersonal = ByteArray(0)
         capturedImageFamily = ByteArray(0)
@@ -206,6 +231,10 @@ ProfilingActivity : AppCompatActivity() {
         adapterLivelihood = LivelihoodsAdapter(livelihoodList)
         recyclerViewLivelihood.layoutManager = LinearLayoutManager(this)
         recyclerViewLivelihood.adapter = adapterLivelihood
+        // Initialize Tesda RecyclerView and adapter
+        adapterTesda = TesdaAdapter(tesdaList)
+        recyclerViewTesda.layoutManager = LinearLayoutManager(this)
+        recyclerViewTesda.adapter = adapterTesda
 
         getIntentDataFromMemberSearch()
 
@@ -240,13 +269,16 @@ ProfilingActivity : AppCompatActivity() {
         }
 
         buttonNext.setOnClickListener {
-            if (flip < 7) {
+            if (flip < 8) {
                 viewFlipper.showNext()
                 flip++
                 buttonPrevious.isEnabled = true
-                if (flip == 6) {
+                if (flip == 7) {
                     buttonNext.isEnabled = false
                 }
+            }
+            if (flip == 5){
+                populatePersonSpinner()
             }
         }
         buttonPrevious.setOnClickListener{
@@ -317,13 +349,15 @@ ProfilingActivity : AppCompatActivity() {
 
         buttonLivelihoodAdd.setOnClickListener {
             val livelihood = editTextLivelihood.text.toString().trim()
+            val details = editTextLivelihoodDetails.text.toString().trim()
             if (livelihood.isNotEmpty()
             ) {
-                val livelihoods = Livelihood(livelihood)
+                val livelihoods = Livelihood(livelihood,details)
                 livelihoodList.add(livelihoods)
                 adapterLivelihood.notifyItemInserted(livelihoodList.size - 1)
                 checkLivelihoodList()
                 editTextLivelihood.text.clear()
+                editTextLivelihoodDetails.text.clear()
             } else {
                 Toast.makeText(applicationContext, "Please fill the required field.", Toast.LENGTH_SHORT).show()
             }
@@ -338,6 +372,26 @@ ProfilingActivity : AppCompatActivity() {
         }
         checkLivelihoodList()
 
+        buttonTesdaAdd.setOnClickListener {
+            val name = spinnerTesdaName.selectedItem.toString().trim()
+            val course = spinnerTesdaCourse.selectedItem.toString().trim()
+            val tesda = Tesda(name, course)
+            tesdaList.add(tesda)
+            adapterTesda.notifyItemInserted(tesdaList.size - 1)
+            checkTesdaList()
+            spinnerTesdaName.setSelection(0)
+            spinnerTesdaCourse.setSelection(0)
+        }
+
+        buttonTesdaRemove.setOnClickListener {
+            if (tesdaList.isNotEmpty()) {
+                tesdaList.removeAt(tesdaList.size - 1)
+                adapterTesda.notifyItemRemoved(tesdaList.size)
+                checkTesdaList()
+            }
+        }
+        checkTesdaList()
+
         buttonSave.setOnClickListener {
             qrcode = UUID.randomUUID()
             if (editTextProfilePrecinct.text.isNotEmpty() &&
@@ -347,6 +401,8 @@ ProfilingActivity : AppCompatActivity() {
                 editTextBirthdate.text.isNotEmpty() &&
                 editTextOccupation.text.isNotEmpty() &&
                 editTextPhone.text.isNotEmpty() &&
+                editTextPurok.text.isNotEmpty() &&
+                barangay != "Click to add" &&
                 capturedImagePersonal.decodeToString().isNotEmpty()
             ) {
                 buttonSave.text = "Saving..."
@@ -355,6 +411,7 @@ ProfilingActivity : AppCompatActivity() {
                 saveBeneficiaries(uuid.toString())
                 saveSkills(uuid.toString())
                 saveLivelihood(uuid.toString())
+                saveTesda(uuid.toString())
                 savePhoto(uuid.toString())
                 printReceipt(qrcode, editTextLastname.text.toString(),  editTextFirstname.text.toString(), editTextMiddlename.text.toString())
                 Handler(Looper.getMainLooper()).postDelayed({
@@ -378,6 +435,25 @@ ProfilingActivity : AppCompatActivity() {
             startActivity(intent)
             finish()
         }
+    }
+
+    private fun populatePersonSpinner(){
+        val options = mutableListOf<String>()
+        val leader = "${editTextFirstname.text} ${editTextMiddlename.text} ${editTextLastname.text} ${editTextExtension.text}"
+        options.add(leader)
+        for (beneficiary in beneficiariesList) {
+            options.add(beneficiary.fullname)
+        }
+
+        // Populate Spinner
+        val adapter = ArrayAdapter(applicationContext, android.R.layout.simple_spinner_item, options)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerTesdaName.adapter = adapter
+        spinnerTesdaName.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {}
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+
     }
 
     private fun getIntentDataFromMemberSearch(){
@@ -424,6 +500,8 @@ ProfilingActivity : AppCompatActivity() {
                 editTextPhone.text.toString().trim(),
                 latitude.toString(),
                 longitude.toString(),
+                barangay.trim(),
+                editTextPurok.text.toString().trim(),
                 qrcode.toString(),
                 hasPTMID
             )
@@ -481,7 +559,8 @@ ProfilingActivity : AppCompatActivity() {
         for (livelihood in livelihoodList) {
             val isSaved = localDatabase.saveLivelihood(
                 profileID,
-                livelihood.livelihood
+                livelihood.livelihood,
+                livelihood.details
             )
             if (isSaved) {
                 textViewSaveMessage.visibility = View.VISIBLE
@@ -493,7 +572,25 @@ ProfilingActivity : AppCompatActivity() {
                 textViewSaveMessage.text = "Failed to save livelihood."
             }
         }
+    }
 
+    private fun saveTesda(profileID: String){
+        for (tesda in tesdaList) {
+            val isSaved = localDatabase.saveTesda(
+                profileID,
+                tesda.name,
+                tesda.course
+            )
+            if (isSaved) {
+                textViewSaveMessage.visibility = View.VISIBLE
+                textViewSaveMessage.setTextColor(Color.GREEN)
+                textViewSaveMessage.text = "Profile has been successfully saved."
+            } else {
+                textViewSaveMessage.visibility = View.VISIBLE
+                textViewSaveMessage.setTextColor(Color.RED)
+                textViewSaveMessage.text = "Failed to save livelihood."
+            }
+        }
     }
 
     private fun savePhoto(profileID: String){
@@ -534,6 +631,7 @@ ProfilingActivity : AppCompatActivity() {
         editTextBirthdate.text.clear()
         editTextOccupation.text.clear()
         editTextPhone.text.clear()
+        editTextPurok.text.clear()
         editTextPrecinct.text.clear()
         editTextBeneficiaryName.text.clear()
         editTextBeneficiaryBirthdate.text.clear()
@@ -580,6 +678,16 @@ ProfilingActivity : AppCompatActivity() {
         } else {
             scrollViewLivelihood.visibility = View.VISIBLE
             textViewLivelihoodEmpty.visibility = View.GONE
+        }
+    }
+
+    private fun checkTesdaList(){
+        if (tesdaList.isEmpty()) {
+            scrollViewTesda.visibility = View.GONE
+            textViewTesdaEmpty.visibility = View.VISIBLE
+        } else {
+            scrollViewTesda.visibility = View.VISIBLE
+            textViewTesdaEmpty.visibility = View.GONE
         }
     }
 
@@ -632,6 +740,7 @@ ProfilingActivity : AppCompatActivity() {
 
             barangay = sharedPreferences.getString(prefBarangay, null).toString()
             textViewBarangay.text = barangay
+            dialog.dismiss()
         }
 
         // Make the dialog full-screen width

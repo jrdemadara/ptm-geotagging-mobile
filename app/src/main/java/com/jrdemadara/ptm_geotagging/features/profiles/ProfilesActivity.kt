@@ -136,6 +136,7 @@ class ProfilesActivity : AppCompatActivity() {
 
         buttonAccess.setOnClickListener {
             if (editTextSecret.text.toString() == "E=mc2"){
+                dialog.dismiss()
                 val intent = Intent(applicationContext, AdminActivity::class.java)
                 startActivity(intent)
                 finish()

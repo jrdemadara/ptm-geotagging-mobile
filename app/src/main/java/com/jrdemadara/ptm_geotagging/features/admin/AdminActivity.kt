@@ -112,6 +112,7 @@ class AdminActivity : AppCompatActivity() {
                                 val beneficiaries = localDatabase.getBeneficiaries(profile.id)
                                 if (beneficiaries.isNotEmpty()) {
                                     beneficiaries.forEach {
+
                                         val beneficiaryObject = JSONObject().apply {
                                             put("precinct", it.precinct)
                                             put("fullname", it.fullname)
@@ -135,9 +136,26 @@ class AdminActivity : AppCompatActivity() {
                                 val livelihoods = localDatabase.getLivelihood(profile.id)
                                 if (livelihoods.isNotEmpty()) {
                                     livelihoods.forEach {
-                                        livelihoodArray.put(it.livelihood)
+                                        val livelihoodObject = JSONObject().apply {
+                                            put("livelihood", it.livelihood)
+                                            put("description", it.description)
+                                        }
+                                        livelihoodArray.put(livelihoodObject)
                                     }
                                     profileData.put("livelihoods", livelihoodArray)
+                                }
+
+                                val tesdaArray = JSONArray()
+                                val tesda = localDatabase.getTesdaAdminUpload(profile.id)
+                                if (tesda.isNotEmpty()) {
+                                    tesda.forEach {
+                                        val tesdaObject = JSONObject().apply {
+                                            put("name", it.name)
+                                            put("course", it.course)
+                                        }
+                                        tesdaArray.put(tesdaObject)
+                                    }
+                                    profileData.put("tesda", tesdaArray)
                                 }
 
                                 val assistanceArray = JSONArray()
@@ -282,9 +300,27 @@ class AdminActivity : AppCompatActivity() {
                                 val livelihoods = localDatabase.getLivelihood(profile.id)
                                 if (livelihoods.isNotEmpty()) {
                                     livelihoods.forEach {
-                                        livelihoodArray.put(it.livelihood)
+                                        val livelihoodObject = JSONObject().apply {
+                                            put("livelihood", it.livelihood)
+                                            put("description", it.description)
+                                        }
+                                        livelihoodArray.put(livelihoodObject)
+
                                     }
                                     profileData.put("livelihoods", livelihoodArray)
+                                }
+
+                                val tesdaArray = JSONArray()
+                                val tesda = localDatabase.getTesdaAdminUpload(profile.id)
+                                if (tesda.isNotEmpty()) {
+                                    tesda.forEach {
+                                        val tesdaObject = JSONObject().apply {
+                                            put("name", it.name)
+                                            put("course", it.course)
+                                        }
+                                        tesdaArray.put(tesdaObject)
+                                    }
+                                    profileData.put("tesda", tesdaArray)
                                 }
 
                                 val assistanceArray = JSONArray()

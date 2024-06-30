@@ -22,12 +22,14 @@ class ProfileLivelihoodAdapter : RecyclerView.Adapter<ProfileLivelihoodAdapter.V
         )
 
     class ViewHolder(view: View): RecyclerView.ViewHolder(view) {
-        val textViewDetailsLivelihood: TextView = itemView.findViewById(R.id.textViewDetailsLivelihood)
+        val textViewDetailsLivelihoodName: TextView = itemView.findViewById(R.id.textViewDetailsLivelihoodName)
+        val textViewDetailsLivelihoodDescription: TextView = itemView.findViewById(R.id.textViewDetailsLivelihoodDescription)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, @SuppressLint("RecyclerView") position: Int) {
         val current = mList[position]
-        holder.textViewDetailsLivelihood.text = current.livelihood
+        holder.textViewDetailsLivelihoodName.text = current.livelihood
+        holder.textViewDetailsLivelihoodDescription.text = current.description
     }
 
     override fun getItemCount() = mList.size

@@ -18,12 +18,14 @@ class LivelihoodsAdapter(private val livelihood: List<Livelihood>) :
 
     override fun onBindViewHolder(holder: LivelihoodViewHolder, position: Int) {
         val current = livelihood[position]
-        holder.livelihoodTextView.text = current.livelihood
+        holder.livelihoodNameTextView.text = current.livelihood
+        holder.livelihoodDetailsTextView.text = current.details
     }
 
     override fun getItemCount() = livelihood.size
 
     class LivelihoodViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val livelihoodTextView: TextView = itemView.findViewById(R.id.textViewLivelihood)
+        val livelihoodNameTextView: TextView = itemView.findViewById(R.id.textViewLivelihoodName)
+        val livelihoodDetailsTextView: TextView = itemView.findViewById(R.id.textViewLivelihoodDetails)
     }
 }

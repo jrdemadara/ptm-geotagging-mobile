@@ -21,14 +21,16 @@
         android:padding="8dp">
 
         <TextView
+            android:id="@+id/textViewDetailsLivelihoodName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="5dp"
             android:fontFamily="@font/roboto_mono"
-            android:text="Livelihood:" />
+            android:text="Livelihood:"
+            android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/textViewDetailsLivelihood"
+            android:id="@+id/textViewDetailsLivelihoodDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/roboto_mono"

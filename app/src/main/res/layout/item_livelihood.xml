@@ -4,40 +4,38 @@
     android:id="@+id/cardviewLivelihood"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginHorizontal="2dp"
     android:layout_marginVertical="2dp"
+    app:cardBackgroundColor="#FFFFFF"
     app:cardCornerRadius="5dp"
     app:cardElevation="0dp"
     app:cardPreventCornerOverlap="false"
     app:cardUseCompatPadding="false">
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:padding="10dp">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/textViewLivelihoodName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginEnd="5dp"
+            android:fontFamily="@font/roboto_mono"
+            android:text="Livelihood:"
+            android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/textView26"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="5dp"
-                android:fontFamily="@font/roboto_mono"
-                android:text="Livelihood:" />
+        <TextView
+            android:id="@+id/textViewLivelihoodDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/roboto_mono"
+            android:text="Ghost in the wire"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/textViewLivelihood"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/roboto_mono"
-                android:text="Ghost in the wire"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-    </FrameLayout>
+    </LinearLayout>
 
 </androidx.cardview.widget.CardView>

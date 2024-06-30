@@ -4,34 +4,30 @@
     android:id="@+id/cardviewSearchMember"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="5dp"
+    android:layout_marginHorizontal="2dp"
+    android:layout_marginVertical="2dp"
     android:background="#f4f8fb"
-    app:cardBackgroundColor="#f4f8fb"
-    app:cardCornerRadius="4dp"
-    app:cardElevation="2dp"
+    android:padding="10dp"
+    app:cardBackgroundColor="#FFFFFF"
+    app:cardCornerRadius="5dp"
+    app:cardElevation="0dp"
     app:cardPreventCornerOverlap="false"
     app:cardUseCompatPadding="false">
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="12dp">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/textViewMemberName"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/textViewMemberName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/roboto_mono"
-                android:text="johnny roger demadara"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-    </FrameLayout>
+            android:fontFamily="@font/roboto_mono"
+            android:text="johnny roger demadara"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
 
 </androidx.cardview.widget.CardView>

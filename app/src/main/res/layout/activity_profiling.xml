@@ -50,6 +50,7 @@
                 android:id="@+id/textViewBarangay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
                 android:clickable="true"
                 android:contextClickable="false"
                 android:fontFamily="@font/roboto_mono_bold"
@@ -59,7 +60,14 @@
                 android:text="New Poblacion"
                 android:textAllCaps="true"
                 android:textColor="#F44336"
-                android:textSize="18sp" />
+                android:textSize="20sp" />
+
+            <View
+                android:id="@+id/divider5"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="4dp"
+                android:background="?android:attr/listDivider" />
 
             <ViewFlipper
                 android:id="@+id/viewFlipper"
@@ -73,6 +81,11 @@
                 <include layout="@layout/layout_skill" />
 
                 <include layout="@layout/layout_livelihood" />
+
+                <include
+                    layout="@layout/layout_tesda"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
 
                 <include layout="@layout/layout_image" />
 

@@ -116,7 +116,6 @@ class InitializeActivity : AppCompatActivity() {
                             for (x in list) {
                                 savedCount++
                                 val barangay = x.name.ifEmpty { "" }
-                                Toast.makeText(applicationContext, barangay, Toast.LENGTH_SHORT).show()
                                 localDatabase.updateBarangays(
                                     barangay,
                                 )

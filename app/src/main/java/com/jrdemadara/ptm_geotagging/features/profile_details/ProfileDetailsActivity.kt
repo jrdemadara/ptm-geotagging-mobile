@@ -29,6 +29,7 @@ import com.jrdemadara.ptm_geotagging.data.Photo
 import com.jrdemadara.ptm_geotagging.features.profile_details.beneficiary.ProfileBenefeciaryAdapter
 import com.jrdemadara.ptm_geotagging.features.profile_details.livelihood.ProfileLivelihoodAdapter
 import com.jrdemadara.ptm_geotagging.features.profile_details.skills.ProfileSkillsAdapter
+import com.jrdemadara.ptm_geotagging.features.profile_details.tesda.ProfileTesdaAdapter
 import com.jrdemadara.ptm_geotagging.features.search.PowerSearchActivity
 import com.jrdemadara.ptm_geotagging.server.ApiInterface
 import com.jrdemadara.ptm_geotagging.server.LocalDatabase
@@ -62,9 +63,13 @@ class ProfileDetailsActivity : AppCompatActivity() {
     private lateinit var recyclerViewLivelihood: RecyclerView
     private var adapterLivelihood: ProfileLivelihoodAdapter? = null
 
+    private lateinit var recyclerViewTesda: RecyclerView
+    private var adapterTesda: ProfileTesdaAdapter? = null
+
     private lateinit var buttonViewBeneficiaries: Button
     private lateinit var buttonViewSkills: Button
     private lateinit var buttonViewLivelihood: Button
+    private lateinit var buttonViewTesda: Button
     private lateinit var buttonViewImages: Button
     private lateinit var buttonSingleUpload: Button
     private lateinit var textViewPrecinct: TextView
@@ -94,6 +99,7 @@ class ProfileDetailsActivity : AppCompatActivity() {
         buttonViewBeneficiaries = findViewById(R.id.buttonViewBeneficiaries)
         buttonViewSkills = findViewById(R.id.buttonViewSkills)
         buttonViewLivelihood = findViewById(R.id.buttonViewLivelihood)
+        buttonViewTesda = findViewById(R.id.buttonViewTesda)
         buttonViewImages = findViewById(R.id.buttonViewImages)
         buttonSingleUpload = findViewById(R.id.buttonSingleUpload)
 
@@ -163,6 +169,11 @@ class ProfileDetailsActivity : AppCompatActivity() {
             uploadProfile(id)
         }
 
+        buttonViewTesda.setOnClickListener {
+            val dialog = showTesdaDialog()
+            dialog.show()
+        }
+
     }
 
     private fun uploadProfile(id: String) {
@@ -214,7 +225,23 @@ class ProfileDetailsActivity : AppCompatActivity() {
 
                         jsonData.put("livelihoods", localDatabase.getLivelihood(profileData.id).let { livelihoods ->
                             JSONArray().apply {
-                                livelihoods.forEach { put(it.livelihood) }
+                                livelihoods.forEach {
+                                    put(JSONObject().apply {
+                                        put("livelihood", it.livelihood)
+                                        put("description", it.description)
+                                    })
+                                }
+                            }
+                        })
+
+                        jsonData.put("tesda", localDatabase.getTesdaUploadIndividual(profileData.id).let { tesda ->
+                            JSONArray().apply {
+                                tesda.forEach {
+                                    put(JSONObject().apply {
+                                        put("name", it.name)
+                                        put("course", it.course)
+                                    })
+                                }
                             }
                         })
 
@@ -366,6 +393,30 @@ class ProfileDetailsActivity : AppCompatActivity() {
 
         val livelihood = localDatabase.getProfileLivelihood(id)
         adapterLivelihood?.addItems(livelihood)
+
+        // Make the dialog full-screen width
+        dialog.window?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
+
+        return dialog
+    }
+
+    private fun showTesdaDialog(): Dialog {
+        val dialog = Dialog(this@ProfileDetailsActivity)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCancelable(true)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.setContentView(R.layout.dialog_tesda) // Create a layout file for the dialog
+
+        recyclerViewTesda = dialog.findViewById(R.id.recyclerViewDetailsTesda)
+        recyclerViewTesda.layoutManager = LinearLayoutManager(this@ProfileDetailsActivity)
+        adapterTesda = ProfileTesdaAdapter()
+        recyclerViewTesda.adapter = adapterTesda
+
+        val tesda = localDatabase.getTesda(id)
+        adapterTesda?.addItems(tesda)
 
         // Make the dialog full-screen width
         dialog.window?.setLayout(

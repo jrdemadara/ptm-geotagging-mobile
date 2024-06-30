@@ -151,7 +151,7 @@
         <Button
             android:id="@+id/buttonSingleUpload"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="46dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
@@ -172,7 +172,7 @@
         <Button
             android:id="@+id/buttonViewBeneficiaries"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="44dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
@@ -187,7 +187,7 @@
         <Button
             android:id="@+id/buttonViewSkills"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="44dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
@@ -202,7 +202,7 @@
         <Button
             android:id="@+id/buttonViewLivelihood"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="44dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
@@ -215,9 +215,24 @@
             app:layout_constraintStart_toStartOf="parent" />
 
         <Button
+            android:id="@+id/buttonViewTesda"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/ic_round_button"
+            android:text="Tesda"
+            android:textColorLink="#673AB7"
+            app:icon="@drawable/store"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <Button
             android:id="@+id/buttonViewImages"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="44dp"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"

@@ -12,9 +12,11 @@ import com.jrdemadara.ptm_geotagging.data.Photo
 import com.jrdemadara.ptm_geotagging.data.PowerSearchData
 import com.jrdemadara.ptm_geotagging.data.Profile
 import com.jrdemadara.ptm_geotagging.data.SearchMembers
+import com.jrdemadara.ptm_geotagging.data.Tesda
 import com.jrdemadara.ptm_geotagging.features.profile_details.beneficiary.DetailsBeneficiaries
 import com.jrdemadara.ptm_geotagging.features.profile_details.livelihood.DetailsLivelihood
 import com.jrdemadara.ptm_geotagging.features.profile_details.skills.DetailsSkills
+import com.jrdemadara.ptm_geotagging.features.profile_details.tesda.DetailsTesda
 import com.jrdemadara.ptm_geotagging.features.profiling.skill.Skills
 
 class LocalDatabase(context: Context) :
@@ -36,7 +38,6 @@ class LocalDatabase(context: Context) :
         private const val TABLE_ASSISTANCE = "assistance"
         private const val TABLE_ASSISTANCE_TYPE = "assistance_type"
         private const val TABLE_TESDA = "tesda"
-        private const val TABLE_TESDA_COURSE = "tesda_course"
 
         /* Profiles Table */
         private const val PROFILE_ID_COL = "id"
@@ -66,6 +67,7 @@ class LocalDatabase(context: Context) :
         /* Livelihoods Table */
         private const val LIVELIHOOD_ID_COL = "id"
         private const val LIVELIHOOD_LIVELIHOOD_COL = "livelihood"
+        private const val LIVELIHOOD_LIVELIHOOD_DETAILS_COL = "details"
         private const val LIVELIHOOD_PROFILE_ID_COL = "profile_id"
 
         /* Skills Table */
@@ -111,12 +113,8 @@ class LocalDatabase(context: Context) :
         /* Tesda Table */
         private const val TESDA_ID_COL = "id"
         private const val TESDA_NAME_COL = "name"
+        private const val TESDA_COURSE_COL = "course"
         private const val TESDA_PROFILE_ID_COL = "profile_id"
-
-        /* Tesda Course Table */
-        private const val TESDA_COURSE_ID_COL = "id"
-        private const val TESDA_COURSE_NAME_COL = "name"
-        private const val TESDA_COURSE_TESDA_ID_COL = "tesda_id"
 
     }
 
@@ -157,6 +155,7 @@ class LocalDatabase(context: Context) :
                         TABLE_LIVELIHOOD + " (" +
                         LIVELIHOOD_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         LIVELIHOOD_LIVELIHOOD_COL + " TEXT," +
+                        LIVELIHOOD_LIVELIHOOD_DETAILS_COL + " TEXT," +
                         LIVELIHOOD_PROFILE_ID_COL + " TEXT)"
                 )
 
@@ -227,15 +226,8 @@ class LocalDatabase(context: Context) :
                         TABLE_TESDA + " (" +
                         TESDA_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         TESDA_NAME_COL + " TEXT," +
+                        TESDA_COURSE_COL + " TEXT," +
                         TESDA_PROFILE_ID_COL + " TEXT)"
-                )
-
-        val createTesdaCourseTable = (
-                "CREATE TABLE " +
-                        TABLE_TESDA_COURSE + " (" +
-                        TESDA_COURSE_ID_COL + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                        TESDA_COURSE_NAME_COL + " TEXT," +
-                        TESDA_COURSE_TESDA_ID_COL + " TEXT)"
                 )
 
         db?.execSQL(createProfilesTable)
@@ -248,7 +240,6 @@ class LocalDatabase(context: Context) :
         db?.execSQL(createAssistanceTable)
         db?.execSQL(createAssistanceTypeTable)
         db?.execSQL(createTesdaTable)
-        db?.execSQL(createTesdaCourseTable)
         db?.execSQL(createBarangaysTable)
     }
 
@@ -264,7 +255,6 @@ class LocalDatabase(context: Context) :
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_ASSISTANCE")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_ASSISTANCE_TYPE")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_TESDA")
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_TESDA_COURSE")
         onCreate(db)
     }
 
@@ -384,6 +374,8 @@ class LocalDatabase(context: Context) :
         phone: String?,
         latitude: String?,
         longitude: String?,
+        barangay: String?,
+        purok: String?,
         qrcode: String?,
         hasPTMID: Int?
     ): Boolean {
@@ -423,6 +415,8 @@ class LocalDatabase(context: Context) :
             values.put(PROFILE_PHONE_COL, phone)
             values.put(PROFILE_LAT_COL, latitude)
             values.put(PROFILE_LON_COL, longitude)
+            values.put(PROFILE_BARANGAY_COL, barangay)
+            values.put(PROFILE_PUROK_COL, purok)
             values.put(PROFILE_QR_COL, qrcode)
             values.put(PROFILE_IS_UPLOADED_COL, 0)
             values.put(PROFILE_HASPTMID_COL, hasPTMID)
@@ -526,7 +520,8 @@ class LocalDatabase(context: Context) :
 
     fun saveLivelihood(
         id: String?,
-        livelihood: String?
+        livelihood: String?,
+        details: String?
     ): Boolean {
         return try {
             val db = this.writableDatabase
@@ -554,8 +549,32 @@ class LocalDatabase(context: Context) :
             // Livelihood doesn't exist for the given profile ID, proceed with saving the data
             val values = ContentValues()
             values.put(LIVELIHOOD_LIVELIHOOD_COL, livelihood)
+            values.put(LIVELIHOOD_LIVELIHOOD_DETAILS_COL, details)
             values.put(LIVELIHOOD_PROFILE_ID_COL, id)
             db.insert(TABLE_LIVELIHOOD, null, values)
+
+            db.close()
+            true // Data saved successfully
+        } catch (e: Exception) {
+            // Handle any exceptions here
+            e.printStackTrace()
+            false // Data not saved successfully
+        }
+    }
+
+    fun saveTesda(
+        id: String?,
+        name: String?,
+        course: String?
+    ): Boolean {
+        return try {
+            val db = this.writableDatabase
+            // Skill doesn't exist for the given profile ID, proceed with saving the data
+            val values = ContentValues()
+            values.put(TESDA_NAME_COL, name)
+            values.put(TESDA_COURSE_COL, course)
+            values.put(TESDA_PROFILE_ID_COL, id)
+            db.insert(TABLE_TESDA, null, values)
 
             db.close()
             true // Data saved successfully
@@ -946,6 +965,7 @@ class LocalDatabase(context: Context) :
                 data.add(
                     Livelihood(
                         livelihood = cursor.getString(1),
+                        description = cursor.getString(2),
                     )
                 )
             } while (cursor.moveToNext())
@@ -972,6 +992,7 @@ class LocalDatabase(context: Context) :
                 data.add(
                     DetailsLivelihood(
                         livelihood = cursor.getString(1),
+                        description = cursor.getString(2),
                     )
                 )
             } while (cursor.moveToNext())
@@ -980,10 +1001,11 @@ class LocalDatabase(context: Context) :
         return data
     }
 
-    fun getTesda(profileID: String): ArrayList<Skills> {
+    fun getTesdaAdminUpload(profileID: String): ArrayList<Tesda> {
         val db = this.readableDatabase
-        val query = "SELECT *  FROM $TABLE_SKILLS WHERE $SKILL_PROFILE_ID_COL = '$profileID'"
-        val data: ArrayList<Skills> = ArrayList()
+        val query =
+            "SELECT *  FROM $TABLE_TESDA WHERE $TESDA_PROFILE_ID_COL = '$profileID'"
+        val data: ArrayList<Tesda> = ArrayList()
         val cursor: Cursor?
         try {
             cursor = db.rawQuery(query, null)
@@ -995,8 +1017,61 @@ class LocalDatabase(context: Context) :
         if (cursor.moveToFirst()) {
             do {
                 data.add(
-                    Skills(
-                        skill = cursor.getString(1),
+                    Tesda(
+                        name = cursor.getString(1),
+                        course = cursor.getString(2),
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return data
+    }
+
+    fun getTesda(profileID: String): ArrayList<DetailsTesda> {
+        val db = this.readableDatabase
+        val query = "SELECT *  FROM $TABLE_TESDA WHERE $TESDA_PROFILE_ID_COL = '$profileID'"
+        val data: ArrayList<DetailsTesda> = ArrayList()
+        val cursor: Cursor?
+        try {
+            cursor = db.rawQuery(query, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(query)
+            return ArrayList()
+        }
+        if (cursor.moveToFirst()) {
+            do {
+                data.add(
+                    DetailsTesda(
+                        name = cursor.getString(1),
+                        course = cursor.getString(2),
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return data
+    }
+
+    fun getTesdaUploadIndividual(profileID: String): ArrayList<Tesda> {
+        val db = this.readableDatabase
+        val query = "SELECT *  FROM $TABLE_TESDA WHERE $TESDA_PROFILE_ID_COL = '$profileID'"
+        val data: ArrayList<Tesda> = ArrayList()
+        val cursor: Cursor?
+        try {
+            cursor = db.rawQuery(query, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(query)
+            return ArrayList()
+        }
+        if (cursor.moveToFirst()) {
+            do {
+                data.add(
+                    Tesda(
+                        name = cursor.getString(1),
+                        course = cursor.getString(2),
                     )
                 )
             } while (cursor.moveToNext())
