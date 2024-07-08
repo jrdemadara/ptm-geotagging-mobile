@@ -44,23 +44,12 @@
             android:textColor="#F4511E"
             android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/textViewSaveMessage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:fontFamily="@font/roboto_mono"
-            android:gravity="center"
-            android:text="Transaction Message"
-            android:textSize="16sp"
-            android:visibility="gone" />
-
         <Button
             android:id="@+id/buttonSave"
             android:layout_width="252dp"
             android:layout_height="52dp"
             android:layout_gravity="center"
-            android:layout_marginTop="58dp"
+            android:layout_marginTop="38dp"
             android:text="Proceed" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

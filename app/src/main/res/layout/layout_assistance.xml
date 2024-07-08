@@ -20,27 +20,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/roboto_mono_bold"
-            android:text="Skills"
+            android:text="Previous Assistance"
             android:textSize="20sp" />
 
         <TextView
-            android:id="@+id/textViewSkillsEmpty"
+            android:id="@+id/textViewAssistanceEmpty"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:fontFamily="@font/roboto_mono"
-            android:text="No skills added yet"
+            android:text="No assitance added yet"
             android:textAlignment="center"
             android:textColor="#E53935"
             android:textSize="16sp"
             android:visibility="visible" />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewSkill"
+            android:id="@+id/recyclerViewAssistance"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:layout_marginTop="16dp">
-
         </androidx.recyclerview.widget.RecyclerView>
 
         <LinearLayout
@@ -49,18 +48,12 @@
             android:layout_marginTop="16dp"
             android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/editTextSkill"
+            <Spinner
+                android:id="@+id/spinnerAssistanceName"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/ic_round_edittext"
-                android:ems="10"
-                android:fontFamily="@font/roboto_mono"
-                android:hint="Skill"
-                android:inputType="text"
-                android:paddingStart="16dp"
-                android:textAllCaps="false" />
+                android:layout_marginTop="16dp"
+                android:background="@drawable/ic_round_edittext" />
 
             <LinearLayout
                 android:layout_width="fill_parent"
@@ -70,7 +63,7 @@
                 android:orientation="horizontal">
 
                 <Button
-                    android:id="@+id/buttonSkillRemove"
+                    android:id="@+id/buttonAssistanceRemove"
                     android:layout_width="wrap_content"
                     android:layout_height="52dp"
                     android:layout_marginTop="16dp"
@@ -80,13 +73,13 @@
                     android:text="Remove" />
 
                 <Button
-                    android:id="@+id/buttonSkillAdd"
+                    android:id="@+id/buttonAssistanceAdd"
                     android:layout_width="fill_parent"
                     android:layout_height="52dp"
                     android:layout_marginStart="5dp"
                     android:backgroundTint="#F89F50"
                     android:fontFamily="@font/roboto_mono"
-                    android:text="Add Skill" />
+                    android:text="Add Assistance" />
             </LinearLayout>
 
         </LinearLayout>

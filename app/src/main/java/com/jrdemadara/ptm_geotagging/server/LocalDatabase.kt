@@ -13,6 +13,7 @@ import com.jrdemadara.ptm_geotagging.data.PowerSearchData
 import com.jrdemadara.ptm_geotagging.data.Profile
 import com.jrdemadara.ptm_geotagging.data.SearchMembers
 import com.jrdemadara.ptm_geotagging.data.Tesda
+import com.jrdemadara.ptm_geotagging.features.profile_details.assistance.DetailsAssistance
 import com.jrdemadara.ptm_geotagging.features.profile_details.beneficiary.DetailsBeneficiaries
 import com.jrdemadara.ptm_geotagging.features.profile_details.livelihood.DetailsLivelihood
 import com.jrdemadara.ptm_geotagging.features.profile_details.skills.DetailsSkills
@@ -585,6 +586,28 @@ class LocalDatabase(context: Context) :
         }
     }
 
+    fun saveAssistance(
+        id: String?,
+        assistance: String?,
+    ): Boolean {
+        return try {
+            val db = this.writableDatabase
+            // Assistance doesn't exist for the given profile ID, proceed with saving the data
+            val values = ContentValues()
+            values.put(ASSISTANCE_ASSISTANCE_COL, assistance)
+            values.put(ASSISTANCE_AMOUNT_COL, "0")
+            values.put(ASSISTANCE_PROFILE_ID_COL, id)
+            db.insert(TABLE_ASSISTANCE, null, values)
+
+            db.close()
+            true // Data saved successfully
+        } catch (e: Exception) {
+            // Handle any exceptions here
+            e.printStackTrace()
+            false // Data not saved successfully
+        }
+    }
+
     fun savePhotos(
         id: String?,
         photoPersonal: ByteArray?,
@@ -1136,8 +1159,7 @@ class LocalDatabase(context: Context) :
 
     fun getAssistance(profileID: String, assistance: String): ArrayList<Assistance> {
         val db = this.readableDatabase
-        val query = "SELECT * FROM $TABLE_ASSISTANCE" +
-                " WHERE $ASSISTANCE_PROFILE_ID_COL = '$profileID' AND $ASSISTANCE_ASSISTANCE_COL = '$assistance'"
+        val query = "SELECT *  FROM $TABLE_ASSISTANCE WHERE $ASSISTANCE_PROFILE_ID_COL = '$profileID' AND $ASSISTANCE_ASSISTANCE_COL = '$assistance'"
         val data: ArrayList<Assistance> = ArrayList()
         val cursor: Cursor?
         try {
@@ -1154,6 +1176,32 @@ class LocalDatabase(context: Context) :
                         assistance = cursor.getString(1),
                         amount = cursor.getString(2),
                         releasedAt = cursor.getString(3),
+                    )
+                )
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        return data
+    }
+
+    fun getDetailsAssistance(profileID: String): ArrayList<DetailsAssistance> {
+        val db = this.readableDatabase
+        val query = "SELECT * FROM $TABLE_ASSISTANCE" +
+                " WHERE $ASSISTANCE_PROFILE_ID_COL = '$profileID'"
+        val data: ArrayList<DetailsAssistance> = ArrayList()
+        val cursor: Cursor?
+        try {
+            cursor = db.rawQuery(query, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(query)
+            return ArrayList()
+        }
+        if (cursor.moveToFirst()) {
+            do {
+                data.add(
+                    DetailsAssistance(
+                        assistance = cursor.getString(1),
                     )
                 )
             } while (cursor.moveToNext())

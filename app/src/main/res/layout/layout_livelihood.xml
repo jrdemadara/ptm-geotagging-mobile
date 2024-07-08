@@ -35,19 +35,13 @@
             android:textSize="16sp"
             android:visibility="visible" />
 
-        <ScrollView
-            android:id="@+id/scrollViewLivelihood"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewLivelihood"
             android:layout_width="match_parent"
-            android:layout_height="200dp">
+            android:layout_height="200dp"
+            android:layout_marginTop="16dp">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerViewLivelihood"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
-
-            </androidx.recyclerview.widget.RecyclerView>
-        </ScrollView>
+        </androidx.recyclerview.widget.RecyclerView>
 
         <LinearLayout
             android:layout_width="match_parent"

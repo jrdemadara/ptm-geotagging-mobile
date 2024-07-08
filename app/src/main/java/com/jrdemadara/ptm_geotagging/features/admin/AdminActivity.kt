@@ -214,7 +214,7 @@ class AdminActivity : AppCompatActivity() {
                                 } else {
                                     // Handle unsuccessful response
                                     Handler(Looper.getMainLooper()).post {
-                                        Toast.makeText(applicationContext, "Something went wrong.\nStatusCode: ${response.code()}", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(applicationContext, "Something went wrong.\nStatusCode: ${response.message()}", Toast.LENGTH_SHORT).show()
                                         loadingDialog.dismiss()
                                     }
                                 }

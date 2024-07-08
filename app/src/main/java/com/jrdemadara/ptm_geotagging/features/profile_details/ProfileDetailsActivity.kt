@@ -26,6 +26,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.jrdemadara.ptm_geotagging.R
 import com.jrdemadara.ptm_geotagging.data.Photo
+import com.jrdemadara.ptm_geotagging.features.profile_details.assistance.DetailsAssistanceAdapter
 import com.jrdemadara.ptm_geotagging.features.profile_details.beneficiary.ProfileBenefeciaryAdapter
 import com.jrdemadara.ptm_geotagging.features.profile_details.livelihood.ProfileLivelihoodAdapter
 import com.jrdemadara.ptm_geotagging.features.profile_details.skills.ProfileSkillsAdapter
@@ -66,10 +67,14 @@ class ProfileDetailsActivity : AppCompatActivity() {
     private lateinit var recyclerViewTesda: RecyclerView
     private var adapterTesda: ProfileTesdaAdapter? = null
 
+    private lateinit var recyclerViewAssistance: RecyclerView
+    private var adapterAssistance: DetailsAssistanceAdapter? = null
+
     private lateinit var buttonViewBeneficiaries: Button
     private lateinit var buttonViewSkills: Button
     private lateinit var buttonViewLivelihood: Button
     private lateinit var buttonViewTesda: Button
+    private lateinit var buttonViewAssistance: Button
     private lateinit var buttonViewImages: Button
     private lateinit var buttonSingleUpload: Button
     private lateinit var textViewPrecinct: TextView
@@ -101,6 +106,7 @@ class ProfileDetailsActivity : AppCompatActivity() {
         buttonViewLivelihood = findViewById(R.id.buttonViewLivelihood)
         buttonViewTesda = findViewById(R.id.buttonViewTesda)
         buttonViewImages = findViewById(R.id.buttonViewImages)
+        buttonViewAssistance = findViewById(R.id.buttonViewAssistance)
         buttonSingleUpload = findViewById(R.id.buttonSingleUpload)
 
         textViewPrecinct = findViewById(R.id.textViewProfilePrecinct)
@@ -171,6 +177,11 @@ class ProfileDetailsActivity : AppCompatActivity() {
 
         buttonViewTesda.setOnClickListener {
             val dialog = showTesdaDialog()
+            dialog.show()
+        }
+
+        buttonViewAssistance.setOnClickListener {
+            val dialog = showAssistanceDialog()
             dialog.show()
         }
 
@@ -417,6 +428,30 @@ class ProfileDetailsActivity : AppCompatActivity() {
 
         val tesda = localDatabase.getTesda(id)
         adapterTesda?.addItems(tesda)
+
+        // Make the dialog full-screen width
+        dialog.window?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
+
+        return dialog
+    }
+
+    private fun showAssistanceDialog(): Dialog {
+        val dialog = Dialog(this@ProfileDetailsActivity)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCancelable(true)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.setContentView(R.layout.dialog_assistance) // Create a layout file for the dialog
+
+        recyclerViewAssistance = dialog.findViewById(R.id.recyclerViewDetailsAssistance)
+        recyclerViewAssistance.layoutManager = LinearLayoutManager(this@ProfileDetailsActivity)
+        adapterAssistance = DetailsAssistanceAdapter()
+        recyclerViewAssistance.adapter = adapterAssistance
+
+        val items = localDatabase.getDetailsAssistance(id)
+        adapterAssistance?.addItems(items)
 
         // Make the dialog full-screen width
         dialog.window?.setLayout(

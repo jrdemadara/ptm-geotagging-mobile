@@ -43,6 +43,8 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.jrdemadara.ptm_geotagging.R
 import com.jrdemadara.ptm_geotagging.features.profiles.ProfilesActivity
+import com.jrdemadara.ptm_geotagging.features.profiling.assistance.Assistance
+import com.jrdemadara.ptm_geotagging.features.profiling.assistance.AssistanceAdapter
 import com.jrdemadara.ptm_geotagging.features.profiling.beneficiary.Beneficiaries
 import com.jrdemadara.ptm_geotagging.features.profiling.beneficiary.BeneficiariesAdapter
 import com.jrdemadara.ptm_geotagging.features.profiling.livelihood.Livelihood
@@ -72,7 +74,6 @@ ProfilingActivity : AppCompatActivity() {
     private lateinit var buttonPrevious: Button
     private lateinit var buttonSave: Button
     private lateinit var buttonSearchMember: Button
-    private lateinit var textViewSaveMessage: TextView
     private lateinit var textViewBarangay: TextView
     private lateinit var viewFlipper: ViewFlipper
     private var latitude: Double = 0.0
@@ -101,7 +102,6 @@ ProfilingActivity : AppCompatActivity() {
     private lateinit var buttonBeneficiaryAdd: Button
     private lateinit var buttonBeneficiaryRemove: Button
     private lateinit var textViewBeneficiaryEmpty: TextView
-    private lateinit var scrollViewBeneficiaries: ScrollView
     private val beneficiariesList = mutableListOf<Beneficiaries>()
     private lateinit var adapterBeneficiaries: BeneficiariesAdapter
 
@@ -111,7 +111,6 @@ ProfilingActivity : AppCompatActivity() {
     private lateinit var buttonSkillAdd: Button
     private lateinit var buttonSkillRemove: Button
     private lateinit var textViewSkillsEmpty: TextView
-    private lateinit var scrollViewSkills: ScrollView
     private val skillsList = mutableListOf<Skills>()
     private lateinit var adapterSkills: SkillsAdapter
 
@@ -122,7 +121,6 @@ ProfilingActivity : AppCompatActivity() {
     private lateinit var buttonLivelihoodAdd: Button
     private lateinit var buttonLivelihoodRemove: Button
     private lateinit var textViewLivelihoodEmpty: TextView
-    private lateinit var scrollViewLivelihood: ScrollView
     private val livelihoodList = mutableListOf<Livelihood>()
     private lateinit var adapterLivelihood: LivelihoodsAdapter
 
@@ -133,9 +131,17 @@ ProfilingActivity : AppCompatActivity() {
     private lateinit var buttonTesdaAdd: Button
     private lateinit var buttonTesdaRemove: Button
     private lateinit var textViewTesdaEmpty: TextView
-    private lateinit var scrollViewTesda: ScrollView
     private val tesdaList = mutableListOf<Tesda>()
     private lateinit var adapterTesda: TesdaAdapter
+
+    //* Assistance Variables
+    private lateinit var recyclerViewAssistance: RecyclerView
+    private lateinit var spinnerAssistanceName: Spinner
+    private lateinit var buttonAssistanceAdd: Button
+    private lateinit var buttonAssistanceRemove: Button
+    private lateinit var textViewAssistanceEmpty: TextView
+    private val assistanceList = mutableListOf<Assistance>()
+    private lateinit var adapterAssistance: AssistanceAdapter
 
     //* Image Variables
     private lateinit var capturedImagePersonal: ByteArray
@@ -163,7 +169,6 @@ ProfilingActivity : AppCompatActivity() {
         buttonNext = findViewById(R.id.buttonNextView)
         buttonPrevious = findViewById(R.id.buttonPreviousView)
         buttonSearchMember = findViewById(R.id.buttonSearchMember)
-        textViewSaveMessage = findViewById(R.id.textViewSaveMessage)
         textViewBarangay = findViewById(R.id.textViewBarangay)
         uuid = UUID.randomUUID()
 
@@ -188,14 +193,12 @@ ProfilingActivity : AppCompatActivity() {
         buttonBeneficiaryAdd = findViewById(R.id.buttonBeneficiaryAdd)
         buttonBeneficiaryRemove = findViewById(R.id.buttonBeneficiaryRemove)
         textViewBeneficiaryEmpty = findViewById(R.id.textViewBeneficiaryEmpty)
-        scrollViewBeneficiaries = findViewById(R.id.scrollViewBeneficiary)
         //* Initialize Skill Variable
         recyclerViewSkill = findViewById(R.id.recyclerViewSkill)
         editTextSkill = findViewById(R.id.editTextSkill)
         buttonSkillAdd = findViewById(R.id.buttonSkillAdd)
         buttonSkillRemove = findViewById(R.id.buttonSkillRemove)
         textViewSkillsEmpty = findViewById(R.id.textViewSkillsEmpty)
-        scrollViewSkills = findViewById(R.id.scrollViewSkill)
         //* Initialize Livelihood Variable
         recyclerViewLivelihood = findViewById(R.id.recyclerViewLivelihood)
         editTextLivelihood = findViewById(R.id.editTextLivelihood)
@@ -203,7 +206,6 @@ ProfilingActivity : AppCompatActivity() {
         buttonLivelihoodAdd = findViewById(R.id.buttonLivelihoodAdd)
         buttonLivelihoodRemove = findViewById(R.id.buttonLivelihoodRemove)
         textViewLivelihoodEmpty = findViewById(R.id.textViewLivelihoodEmpty)
-        scrollViewLivelihood = findViewById(R.id.scrollViewLivelihood)
         //* Initialize Tesda Variable
         recyclerViewTesda = findViewById(R.id.recyclerViewTesda)
         spinnerTesdaName = findViewById(R.id.spinnerTesdaName)
@@ -211,7 +213,13 @@ ProfilingActivity : AppCompatActivity() {
         buttonTesdaAdd = findViewById(R.id.buttonTesdaAdd)
         buttonTesdaRemove = findViewById(R.id.buttonTesdaRemove)
         textViewTesdaEmpty = findViewById(R.id.textViewTesdaEmpty)
-        scrollViewTesda = findViewById(R.id.scrollViewTesda)
+
+        //* Initialize Assistance Variable
+        recyclerViewAssistance = findViewById(R.id.recyclerViewAssistance)
+        spinnerAssistanceName = findViewById(R.id.spinnerAssistanceName)
+        buttonAssistanceAdd = findViewById(R.id.buttonAssistanceAdd)
+        buttonAssistanceRemove = findViewById(R.id.buttonAssistanceRemove)
+        textViewAssistanceEmpty = findViewById(R.id.textViewAssistanceEmpty)
         //* Initialize Image Variable
         capturedImagePersonal = ByteArray(0)
         capturedImageFamily = ByteArray(0)
@@ -235,11 +243,17 @@ ProfilingActivity : AppCompatActivity() {
         adapterTesda = TesdaAdapter(tesdaList)
         recyclerViewTesda.layoutManager = LinearLayoutManager(this)
         recyclerViewTesda.adapter = adapterTesda
+        // Initialize Assistance RecyclerView and adapter
+        adapterAssistance = AssistanceAdapter(assistanceList)
+        recyclerViewAssistance.layoutManager = LinearLayoutManager(this)
+        recyclerViewAssistance.adapter = adapterAssistance
 
         getIntentDataFromMemberSearch()
 
         checkPermission()
         getLastLocation()
+        populatePersonSpinner()
+        populateAssistanceSpinner()
 
         textViewBarangay.text = barangay
 
@@ -269,16 +283,13 @@ ProfilingActivity : AppCompatActivity() {
         }
 
         buttonNext.setOnClickListener {
-            if (flip < 8) {
+            if (flip < 9) {
                 viewFlipper.showNext()
                 flip++
                 buttonPrevious.isEnabled = true
-                if (flip == 7) {
+                if (flip == 8) {
                     buttonNext.isEnabled = false
                 }
-            }
-            if (flip == 5){
-                populatePersonSpinner()
             }
         }
         buttonPrevious.setOnClickListener{
@@ -392,8 +403,28 @@ ProfilingActivity : AppCompatActivity() {
         }
         checkTesdaList()
 
+        buttonAssistanceAdd.setOnClickListener {
+            val name = spinnerAssistanceName.selectedItem.toString().trim()
+            val assistance = Assistance(name)
+            assistanceList.add(assistance)
+            adapterAssistance.notifyItemInserted(assistanceList.size - 1)
+            checkAssistanceList()
+            spinnerAssistanceName.setSelection(0)
+        }
+
+        buttonAssistanceRemove.setOnClickListener {
+            if (assistanceList.isNotEmpty()) {
+                assistanceList.removeAt(assistanceList.size - 1)
+                adapterAssistance.notifyItemRemoved(assistanceList.size)
+                checkAssistanceList()
+            }
+        }
+        checkAssistanceList()
+
         buttonSave.setOnClickListener {
             qrcode = UUID.randomUUID()
+            buttonSave.text = "Saving..."
+            buttonSave.isEnabled = false
             if (editTextProfilePrecinct.text.isNotEmpty() &&
                 editTextLastname.text.isNotEmpty() &&
                 editTextFirstname.text.isNotEmpty() &&
@@ -405,27 +436,22 @@ ProfilingActivity : AppCompatActivity() {
                 barangay != "Click to add" &&
                 capturedImagePersonal.decodeToString().isNotEmpty()
             ) {
-                buttonSave.text = "Saving..."
-                buttonSave.isEnabled = false
                 saveProfile(uuid.toString())
                 saveBeneficiaries(uuid.toString())
                 saveSkills(uuid.toString())
                 saveLivelihood(uuid.toString())
                 saveTesda(uuid.toString())
+                saveAssistance(uuid.toString())
                 savePhoto(uuid.toString())
                 printReceipt(qrcode, editTextLastname.text.toString(),  editTextFirstname.text.toString(), editTextMiddlename.text.toString())
                 Handler(Looper.getMainLooper()).postDelayed({
-                    resetComponents()
                     val intent = Intent(applicationContext, ProfilesActivity::class.java)
                     startActivity(intent)
                     finish()
                 }, 5000)
             }else{
                 buttonSave.text = "Proceed"
-                textViewSaveMessage.visibility = View.VISIBLE
-                textViewSaveMessage.setTextColor(Color.RED)
                 buttonSave.isEnabled = true
-                textViewSaveMessage.text = "Please fill in all required fields."
             }
 
         }
@@ -453,7 +479,26 @@ ProfilingActivity : AppCompatActivity() {
             override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {}
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
+    }
 
+    private fun populateAssistanceSpinner() {
+        val adapter = ArrayAdapter(
+            this@ProfilingActivity,
+            android.R.layout.simple_list_item_single_choice,
+            localDatabase.getAssistanceType()
+        )
+        spinnerAssistanceName.adapter = adapter
+        spinnerAssistanceName.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>,
+                view: View,
+                position: Int,
+                id: Long
+            ) {
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
     }
 
     private fun getIntentDataFromMemberSearch(){
@@ -488,206 +533,129 @@ ProfilingActivity : AppCompatActivity() {
     }
 
     private fun saveProfile(profileID: String){
-            val isSaved = localDatabase.saveProfile(
-                profileID,
-                editTextProfilePrecinct.text.toString().trim(),
-                editTextLastname.text.toString().trim(),
-                editTextFirstname.text.toString().trim(),
-                editTextMiddlename.text.toString().trim(),
-                editTextExtension.text.toString().trim(),
-                editTextBirthdate.text.toString().trim(),
-                editTextOccupation.text.toString().trim(),
-                editTextPhone.text.toString().trim(),
-                latitude.toString(),
-                longitude.toString(),
-                barangay.trim(),
-                editTextPurok.text.toString().trim(),
-                qrcode.toString(),
-                hasPTMID
-            )
-            if (isSaved) {
-                textViewSaveMessage.visibility = View.VISIBLE
-                textViewSaveMessage.setTextColor(Color.GREEN)
-                textViewSaveMessage.text = "Profile has been successfully saved."
-            } else {
-                textViewSaveMessage.visibility = View.VISIBLE
-                textViewSaveMessage.setTextColor(Color.RED)
-                textViewSaveMessage.text = "Failed to save personal information."
-            }
-
+        localDatabase.saveProfile(
+            profileID,
+            editTextProfilePrecinct.text.toString().trim(),
+            editTextLastname.text.toString().trim(),
+            editTextFirstname.text.toString().trim(),
+            editTextMiddlename.text.toString().trim(),
+            editTextExtension.text.toString().trim(),
+            editTextBirthdate.text.toString().trim(),
+            editTextOccupation.text.toString().trim(),
+            editTextPhone.text.toString().trim(),
+            latitude.toString(),
+            longitude.toString(),
+            barangay.trim(),
+            editTextPurok.text.toString().trim(),
+            qrcode.toString(),
+            hasPTMID
+        )
     }
 
     private fun saveBeneficiaries(profileID: String){
         for (beneficiary in beneficiariesList) {
-            val isSaved = localDatabase.saveBeneficiaries(
+            localDatabase.saveBeneficiaries(
                 profileID,
                 beneficiary.precinct,
                 beneficiary.fullname,
                 beneficiary.birthdate
             )
-            if (isSaved) {
-                textViewSaveMessage.visibility = View.VISIBLE
-                textViewSaveMessage.setTextColor(Color.GREEN)
-                textViewSaveMessage.text = "Profile has been successfully saved."
-            } else {
-                textViewSaveMessage.visibility = View.VISIBLE
-                textViewSaveMessage.setTextColor(Color.RED)
-                textViewSaveMessage.text = "Failed to save beneficiaries."
-            }
         }
     }
 
     private fun saveSkills(profileID: String){
         for (skill in skillsList) {
-            val isSaved =localDatabase.saveSkills(
+            localDatabase.saveSkills(
                 profileID,
                 skill.skill
             )
-            if (isSaved) {
-                textViewSaveMessage.visibility = View.VISIBLE
-                textViewSaveMessage.setTextColor(Color.GREEN)
-                textViewSaveMessage.text = "Profile has been successfully saved."
-            } else {
-                textViewSaveMessage.visibility = View.VISIBLE
-                textViewSaveMessage.setTextColor(Color.RED)
-                textViewSaveMessage.text = "Failed to save skills."
-            }
         }
     }
 
     private fun saveLivelihood(profileID: String){
         for (livelihood in livelihoodList) {
-            val isSaved = localDatabase.saveLivelihood(
+            localDatabase.saveLivelihood(
                 profileID,
                 livelihood.livelihood,
                 livelihood.details
             )
-            if (isSaved) {
-                textViewSaveMessage.visibility = View.VISIBLE
-                textViewSaveMessage.setTextColor(Color.GREEN)
-                textViewSaveMessage.text = "Profile has been successfully saved."
-            } else {
-                textViewSaveMessage.visibility = View.VISIBLE
-                textViewSaveMessage.setTextColor(Color.RED)
-                textViewSaveMessage.text = "Failed to save livelihood."
-            }
         }
     }
 
     private fun saveTesda(profileID: String){
         for (tesda in tesdaList) {
-            val isSaved = localDatabase.saveTesda(
+            localDatabase.saveTesda(
                 profileID,
                 tesda.name,
                 tesda.course
             )
-            if (isSaved) {
-                textViewSaveMessage.visibility = View.VISIBLE
-                textViewSaveMessage.setTextColor(Color.GREEN)
-                textViewSaveMessage.text = "Profile has been successfully saved."
-            } else {
-                textViewSaveMessage.visibility = View.VISIBLE
-                textViewSaveMessage.setTextColor(Color.RED)
-                textViewSaveMessage.text = "Failed to save livelihood."
-            }
+        }
+    }
+
+    private fun saveAssistance(profileID: String){
+        for (assistance in assistanceList) {
+            localDatabase.saveAssistance(
+                profileID,
+                assistance.assistance,
+            )
         }
     }
 
     private fun savePhoto(profileID: String){
-            val isSaved = localDatabase.savePhotos(
-                profileID,
-                capturedImagePersonal,
-                capturedImageFamily,
-                capturedImageLivelihood)
-            if (isSaved) {
-                textViewSaveMessage.visibility = View.VISIBLE
-                textViewSaveMessage.setTextColor(Color.GREEN)
-                textViewSaveMessage.text = "Profile has been successfully saved."
-            } else {
-                textViewSaveMessage.visibility = View.VISIBLE
-                textViewSaveMessage.setTextColor(Color.RED)
-                textViewSaveMessage.text = "Failed to save photos."
-            }
-    }
-
-    private fun resetComponents(){
-        uuid = UUID.randomUUID()
-        flip = 1
-        latitude = 0.0
-        longitude = 0.0
-        imageViewPersonal.setImageResource(R.drawable.imageplus)
-        imageViewFamily.setImageResource(R.drawable.imageplus)
-        imageViewLivelihood.setImageResource(R.drawable.imageplus)
-        capturedImagePersonal = byteArrayOf()
-        capturedImageFamily = byteArrayOf()
-        capturedImageLivelihood = byteArrayOf()
-        buttonNext.text = "Next"
-
-        editTextProfilePrecinct.text.clear()
-        editTextLastname.text.clear()
-        editTextLastname.text.clear()
-        editTextFirstname.text.clear()
-        editTextMiddlename.text.clear()
-        editTextBirthdate.text.clear()
-        editTextOccupation.text.clear()
-        editTextPhone.text.clear()
-        editTextPurok.text.clear()
-        editTextPrecinct.text.clear()
-        editTextBeneficiaryName.text.clear()
-        editTextBeneficiaryBirthdate.text.clear()
-        editTextSkill.text.clear()
-        editTextLivelihood.text.clear()
-        beneficiariesList.clear()
-        skillsList.clear()
-        livelihoodList.clear()
-        adapterBeneficiaries.notifyDataSetChanged()
-        adapterSkills.notifyDataSetChanged()
-        adapterLivelihood.notifyDataSetChanged()
-        checkBeneficiariesList()
-        checkSkillsList()
-        checkLivelihoodList()
-        textViewSaveMessage.text = ""
-        textViewSaveMessage.visibility = View.GONE
-
+        localDatabase.savePhotos(
+            profileID,
+            capturedImagePersonal,
+            capturedImageFamily,
+            capturedImageLivelihood)
     }
 
     private fun checkBeneficiariesList(){
         if (beneficiariesList.isEmpty()) {
-            scrollViewBeneficiaries.visibility = View.GONE
+            recyclerViewBeneficiary.visibility = View.GONE
             textViewBeneficiaryEmpty.visibility = View.VISIBLE
         } else {
-            scrollViewBeneficiaries.visibility = View.VISIBLE
+            recyclerViewBeneficiary.visibility = View.VISIBLE
             textViewBeneficiaryEmpty.visibility = View.GONE
         }
     }
 
     private fun checkSkillsList(){
         if (skillsList.isEmpty()) {
-            scrollViewSkills.visibility = View.GONE
+            recyclerViewSkill.visibility = View.GONE
             textViewSkillsEmpty.visibility = View.VISIBLE
         } else {
-            scrollViewSkills.visibility = View.VISIBLE
+            recyclerViewSkill.visibility = View.VISIBLE
             textViewSkillsEmpty.visibility = View.GONE
         }
     }
 
     private fun checkLivelihoodList(){
         if (livelihoodList.isEmpty()) {
-            scrollViewLivelihood.visibility = View.GONE
+            recyclerViewLivelihood.visibility = View.GONE
             textViewLivelihoodEmpty.visibility = View.VISIBLE
         } else {
-            scrollViewLivelihood.visibility = View.VISIBLE
+            recyclerViewLivelihood.visibility = View.VISIBLE
             textViewLivelihoodEmpty.visibility = View.GONE
         }
     }
 
     private fun checkTesdaList(){
         if (tesdaList.isEmpty()) {
-            scrollViewTesda.visibility = View.GONE
+            recyclerViewTesda.visibility = View.GONE
             textViewTesdaEmpty.visibility = View.VISIBLE
         } else {
-            scrollViewTesda.visibility = View.VISIBLE
+            recyclerViewTesda.visibility = View.VISIBLE
             textViewTesdaEmpty.visibility = View.GONE
+        }
+    }
+
+    private fun checkAssistanceList(){
+        if (assistanceList.isEmpty()) {
+            recyclerViewAssistance.visibility = View.GONE
+            textViewAssistanceEmpty.visibility = View.VISIBLE
+        } else {
+            recyclerViewAssistance.visibility = View.VISIBLE
+            textViewAssistanceEmpty.visibility = View.GONE
         }
     }
 
