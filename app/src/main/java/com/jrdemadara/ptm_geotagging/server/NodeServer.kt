@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 class NodeServer {
     companion object {
         private const val BASE_URL: String = "https://geoapp.ptmkapamilya.org/api/v1/uri/"
-        //private const val BASE_URL: String = "http://192.168.50.140:8000/api/v1/uri/"
+        //private const val BASE_URL: String = "http://192.168.214.62:8000/api/v1/uri/"
 
         fun getRetrofitInstance(token: String): Retrofit {
             // Create a logging interceptor to log the body of requests and responses

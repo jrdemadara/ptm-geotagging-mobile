@@ -171,6 +171,28 @@
                     android:inputType="text"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp" />
+
+                <RadioGroup
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="16dp"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/radioButtonIslam"
+                        android:layout_width="185dp"
+                        android:layout_height="wrap_content"
+                        android:text="Islam"
+                        android:textSize="20sp" />
+
+                    <RadioButton
+                        android:id="@+id/radioButtonNonIslam"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Non Islam"
+                        android:textSize="20sp" />
+                </RadioGroup>
+
             </LinearLayout>
         </ScrollView>
 

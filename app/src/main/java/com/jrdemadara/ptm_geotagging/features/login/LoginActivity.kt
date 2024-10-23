@@ -72,7 +72,6 @@ class LoginActivity : AppCompatActivity() {
                         // Handle unsuccessful response
                         Toast.makeText(applicationContext, "Login failed", Toast.LENGTH_SHORT).show()
                     }
-
                 }
 
                 override fun onFailure(call: Call<ResponseBody?>, t: Throwable) {

@@ -4,4 +4,5 @@ data class DetailsBeneficiaries(
     val precinct: String,
     val fullname: String,
     val birthdate: String,
+    val qrcode: String,
 )

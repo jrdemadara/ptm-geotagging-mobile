@@ -16,4 +16,5 @@ data class Profile(
     val purok: String,
     val qrcode: String,
     val hasptmid: Int,
+    val ismuslim: Int,
 )

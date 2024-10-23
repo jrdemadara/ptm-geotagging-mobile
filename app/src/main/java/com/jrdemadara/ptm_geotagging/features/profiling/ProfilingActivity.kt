@@ -26,6 +26,7 @@ import android.widget.Button
 import android.widget.DatePicker
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.RadioButton
 import android.widget.ScrollView
 import android.widget.Spinner
 import android.widget.TextView
@@ -81,6 +82,7 @@ ProfilingActivity : AppCompatActivity() {
     private var flip: Int = 1
     private lateinit var uuid: UUID
     private lateinit var qrcode: UUID
+    private lateinit var qrcodeBeneficiaries: UUID
 
     //* Profile Variables
     private lateinit var editTextProfilePrecinct: EditText
@@ -92,7 +94,10 @@ ProfilingActivity : AppCompatActivity() {
     private lateinit var editTextOccupation: EditText
     private lateinit var editTextPhone: EditText
     private lateinit var editTextPurok: EditText
+    private lateinit var radioButtonIslam: RadioButton
+    private lateinit var radioButtonNonIslam: RadioButton
     private var hasPTMID: Int = 0
+    private var group: String = "none"
 
     //* Beneficiary Variables
     private lateinit var recyclerViewBeneficiary: RecyclerView
@@ -185,6 +190,8 @@ ProfilingActivity : AppCompatActivity() {
         editTextOccupation = findViewById(R.id.editTextOccupation)
         editTextPhone = findViewById(R.id.editTextPhone)
         editTextPurok = findViewById(R.id.editTextPurok)
+        radioButtonIslam = findViewById(R.id.radioButtonIslam)
+        radioButtonNonIslam = findViewById(R.id.radioButtonNonIslam)
         //* Initialize Beneficiary Variable
         recyclerViewBeneficiary = findViewById(R.id.recyclerViewBeneficiary)
         editTextPrecinct = findViewById(R.id.editTextPrecinct)
@@ -257,6 +264,16 @@ ProfilingActivity : AppCompatActivity() {
 
         textViewBarangay.text = barangay
 
+        radioButtonIslam.setOnClickListener {
+            radioButtonNonIslam.isChecked = false
+            group = "1"
+        }
+
+        radioButtonNonIslam.setOnClickListener {
+            radioButtonIslam.isChecked = false
+            group = "0"
+        }
+
         textViewBarangay.setOnClickListener {
             val dialog = showBarangayDialog()
             dialog.show()
@@ -308,12 +325,12 @@ ProfilingActivity : AppCompatActivity() {
             val precinct = editTextPrecinct.text.toString().trim()
             val fullname = editTextBeneficiaryName.text.toString().trim()
             val birthdate = editTextBeneficiaryBirthdate.text.toString().trim()
-
+            qrcodeBeneficiaries = UUID.randomUUID()
             if (editTextPrecinct.text.isNotEmpty() &&
                 editTextBeneficiaryName.text.isNotEmpty() &&
                 editTextBeneficiaryBirthdate.text.isNotEmpty()
             ) {
-                val beneficiary = Beneficiaries(precinct, fullname, birthdate)
+                val beneficiary = Beneficiaries(precinct, fullname, birthdate, qrcodeBeneficiaries.toString())
                 beneficiariesList.add(beneficiary)
                 adapterBeneficiaries.notifyItemInserted(beneficiariesList.size - 1)
                 checkBeneficiariesList()
@@ -434,7 +451,9 @@ ProfilingActivity : AppCompatActivity() {
                 editTextPhone.text.isNotEmpty() &&
                 editTextPurok.text.isNotEmpty() &&
                 barangay != "Click to add" &&
-                capturedImagePersonal.decodeToString().isNotEmpty()
+                capturedImagePersonal.decodeToString().isNotEmpty() &&
+                group != "none"
+
             ) {
                 saveProfile(uuid.toString())
                 saveBeneficiaries(uuid.toString())
@@ -452,6 +471,7 @@ ProfilingActivity : AppCompatActivity() {
             }else{
                 buttonSave.text = "Proceed"
                 buttonSave.isEnabled = true
+                Toast.makeText(applicationContext, "Please complete the required fields.", Toast.LENGTH_LONG).show()
             }
 
         }
@@ -533,6 +553,7 @@ ProfilingActivity : AppCompatActivity() {
     }
 
     private fun saveProfile(profileID: String){
+        val isMuslim: Int = if (group == "muslim") 1 else 0
         localDatabase.saveProfile(
             profileID,
             editTextProfilePrecinct.text.toString().trim(),
@@ -548,7 +569,8 @@ ProfilingActivity : AppCompatActivity() {
             barangay.trim(),
             editTextPurok.text.toString().trim(),
             qrcode.toString(),
-            hasPTMID
+            hasPTMID,
+            isMuslim
         )
     }
 
@@ -558,7 +580,8 @@ ProfilingActivity : AppCompatActivity() {
                 profileID,
                 beneficiary.precinct,
                 beneficiary.fullname,
-                beneficiary.birthdate
+                beneficiary.birthdate,
+                beneficiary.qrcode
             )
         }
     }

@@ -56,6 +56,7 @@ class LocalDatabase(context: Context) :
         private const val PROFILE_PUROK_COL = "purok"
         private const val PROFILE_QR_COL = "qrcode"
         private const val PROFILE_HASPTMID_COL = "has_ptmid"
+        private const val PROFILE_MUSLIM_COL = "is_muslim"
         private const val PROFILE_IS_UPLOADED_COL = "is_uploaded"
 
         /* Beneficiaries Table */
@@ -63,6 +64,7 @@ class LocalDatabase(context: Context) :
         private const val BENEFICIARY_PRECINCT_COL = "precinct"
         private const val BENEFICIARY_FULLNAME_COL = "fullname"
         private const val BENEFICIARY_BIRTHDATE_COL = "birthdate"
+        private const val BENEFICIARY_QR_COL = "qrcode"
         private const val BENEFICIARY_PROFILE_ID_COL = "profile_id"
 
         /* Livelihoods Table */
@@ -138,6 +140,7 @@ class LocalDatabase(context: Context) :
                         PROFILE_PUROK_COL + " TEXT," +
                         PROFILE_QR_COL + " TEXT," +
                         PROFILE_HASPTMID_COL + " INTEGER," +
+                        PROFILE_MUSLIM_COL + " INTEGER," +
                         PROFILE_IS_UPLOADED_COL + " INTEGER)"
                 )
 
@@ -148,6 +151,7 @@ class LocalDatabase(context: Context) :
                         BENEFICIARY_PRECINCT_COL + " TEXT," +
                         BENEFICIARY_FULLNAME_COL + " TEXT," +
                         BENEFICIARY_BIRTHDATE_COL + " TEXT," +
+                        BENEFICIARY_QR_COL + " TEXT," +
                         BENEFICIARY_PROFILE_ID_COL + " TEXT)"
                 )
 
@@ -378,7 +382,8 @@ class LocalDatabase(context: Context) :
         barangay: String?,
         purok: String?,
         qrcode: String?,
-        hasPTMID: Int?
+        hasPTMID: Int?,
+        isMuslim: Int?,
     ): Boolean {
         return try {
             val db = this.writableDatabase
@@ -421,6 +426,7 @@ class LocalDatabase(context: Context) :
             values.put(PROFILE_QR_COL, qrcode)
             values.put(PROFILE_IS_UPLOADED_COL, 0)
             values.put(PROFILE_HASPTMID_COL, hasPTMID)
+            values.put(PROFILE_MUSLIM_COL, isMuslim)
             db.insert(TABLE_PROFILES, null, values)
             db.close()
             true // Data saved successfully
@@ -435,7 +441,8 @@ class LocalDatabase(context: Context) :
         id: String?,
         precinct: String?,
         fullname: String?,
-        birthdate: String?
+        birthdate: String?,
+        qrcode: String?,
     ): Boolean {
         return try {
             val db = this.writableDatabase
@@ -465,6 +472,7 @@ class LocalDatabase(context: Context) :
             values.put(BENEFICIARY_PRECINCT_COL, precinct)
             values.put(BENEFICIARY_FULLNAME_COL, fullname)
             values.put(BENEFICIARY_BIRTHDATE_COL, birthdate)
+            values.put(BENEFICIARY_QR_COL, qrcode)
             values.put(BENEFICIARY_PROFILE_ID_COL, id)
             db.insert(TABLE_BENEFICIARIES, null, values)
 
@@ -775,6 +783,7 @@ class LocalDatabase(context: Context) :
                         purok = cursor.getString(12),
                         qrcode = cursor.getString(13),
                         hasptmid = cursor.getInt(14),
+                        ismuslim = cursor.getInt(15),
                     )
                 )
             } while (cursor.moveToNext())
@@ -815,6 +824,7 @@ class LocalDatabase(context: Context) :
                         purok = cursor.getString(12),
                         qrcode = cursor.getString(13),
                         hasptmid = cursor.getInt(14),
+                        ismuslim = cursor.getInt(15),
                     )
                 )
             } while (cursor.moveToNext())
@@ -856,6 +866,7 @@ class LocalDatabase(context: Context) :
                         purok = cursor.getString(12),
                         qrcode = cursor.getString(13),
                         hasptmid = cursor.getInt(14),
+                        ismuslim = cursor.getInt(15),
                     )
                 )
             } while (cursor.moveToNext())
@@ -884,6 +895,7 @@ class LocalDatabase(context: Context) :
                         precinct = cursor.getString(1),
                         fullname = cursor.getString(2),
                         birthdate = cursor.getString(3),
+                        qrcode = cursor.getString(4),
                     )
                 )
             } while (cursor.moveToNext())
@@ -912,6 +924,7 @@ class LocalDatabase(context: Context) :
                         precinct = cursor.getString(1),
                         fullname = cursor.getString(2),
                         birthdate = cursor.getString(3),
+                        qrcode = cursor.getString(4),
                     )
                 )
             } while (cursor.moveToNext())

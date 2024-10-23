@@ -106,6 +106,7 @@ class AdminActivity : AppCompatActivity() {
                                 profileData.put("hasptmid", profile.hasptmid)
                                 profileData.put("barangay", profile.barangay)
                                 profileData.put("purok", profile.purok)
+                                profileData.put("ismuslim", profile.ismuslim)
                                 profileIDArrayList.add(profile.id)
 
                                 val beneficiariesArray = JSONArray()
@@ -117,6 +118,7 @@ class AdminActivity : AppCompatActivity() {
                                             put("precinct", it.precinct)
                                             put("fullname", it.fullname)
                                             put("birthdate", it.birthdate)
+                                            put("qrcode", it.qrcode)
                                         }
                                         beneficiariesArray.put(beneficiaryObject)
                                     }
@@ -271,6 +273,7 @@ class AdminActivity : AppCompatActivity() {
                                 profileData.put("hasptmid", profile.hasptmid)
                                 profileData.put("barangay", profile.barangay)
                                 profileData.put("purok", profile.purok)
+                                profileData.put("ismuslim", profile.ismuslim)
                                 profileIDArrayList.add(profile.id)
 
                                 val beneficiariesArray = JSONArray()
@@ -281,6 +284,7 @@ class AdminActivity : AppCompatActivity() {
                                             put("precinct", it.precinct)
                                             put("fullname", it.fullname)
                                             put("birthdate", it.birthdate)
+                                            put("qrcode", it.qrcode)
                                         }
                                         beneficiariesArray.put(beneficiaryObject)
                                     }
