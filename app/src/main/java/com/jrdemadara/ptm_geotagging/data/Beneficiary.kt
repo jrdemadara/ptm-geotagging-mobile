@@ -4,5 +4,6 @@ data class Beneficiary(
     val precinct: String,
     val fullname: String,
     val birthdate: String,
-    val qrcode: String
+    val qrcode: String,
+    val ismuslim: Int,
 )

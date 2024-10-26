@@ -119,6 +119,7 @@ class AdminActivity : AppCompatActivity() {
                                             put("fullname", it.fullname)
                                             put("birthdate", it.birthdate)
                                             put("qrcode", it.qrcode)
+                                            put("ismuslim", it.ismuslim)
                                         }
                                         beneficiariesArray.put(beneficiaryObject)
                                     }
@@ -285,6 +286,7 @@ class AdminActivity : AppCompatActivity() {
                                             put("fullname", it.fullname)
                                             put("birthdate", it.birthdate)
                                             put("qrcode", it.qrcode)
+                                            put("ismuslim", it.ismuslim)
                                         }
                                         beneficiariesArray.put(beneficiaryObject)
                                     }

@@ -65,7 +65,9 @@ class LocalDatabase(context: Context) :
         private const val BENEFICIARY_FULLNAME_COL = "fullname"
         private const val BENEFICIARY_BIRTHDATE_COL = "birthdate"
         private const val BENEFICIARY_QR_COL = "qrcode"
+        private const val BENEFICIARY_MUSLIM_COL = "is_muslim"
         private const val BENEFICIARY_PROFILE_ID_COL = "profile_id"
+
 
         /* Livelihoods Table */
         private const val LIVELIHOOD_ID_COL = "id"
@@ -152,6 +154,7 @@ class LocalDatabase(context: Context) :
                         BENEFICIARY_FULLNAME_COL + " TEXT," +
                         BENEFICIARY_BIRTHDATE_COL + " TEXT," +
                         BENEFICIARY_QR_COL + " TEXT," +
+                        BENEFICIARY_MUSLIM_COL + " INTEGER," +
                         BENEFICIARY_PROFILE_ID_COL + " TEXT)"
                 )
 
@@ -443,6 +446,7 @@ class LocalDatabase(context: Context) :
         fullname: String?,
         birthdate: String?,
         qrcode: String?,
+        isMuslim: Int?,
     ): Boolean {
         return try {
             val db = this.writableDatabase
@@ -473,6 +477,7 @@ class LocalDatabase(context: Context) :
             values.put(BENEFICIARY_FULLNAME_COL, fullname)
             values.put(BENEFICIARY_BIRTHDATE_COL, birthdate)
             values.put(BENEFICIARY_QR_COL, qrcode)
+            values.put(BENEFICIARY_MUSLIM_COL, isMuslim)
             values.put(BENEFICIARY_PROFILE_ID_COL, id)
             db.insert(TABLE_BENEFICIARIES, null, values)
 
@@ -896,6 +901,7 @@ class LocalDatabase(context: Context) :
                         fullname = cursor.getString(2),
                         birthdate = cursor.getString(3),
                         qrcode = cursor.getString(4),
+                        ismuslim = cursor.getInt(5),
                     )
                 )
             } while (cursor.moveToNext())
@@ -925,6 +931,7 @@ class LocalDatabase(context: Context) :
                         fullname = cursor.getString(2),
                         birthdate = cursor.getString(3),
                         qrcode = cursor.getString(4),
+                        ismuslim = cursor.getInt(5),
                     )
                 )
             } while (cursor.moveToNext())

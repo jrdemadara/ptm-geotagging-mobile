@@ -5,4 +5,5 @@ data class DetailsBeneficiaries(
     val fullname: String,
     val birthdate: String,
     val qrcode: String,
+    val ismuslim: Int,
 )

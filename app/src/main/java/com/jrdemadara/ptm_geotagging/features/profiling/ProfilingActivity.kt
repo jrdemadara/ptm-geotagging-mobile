@@ -107,8 +107,11 @@ ProfilingActivity : AppCompatActivity() {
     private lateinit var buttonBeneficiaryAdd: Button
     private lateinit var buttonBeneficiaryRemove: Button
     private lateinit var textViewBeneficiaryEmpty: TextView
+    private lateinit var radioButtonIslamBeneficiary: RadioButton
+    private lateinit var radioButtonNonIslamBeneficiary: RadioButton
     private val beneficiariesList = mutableListOf<Beneficiaries>()
     private lateinit var adapterBeneficiaries: BeneficiariesAdapter
+    private var groupBeneficiary: String = "none"
 
     //* Skill Variables
     private lateinit var recyclerViewSkill: RecyclerView
@@ -200,6 +203,8 @@ ProfilingActivity : AppCompatActivity() {
         buttonBeneficiaryAdd = findViewById(R.id.buttonBeneficiaryAdd)
         buttonBeneficiaryRemove = findViewById(R.id.buttonBeneficiaryRemove)
         textViewBeneficiaryEmpty = findViewById(R.id.textViewBeneficiaryEmpty)
+        radioButtonIslamBeneficiary = findViewById(R.id.radioButtonIslamBeneficiary)
+        radioButtonNonIslamBeneficiary = findViewById(R.id.radioButtonNonIslamBeneficiary)
         //* Initialize Skill Variable
         recyclerViewSkill = findViewById(R.id.recyclerViewSkill)
         editTextSkill = findViewById(R.id.editTextSkill)
@@ -279,6 +284,16 @@ ProfilingActivity : AppCompatActivity() {
             dialog.show()
         }
 
+        radioButtonIslamBeneficiary.setOnClickListener {
+            radioButtonIslamBeneficiary.isChecked = false
+            groupBeneficiary = "1"
+        }
+
+        radioButtonNonIslamBeneficiary.setOnClickListener {
+            radioButtonNonIslamBeneficiary.isChecked = false
+            groupBeneficiary = "0"
+        }
+
         editTextBirthdate.setOnClickListener {
             showDatePickerDialog(editTextBirthdate)
         }
@@ -322,15 +337,18 @@ ProfilingActivity : AppCompatActivity() {
         }
 
         buttonBeneficiaryAdd.setOnClickListener {
-            val precinct = editTextPrecinct.text.toString().trim()
-            val fullname = editTextBeneficiaryName.text.toString().trim()
-            val birthdate = editTextBeneficiaryBirthdate.text.toString().trim()
             qrcodeBeneficiaries = UUID.randomUUID()
             if (editTextPrecinct.text.isNotEmpty() &&
                 editTextBeneficiaryName.text.isNotEmpty() &&
-                editTextBeneficiaryBirthdate.text.isNotEmpty()
+                editTextBeneficiaryBirthdate.text.isNotEmpty() &&
+                groupBeneficiary !== "none"
             ) {
-                val beneficiary = Beneficiaries(precinct, fullname, birthdate, qrcodeBeneficiaries.toString())
+                val precinct = editTextPrecinct.text.toString().trim()
+                val fullname = editTextBeneficiaryName.text.toString().trim()
+                val birthdate = editTextBeneficiaryBirthdate.text.toString().trim()
+                val isMuslim: Int = if (groupBeneficiary == "muslim") 1 else 0
+
+                val beneficiary = Beneficiaries(precinct, fullname, birthdate, qrcodeBeneficiaries.toString(), isMuslim)
                 beneficiariesList.add(beneficiary)
                 adapterBeneficiaries.notifyItemInserted(beneficiariesList.size - 1)
                 checkBeneficiariesList()
@@ -581,7 +599,8 @@ ProfilingActivity : AppCompatActivity() {
                 beneficiary.precinct,
                 beneficiary.fullname,
                 beneficiary.birthdate,
-                beneficiary.qrcode
+                beneficiary.qrcode,
+                beneficiary.isIslam
             )
         }
     }

@@ -5,4 +5,5 @@ data class Beneficiaries(
     val fullname: String,
     val birthdate: String,
     val qrcode: String,
+    val isIslam: Int,
 )
