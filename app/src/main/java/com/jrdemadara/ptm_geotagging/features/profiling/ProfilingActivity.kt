@@ -346,7 +346,7 @@ ProfilingActivity : AppCompatActivity() {
                 val precinct = editTextPrecinct.text.toString().trim()
                 val fullname = editTextBeneficiaryName.text.toString().trim()
                 val birthdate = editTextBeneficiaryBirthdate.text.toString().trim()
-                val isMuslim: Int = if (groupBeneficiary == "muslim") 1 else 0
+                val isMuslim: Int = if (groupBeneficiary == "1") 1 else 0
 
                 val beneficiary = Beneficiaries(precinct, fullname, birthdate, qrcodeBeneficiaries.toString(), isMuslim)
                 beneficiariesList.add(beneficiary)
