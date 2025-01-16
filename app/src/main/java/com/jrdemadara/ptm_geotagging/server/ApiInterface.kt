@@ -54,4 +54,11 @@ interface ApiInterface {
         @Part family: MultipartBody.Part,
         @Part livelihood: MultipartBody.Part
     ): Call<ResponseBody>
+
+    @Headers("Content-Type:application/json")
+    @GET("validate-profile")
+    fun validateProfile(
+        @Query("qrcode") qrcode: String,
+        @Query("assistance") assistance: String
+    ): Call<ResponseBody>
 }
