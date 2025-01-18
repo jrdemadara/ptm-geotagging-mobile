@@ -1,6 +1,7 @@
 package com.jrdemadara.ptm_geotagging.server
 
 import com.jrdemadara.ptm_geotagging.data.Assistance
+import com.jrdemadara.ptm_geotagging.data.AssistanceRequest
 import com.jrdemadara.ptm_geotagging.data.Barangay
 import com.jrdemadara.ptm_geotagging.data.Members
 import com.jrdemadara.ptm_geotagging.data.Municipality
@@ -9,6 +10,7 @@ import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import org.json.JSONObject
 import retrofit2.Call
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Multipart
@@ -16,6 +18,7 @@ import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Query
 import retrofit2.http.QueryMap
+import java.util.Date
 import java.util.logging.Filter
 
 interface ApiInterface {
@@ -61,4 +64,11 @@ interface ApiInterface {
         @Query("qrcode") qrcode: String,
         @Query("assistance") assistance: String
     ): Call<ResponseBody>
+
+    @Headers("Content-Type:application/json")
+    @POST("release-assistance")
+    fun releaseAssistance(
+        @Body assistanceRequest: AssistanceRequest
+    ): Call<ResponseBody>
+
 }

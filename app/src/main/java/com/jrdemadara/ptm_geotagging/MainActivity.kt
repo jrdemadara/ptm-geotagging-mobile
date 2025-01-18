@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
         buttonGetStarted = findViewById(R.id.buttonGetStarted)
         accessToken = sharedPreferences.getString(prefAccessToken, "").toString()
         updateMunicipalities()
-        testPrint()
+//        testPrint()
         if (accessToken.isNotEmpty()) {
             val intent = Intent(applicationContext, ProfilesActivity::class.java)
             startActivity(intent)
@@ -146,44 +146,44 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Check for bluetooth permissions and request if not granted
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.BLUETOOTH
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.BLUETOOTH),
-                BLUETOOTH_PERMISSION_CODE
-            )
-            return
-        }
-
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.BLUETOOTH_CONNECT
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.BLUETOOTH_CONNECT),
-                BLUETOOTH_CONNECT_PERMISSION_CODE
-            )
-            return
-        }
-
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.BLUETOOTH_SCAN
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.BLUETOOTH_SCAN),
-                BLUETOOTH_SCAN_PERMISSION_CODE
-            )
-            return
-        }
+//        if (ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.BLUETOOTH
+//            ) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            ActivityCompat.requestPermissions(
+//                this,
+//                arrayOf(Manifest.permission.BLUETOOTH),
+//                BLUETOOTH_PERMISSION_CODE
+//            )
+//            return
+//        }
+//
+//        if (ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.BLUETOOTH_CONNECT
+//            ) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            ActivityCompat.requestPermissions(
+//                this,
+//                arrayOf(Manifest.permission.BLUETOOTH_CONNECT),
+//                BLUETOOTH_CONNECT_PERMISSION_CODE
+//            )
+//            return
+//        }
+//
+//        if (ActivityCompat.checkSelfPermission(
+//                this,
+//                Manifest.permission.BLUETOOTH_SCAN
+//            ) != PackageManager.PERMISSION_GRANTED
+//        ) {
+//            ActivityCompat.requestPermissions(
+//                this,
+//                arrayOf(Manifest.permission.BLUETOOTH_SCAN),
+//                BLUETOOTH_SCAN_PERMISSION_CODE
+//            )
+//            return
+//        }
     }
 
     companion object {
