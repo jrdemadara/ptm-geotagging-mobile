@@ -18,6 +18,14 @@
         android:title="Aid"
         app:showAsAction="always" />
     <item
+        android:id="@+id/aidpersonal"
+        android:checkable="true"
+        android:enabled="true"
+        android:icon="@drawable/life"
+        android:title="aidpersonal"
+        android:visible="true"
+        app:showAsAction="always" />
+    <item
         android:id="@+id/logout"
         android:checkable="true"
         android:enabled="true"

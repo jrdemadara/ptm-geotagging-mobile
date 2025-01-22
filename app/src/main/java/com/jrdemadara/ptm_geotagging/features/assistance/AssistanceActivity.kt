@@ -7,6 +7,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -223,6 +224,8 @@ class AssistanceActivity : AppCompatActivity() {
                                 val purok = jsonObject.optString("purok")
                                 val phone = jsonObject.optString("phone")
                                 val image = jsonObject.optString("image")
+                                val lat = jsonObject.optString("lat")
+                                val lon = jsonObject.optString("lon")
                                 val assistanceExists =
                                     jsonObject.optBoolean("assistance_exists", false)
                                 // alertDialog("Success", assistanceExists.toString())
@@ -238,7 +241,9 @@ class AssistanceActivity : AppCompatActivity() {
                                         phone.toString(),
                                         purok.toString(),
                                         barangay.toString(),
-                                        claimStatus = assistanceExists
+                                        claimStatus = assistanceExists,
+                                        lat.toString(),
+                                        lon.toString()
                                     ).show()
                                 }
 
@@ -304,7 +309,7 @@ class AssistanceActivity : AppCompatActivity() {
         return dialog
     }
 
-    private fun showAVDialog(id : Int, image: String, precinct: String, name: String, phone: String, purok: String, barangay: String, claimStatus: Boolean
+    private fun showAVDialog(id : Int, image: String, precinct: String, name: String, phone: String, purok: String, barangay: String, claimStatus: Boolean, lat: String, lon: String
     ): Dialog {
         val dialog = Dialog(this@AssistanceActivity)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -321,6 +326,7 @@ class AssistanceActivity : AppCompatActivity() {
         val textViewAVMunicipality = dialog.findViewById<TextView>(R.id.textViewAVMunicipality)
         val textViewAVClaimStatus = dialog.findViewById<TextView>(R.id.textViewAVClaimStatus)
         val buttonRelease = dialog.findViewById<Button>(R.id.buttonReleaseAssistance)
+        val buttonLocation = dialog.findViewById<Button>(R.id.buttonLocation)
 
         // Set the values for text views
         textViewPrecinct.text = precinct
@@ -392,6 +398,14 @@ class AssistanceActivity : AppCompatActivity() {
 
             val dialogConfirm = builder.create()
             dialogConfirm.show()
+        }
+
+        buttonLocation.setOnClickListener {
+            val label = "Your Location"  // Optional label for the marker
+            val uri = "geo:$lat,$lon?q=$lat,$lon($label)"
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri))
+            intent.setPackage("com.google.android.apps.maps")
+            startActivity(intent)
         }
 
         val cleanBase64 = if (image.startsWith("data:image")) {

@@ -5,6 +5,7 @@ import com.jrdemadara.ptm_geotagging.data.AssistanceRequest
 import com.jrdemadara.ptm_geotagging.data.Barangay
 import com.jrdemadara.ptm_geotagging.data.Members
 import com.jrdemadara.ptm_geotagging.data.Municipality
+import com.jrdemadara.ptm_geotagging.data.ProfileResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
@@ -71,4 +72,9 @@ interface ApiInterface {
         @Body assistanceRequest: AssistanceRequest
     ): Call<ResponseBody>
 
+    @Headers("Content-Type:application/json")
+    @GET("validate-profile-personal")
+    fun validateProfilePersonal(
+        @Query("qrcode") qrcode: String,
+    ): Call<ProfileResponse>
 }
