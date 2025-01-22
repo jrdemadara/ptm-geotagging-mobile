@@ -419,7 +419,7 @@ class AssistanceActivity : AppCompatActivity() {
             imageView.setImageBitmap(bitmap)
         } else {
             // Optionally set a placeholder image if decoding fails
-            imageView.setImageResource(R.drawable.check)
+            imageView.setImageResource(R.drawable.empty)
         }
 
         dialog.window?.setLayout(

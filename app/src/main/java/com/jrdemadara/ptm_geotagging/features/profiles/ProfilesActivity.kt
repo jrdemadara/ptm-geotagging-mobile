@@ -377,7 +377,7 @@ class ProfilesActivity : AppCompatActivity() {
                 solo
             }
             val bitmapSolo = decodeBase64ToBitmap(cleanBase64Solo)
-            imageViewSolo.setImageBitmap(bitmapSolo ?: BitmapFactory.decodeResource(resources, R.drawable.check))
+            imageViewSolo.setImageBitmap(bitmapSolo ?: BitmapFactory.decodeResource(resources, R.drawable.empty))
 
         }
 
@@ -388,7 +388,7 @@ class ProfilesActivity : AppCompatActivity() {
                 family
             }
             val bitmapFamily = decodeBase64ToBitmap(cleanBase64Family)
-            imageViewFamily.setImageBitmap(bitmapFamily ?: BitmapFactory.decodeResource(resources, R.drawable.check))
+            imageViewFamily.setImageBitmap(bitmapFamily ?: BitmapFactory.decodeResource(resources, R.drawable.empty))
 
         }
 
@@ -399,7 +399,7 @@ class ProfilesActivity : AppCompatActivity() {
                 livelihood
             }
             val bitmapLivelihood = decodeBase64ToBitmap(cleanBase64Livelihood)
-            imageViewLivelihood.setImageBitmap(bitmapLivelihood ?: BitmapFactory.decodeResource(resources, R.drawable.check))
+            imageViewLivelihood.setImageBitmap(bitmapLivelihood ?: BitmapFactory.decodeResource(resources, R.drawable.empty))
 
         }
 
