@@ -111,20 +111,15 @@ class AssistanceListActivity : AppCompatActivity() {
                                 call: Call<List<AssistanceList>?>,
                                 response: Response<List<AssistanceList>?>
                             ){
-                                linearLayoutData.isVisible = true
-                                linearLayoutDate.isVisible = false
+                                loadingDialog.dismiss()
                                 val startDate = inputDateFormat.parse(editTextDateStart.text.toString())
                                 val endDate = inputDateFormat.parse(editTextDateEnd.text.toString())
-
                                 // Format the parsed dates
                                 val formattedStartDate = startDate?.let { outputDateFormat.format(it) }
                                 val formattedEndDate = endDate?.let { outputDateFormat.format(it) }
-
                                 // Set the formatted date range
                                 val dateRange = "$formattedStartDate - $formattedEndDate"
                                 textViewDateRange.text = dateRange
-
-                                loadingDialog.dismiss()
 
                                 val list: List<AssistanceList>? = response.body()
                                 // Check if the list is not null and update the RecyclerView
@@ -132,6 +127,9 @@ class AssistanceListActivity : AppCompatActivity() {
                                     adapter.clear()
                                     adapter.addItems(list)
                                     adapter.notifyDataSetChanged()
+
+                                    linearLayoutData.isVisible = true
+                                    linearLayoutDate.isVisible = false
 
                                     val totalCount = adapter.itemCount.toString()
                                     textViewTotalCount.text = totalCount
@@ -141,16 +139,6 @@ class AssistanceListActivity : AppCompatActivity() {
                                 } else {
                                     Toast.makeText(applicationContext, "No data available.", Toast.LENGTH_SHORT).show()
                                 }
-
-                                //assert(list != null)
-//                                if (list != null) {
-//                                    localDatabase.truncateAssistanceType()
-//                                    for (x in list) {
-//                                        localDatabase.updateAssistanceType(
-//                                            x.assistance,
-//                                        )
-//                                    }
-//                                }
                             }
                             override fun onFailure(call: Call<List<AssistanceList>?>, t: Throwable) {
                                 loadingDialog.dismiss()
