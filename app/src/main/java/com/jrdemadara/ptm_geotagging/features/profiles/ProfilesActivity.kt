@@ -30,42 +30,31 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
 import com.journeyapps.barcodescanner.ScanOptions
 import com.jrdemadara.ptm_geotagging.R
-import com.jrdemadara.ptm_geotagging.data.AssistanceRequest
 import com.jrdemadara.ptm_geotagging.data.ProfileResponse
 import com.jrdemadara.ptm_geotagging.features.admin.AdminActivity
 import com.jrdemadara.ptm_geotagging.features.assistance.AssistanceActivity
+import com.jrdemadara.ptm_geotagging.features.assistance_list.AssistanceListActivity
 import com.jrdemadara.ptm_geotagging.features.login.LoginActivity
 import com.jrdemadara.ptm_geotagging.features.profiling.ProfilingActivity
 import com.jrdemadara.ptm_geotagging.server.ApiInterface
 import com.jrdemadara.ptm_geotagging.server.LocalDatabase
 import com.jrdemadara.ptm_geotagging.server.NodeServer
 import com.jrdemadara.ptm_geotagging.util.NetworkChecker
-import kotlinx.coroutines.DelicateCoroutinesApi
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.ResponseBody
-import org.json.JSONArray
-import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.http.Multipart
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+
 
 class ProfilesActivity : AppCompatActivity() {
     private lateinit var networkChecker: NetworkChecker
@@ -73,10 +62,10 @@ class ProfilesActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
     private var prefAccessToken = "pref_access_token"
     private lateinit var accessToken: String
-    private lateinit var floatingButtonAdd: FloatingActionButton
     private lateinit var textViewTotalProfile: TextView
     private lateinit var textViewUploaded: TextView
     private lateinit var textViewNotUploaded: TextView
+    private lateinit var bottomNavigationView: BottomNavigationView
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,11 +74,10 @@ class ProfilesActivity : AppCompatActivity() {
         localDatabase = LocalDatabase(this@ProfilesActivity)
         sharedPreferences = getSharedPreferences("pref_app", MODE_PRIVATE)
         accessToken = sharedPreferences.getString(prefAccessToken, null).toString()
-        floatingButtonAdd = findViewById(R.id.floatingActionButtonAdd)
         textViewTotalProfile = findViewById(R.id.textViewTotalProfile)
         textViewUploaded = findViewById(R.id.textViewUploaded)
         textViewNotUploaded = findViewById(R.id.textViewNotUploaded)
-
+        bottomNavigationView = findViewById(R.id.bottomNavigationView)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
         toolbar.setOnMenuItemClickListener { item ->
@@ -97,28 +85,51 @@ class ProfilesActivity : AppCompatActivity() {
                 R.id.logout -> {
                     logout()
                 }
-                R.id.aid -> {
-                    val intent = Intent(applicationContext, AssistanceActivity::class.java)
+                R.id.add_profile -> {
+                    val intent = Intent(applicationContext, ProfilingActivity::class.java)
                     startActivity(intent)
                     finish()
-                }
-                R.id.aidpersonal -> {
-                    realtimeValidation.launch(ScanOptions())
-                }
-                R.id.admin -> {
-                    val dialog = showAdminDialog()
-                    dialog.show()
                 }
             }
             false
         }
 
-        loadData()
-        floatingButtonAdd.setOnClickListener {
-            val intent = Intent(applicationContext, ProfilingActivity::class.java)
-            startActivity(intent)
-            finish()
+
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_home -> {
+                    val intent = Intent(applicationContext, ProfilesActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                    true
+                }
+                R.id.nav_aid -> {
+                    val intent = Intent(applicationContext, AssistanceActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                    true
+                }
+                R.id.nav_aid_personal -> {
+                    realtimeValidation.launch(ScanOptions())
+                    true
+                }
+                R.id.nav_aid_list -> {
+                    val intent = Intent(applicationContext, AssistanceListActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                    true
+                }
+
+                R.id.nav_admin -> {
+                    val dialog = showAdminDialog()
+                    dialog.show()
+                    true
+                }
+                else -> false
+            }
         }
+
+        loadData()
     }
 
     private fun loadData(){

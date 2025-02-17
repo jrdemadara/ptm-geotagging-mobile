@@ -6,6 +6,7 @@ import com.jrdemadara.ptm_geotagging.data.Barangay
 import com.jrdemadara.ptm_geotagging.data.Members
 import com.jrdemadara.ptm_geotagging.data.Municipality
 import com.jrdemadara.ptm_geotagging.data.ProfileResponse
+import com.jrdemadara.ptm_geotagging.features.assistance_list.AssistanceList
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
@@ -77,4 +78,9 @@ interface ApiInterface {
     fun validateProfilePersonal(
         @Query("qrcode") qrcode: String,
     ): Call<ProfileResponse>
+
+    @Headers("Content-Type:application/json")
+    @GET("fetch-assistance-by-date")
+    fun getAssistanceByDate(@QueryMap filter: HashMap<String, String>): Call<List<AssistanceList>>
+
 }

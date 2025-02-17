@@ -34,6 +34,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="tiramisu">
         <activity
+            android:name=".features.assistance_list.AssistanceListActivity"
+            android:exported="false" />
+        <activity
             android:name=".features.profile_details.ProfileDetailsActivity"
             android:exported="false" />
         <activity
@@ -55,7 +58,8 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".features.profiles.ProfilesActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleTop" />
         <activity
             android:name=".features.login.LoginActivity"
             android:exported="false"

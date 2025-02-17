@@ -1,28 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
     <item
-        android:id="@+id/admin"
+        android:id="@+id/add_profile"
         android:checkable="true"
         android:enabled="true"
-        android:icon="@drawable/shield"
-        android:title="Admin"
-        android:visible="true"
-        app:showAsAction="always" />
-    <item
-        android:id="@+id/aid"
-        android:checkable="true"
-        android:enabled="true"
-        android:icon="@drawable/hand_heart"
-        android:title="Aid"
-        app:showAsAction="always" />
-    <item
-        android:id="@+id/aidpersonal"
-        android:checkable="true"
-        android:enabled="true"
-        android:icon="@drawable/life"
-        android:title="aidpersonal"
+        android:icon="@drawable/user_round_plus"
+        android:title="add_profile"
         android:visible="true"
         app:showAsAction="always" />
     <item
