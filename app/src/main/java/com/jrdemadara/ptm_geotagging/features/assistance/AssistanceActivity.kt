@@ -202,7 +202,7 @@ class AssistanceActivity : AppCompatActivity() {
             val qrcode = result.contents
 
             val loadingDialog = showLoadingDialog()
-            if (qrcode.isNotEmpty()) {
+            if (qrcode.isNotEmpty()) { 
                 val retrofit = NodeServer.getRetrofitInstance(accessToken).create(ApiInterface::class.java)
                 loadingDialog.show()
                 retrofit.validateProfile(qrcode, spinnerAssistance.selectedItem.toString()).enqueue(object : Callback<ResponseBody?> {
