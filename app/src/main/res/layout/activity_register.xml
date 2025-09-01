@@ -81,25 +81,6 @@
             android:paddingEnd="12dp" />
 
         <TextView
-            android:id="@+id/textView3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:fontFamily="@font/roboto_mono"
-            android:text="Municipality"
-            android:textSize="16sp" />
-
-        <Spinner
-            android:id="@+id/spinnerMunicipality"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/ic_round_edittext"
-            android:paddingStart="8dp"
-            android:paddingEnd="12dp"
-            android:spinnerMode="dialog" />
-
-        <TextView
             android:id="@+id/textView4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

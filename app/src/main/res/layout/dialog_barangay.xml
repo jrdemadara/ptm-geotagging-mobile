@@ -17,10 +17,17 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:fontFamily="@font/roboto_mono_bold"
-        android:text="Barangay"
+        android:text="Location"
         android:textAlignment="center"
         android:textColor="#191919"
         android:textSize="20sp" />
+
+    <Spinner
+        android:id="@+id/spinnerMunicipality"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/ic_round_edittext" />
 
     <Spinner
         android:id="@+id/spinnerBarangay"

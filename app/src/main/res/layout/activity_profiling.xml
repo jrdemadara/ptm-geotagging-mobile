@@ -43,7 +43,7 @@
                 android:layout_marginTop="6dp"
                 android:fontFamily="@font/roboto_mono"
                 android:gravity="center"
-                android:text="Geotagging for Barangay:"
+                android:text="Click to change location"
                 android:textColor="#000000" />
 
             <TextView

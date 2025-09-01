@@ -4,8 +4,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
-import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.jrdemadara.ptm_geotagging.R
 import com.jrdemadara.ptm_geotagging.data.Assistance
@@ -35,23 +33,23 @@ class InitializeActivity : AppCompatActivity() {
         sharedPreferences = getSharedPreferences("pref_app", MODE_PRIVATE)
         accessToken = sharedPreferences.getString(prefAccessToken, null).toString()
         municipality = sharedPreferences.getString(prefMunicipality, null).toString()
-        initializeMember()
+        // initializeMember()
         initializeAssistance()
-        initializeBarangay()
+        //initializeBarangay()
     }
 
-    private fun initializeMember(){
+    private fun initializeMember() {
         networkChecker = NetworkChecker(application)
         networkChecker.observe(this) { isConnected ->
             if (isConnected) {
-                val retrofit = NodeServer.getRetrofitInstance(accessToken).create(ApiInterface::class.java)
+                val retrofit =
+                    NodeServer.getRetrofitInstance(accessToken).create(ApiInterface::class.java)
                 val filter = HashMap<String, String>()
                 filter["municipality"] = municipality
                 retrofit.getMembers(filter).enqueue(object : Callback<List<Members>?> {
                     override fun onResponse(
-                        call: Call<List<Members>?>,
-                        response: Response<List<Members>?>
-                    ){
+                        call: Call<List<Members>?>, response: Response<List<Members>?>
+                    ) {
                         //Update Members
                         val list: List<Members>? = response.body()
                         val membersCount = list?.size
@@ -64,7 +62,8 @@ class InitializeActivity : AppCompatActivity() {
                                 val precinct = if (x.precinct.isNullOrEmpty()) "" else x.precinct
                                 val birthdate = if (x.birthdate.isNullOrEmpty()) "" else x.birthdate
                                 val contact = if (x.contact.isNullOrEmpty()) "" else x.contact
-                                val occupation = if (x.occupation.isNullOrEmpty()) "" else x.occupation
+                                val occupation =
+                                    if (x.occupation.isNullOrEmpty()) "" else x.occupation
                                 val hasPTMID = if (x.isptmid == "NO") 0 else 1
                                 localDatabase.updateMembers(
                                     precinct,
@@ -78,13 +77,15 @@ class InitializeActivity : AppCompatActivity() {
                                     hasPTMID
                                 )
                             }
-                            if (membersCount == savedCount){
-                                val intent = Intent(applicationContext, ProfilesActivity::class.java)
+                            if (membersCount == savedCount) {
+                                val intent =
+                                    Intent(applicationContext, ProfilesActivity::class.java)
                                 startActivity(intent)
                                 finish()
                             }
                         }
                     }
+
                     override fun onFailure(call: Call<List<Members>?>, t: Throwable) {
                         Log.e("Request Failure", t.message.toString())
 
@@ -94,19 +95,19 @@ class InitializeActivity : AppCompatActivity() {
         }
     }
 
-    private fun initializeBarangay(){
+    private fun initializeBarangay() {
         networkChecker = NetworkChecker(application)
         networkChecker.observe(this) { isConnected ->
             if (isConnected) {
 
-                val retrofit = NodeServer.getRetrofitInstance(accessToken).create(ApiInterface::class.java)
+                val retrofit =
+                    NodeServer.getRetrofitInstance(accessToken).create(ApiInterface::class.java)
                 val filter = HashMap<String, String>()
                 filter["municipality"] = municipality
-                retrofit.getBarangays(filter).enqueue(object : Callback<List<Barangay>?> {
+                retrofit.getBarangay(filter).enqueue(object : Callback<List<Barangay>?> {
                     override fun onResponse(
-                        call: Call<List<Barangay>?>,
-                        response: Response<List<Barangay>?>
-                    ){
+                        call: Call<List<Barangay>?>, response: Response<List<Barangay>?>
+                    ) {
                         //Update Barangay
                         val list: List<Barangay>? = response.body()
                         val barangaysCount = list?.size
@@ -120,13 +121,15 @@ class InitializeActivity : AppCompatActivity() {
                                     barangay,
                                 )
                             }
-                            if (barangaysCount == savedCount){
-                                val intent = Intent(applicationContext, ProfilesActivity::class.java)
+                            if (barangaysCount == savedCount) {
+                                val intent =
+                                    Intent(applicationContext, ProfilesActivity::class.java)
                                 startActivity(intent)
                                 finish()
                             }
                         }
                     }
+
                     override fun onFailure(call: Call<List<Barangay>?>, t: Throwable) {
                         Log.e("Request Failure", t.message.toString())
 
@@ -136,18 +139,18 @@ class InitializeActivity : AppCompatActivity() {
         }
     }
 
-    private fun initializeAssistance(){
+    private fun initializeAssistance() {
         networkChecker = NetworkChecker(application)
         networkChecker.observe(this) { isConnected ->
             if (isConnected) {
-                val retrofit = NodeServer.getRetrofitInstance(accessToken).create(ApiInterface::class.java)
+                val retrofit =
+                    NodeServer.getRetrofitInstance(accessToken).create(ApiInterface::class.java)
                 val filter = HashMap<String, String>()
                 filter["assistance"] = municipality
                 retrofit.getAssistanceType(filter).enqueue(object : Callback<List<Assistance>?> {
                     override fun onResponse(
-                        call: Call<List<Assistance>?>,
-                        response: Response<List<Assistance>?>
-                    ){
+                        call: Call<List<Assistance>?>, response: Response<List<Assistance>?>
+                    ) {
                         //Update Members
                         val list: List<Assistance>? = response.body()
                         assert(list != null)
@@ -160,6 +163,7 @@ class InitializeActivity : AppCompatActivity() {
                             }
                         }
                     }
+
                     override fun onFailure(call: Call<List<Assistance>?>, t: Throwable) {
                     }
                 })

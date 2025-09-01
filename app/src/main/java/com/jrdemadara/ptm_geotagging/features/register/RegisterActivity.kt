@@ -38,10 +38,8 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var sharedPreferences: SharedPreferences
     private var prefApp = "pref_app"
     private var prefAccessToken = "pref_access_token"
-    private var prefMunicipality= "pref_municipality"
     private lateinit var accessToken: String
     private lateinit var buttonRegister: Button
-    private lateinit var spinnerMunicipality: Spinner
     private lateinit var editTextFullname: EditText
     private lateinit var editTextEmail: EditText
     private lateinit var editTextPassword: EditText
@@ -56,13 +54,11 @@ class RegisterActivity : AppCompatActivity() {
         sharedPreferences = getSharedPreferences(prefApp, MODE_PRIVATE)
         accessToken = sharedPreferences.getString(prefAccessToken, null).toString()
         buttonRegister = findViewById(R.id.buttonRegister)
-        spinnerMunicipality = findViewById(R.id.spinnerMunicipality)
         editTextFullname = findViewById(R.id.editTextFullname)
         editTextEmail = findViewById(R.id.editTextEmail)
         editTextPassword = findViewById(R.id.editTextPassword)
         editTextConfirmPassword = findViewById(R.id.editTextConfirmPassword)
         buttonLogin = findViewById(R.id.buttonLogin)
-        populateSpinner()
 
         buttonRegister.setOnClickListener{
             register()
@@ -75,15 +71,6 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    private fun populateSpinner(){
-        val adapter = ArrayAdapter(this.applicationContext, android.R.layout.simple_spinner_item, localDatabase.getMunicipalities())
-        spinnerMunicipality.adapter = adapter
-        spinnerMunicipality.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {}
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
-    }
-
     private fun register() {
         if (editTextFullname.text.isNotEmpty() && editTextEmail.text.isNotEmpty() && editTextPassword.text.isNotEmpty() ) {
             if (editTextPassword.text.toString() == editTextConfirmPassword.text.toString()){
@@ -91,14 +78,12 @@ class RegisterActivity : AppCompatActivity() {
                 val filter = HashMap<String, String>()
                 filter["name"] = editTextFullname.text.toString()
                 filter["email"] = editTextEmail.text.toString()
-                filter["municipality"] = spinnerMunicipality.selectedItem.toString()
                 filter["password"] = editTextPassword.text.toString()
                 filter["device_id"] =  Build.ID
                 filter["is_admin"] = false.toString()
 
                 retrofit.registerUser(filter).enqueue(object : Callback<ResponseBody?> {
                     override fun onResponse(call: Call<ResponseBody?>, response: Response<ResponseBody?>) {
-                        saveMunicipality(spinnerMunicipality.selectedItem.toString())
                         val intent = Intent(applicationContext, LoginActivity::class.java)
                         startActivity(intent)
                         finish()
@@ -114,13 +99,5 @@ class RegisterActivity : AppCompatActivity() {
         }else {
             Toast.makeText(applicationContext, "Please fill the required fields.", Toast.LENGTH_SHORT).show()
         }
-
-    }
-
-    private fun saveMunicipality(municipality: String?) {
-        getSharedPreferences("pref_app", MODE_PRIVATE)
-            .edit()
-            .putString(prefMunicipality, municipality)
-            .apply()
     }
 }

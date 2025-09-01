@@ -1278,41 +1278,6 @@ class LocalDatabase(context: Context) :
         return name
     }
 
-    /* Search Worker */
-    fun searchMember(name: String?): ArrayList<SearchMembers> {
-        val db = this.readableDatabase
-        val query = "SELECT * FROM $TABLE_MEMBERS\n" +
-                "WHERE $MEMBER_LASTNAME_COL || ' ' || $MEMBER_FIRSTNAME_COL || ' ' || $MEMBER_MIDDLENAME_COL LIKE '%$name%' "
-        val data: ArrayList<SearchMembers> = ArrayList()
-        val cursor: Cursor?
-        try {
-            cursor = db.rawQuery(query, null)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            db.execSQL(query)
-            return ArrayList()
-        }
-        if (cursor.moveToFirst()) {
-            do {
-                data.add(
-                    SearchMembers(
-                        precinct = cursor.getString(1),
-                        lastname = cursor.getString(2),
-                        firstname = cursor.getString(3),
-                        middlename = cursor.getString(4),
-                        extension = cursor.getString(5),
-                        birthdate = cursor.getString(6),
-                        contact = cursor.getString(7),
-                        occupation = cursor.getString(8),
-                        isptmid = cursor.getInt(9),
-                    )
-                )
-            } while (cursor.moveToNext())
-        }
-        cursor.close()
-        return data
-    }
-
     fun getProfilesPowerSearch(): ArrayList<PowerSearchData> {
         val db = this.readableDatabase
         val query = "SELECT * FROM $TABLE_PROFILES"

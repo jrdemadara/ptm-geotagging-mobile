@@ -6,11 +6,12 @@ import com.jrdemadara.ptm_geotagging.data.Barangay
 import com.jrdemadara.ptm_geotagging.data.Members
 import com.jrdemadara.ptm_geotagging.data.Municipality
 import com.jrdemadara.ptm_geotagging.data.ProfileResponse
+import com.jrdemadara.ptm_geotagging.data.SearchMembers
 import com.jrdemadara.ptm_geotagging.features.assistance_list.AssistanceList
+import com.jrdemadara.ptm_geotagging.features.profiles.ProfilesActivity
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
-import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -20,8 +21,6 @@ import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Query
 import retrofit2.http.QueryMap
-import java.util.Date
-import java.util.logging.Filter
 
 interface ApiInterface {
     @Headers("Content-Type:application/json")
@@ -29,13 +28,16 @@ interface ApiInterface {
     fun getMunicipalities(): Call<List<Municipality>>
 
     @Headers("Content-Type:application/json")
+    @GET("profiles")
+    fun getProfileCount(): Call<ProfilesActivity.ProfileCountResponse>
+
+    @Headers("Content-Type:application/json")
     @GET("barangay")
-    fun getBarangays(@QueryMap filter: HashMap<String, String>): Call<List<Barangay>>
+    fun getBarangay(@QueryMap filter: HashMap<String, String>): Call<List<Barangay>>
 
     @Headers("Content-Type:application/json")
     @GET("initialize-member")
     fun getMembers(@QueryMap filter: HashMap<String, String>): Call<List<Members>>
-
 
 
     @Headers("Content-Type:application/json")
@@ -50,6 +52,10 @@ interface ApiInterface {
     @Headers("Content-Type:application/json")
     @POST("login")
     fun loginUser(@QueryMap filter: HashMap<String, String>): Call<ResponseBody>
+
+    @Headers("Content-Type:application/json")
+    @GET("search-member")
+    fun searchMember(@Query("keyword") keyword: String): Call<List<SearchMembers>>
 
     @Multipart
     @POST("profile")

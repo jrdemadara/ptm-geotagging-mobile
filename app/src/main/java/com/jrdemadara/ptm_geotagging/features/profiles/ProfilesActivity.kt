@@ -10,6 +10,8 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.VibrationEffect
 import android.os.VibratorManager
 import android.util.Base64
@@ -35,7 +37,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanIntentResult
@@ -54,6 +55,8 @@ import com.jrdemadara.ptm_geotagging.util.NetworkChecker
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.text.NumberFormat
+import java.util.Locale
 
 
 class ProfilesActivity : AppCompatActivity() {
@@ -63,9 +66,9 @@ class ProfilesActivity : AppCompatActivity() {
     private var prefAccessToken = "pref_access_token"
     private lateinit var accessToken: String
     private lateinit var textViewTotalProfile: TextView
-    private lateinit var textViewUploaded: TextView
-    private lateinit var textViewNotUploaded: TextView
+    private lateinit var textViewTotalProfileByUser: TextView
     private lateinit var bottomNavigationView: BottomNavigationView
+
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,9 +78,9 @@ class ProfilesActivity : AppCompatActivity() {
         sharedPreferences = getSharedPreferences("pref_app", MODE_PRIVATE)
         accessToken = sharedPreferences.getString(prefAccessToken, null).toString()
         textViewTotalProfile = findViewById(R.id.textViewTotalProfile)
-        textViewUploaded = findViewById(R.id.textViewUploaded)
-        textViewNotUploaded = findViewById(R.id.textViewNotUploaded)
+        textViewTotalProfileByUser = findViewById(R.id.textViewUploaded)
         bottomNavigationView = findViewById(R.id.bottomNavigationView)
+        loadProfileCounts()
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
         toolbar.setOnMenuItemClickListener { item ->
@@ -85,6 +88,7 @@ class ProfilesActivity : AppCompatActivity() {
                 R.id.logout -> {
                     logout()
                 }
+
                 R.id.add_profile -> {
                     val intent = Intent(applicationContext, ProfilingActivity::class.java)
                     startActivity(intent)
@@ -103,16 +107,19 @@ class ProfilesActivity : AppCompatActivity() {
                     finish()
                     true
                 }
+
                 R.id.nav_aid -> {
                     val intent = Intent(applicationContext, AssistanceActivity::class.java)
                     startActivity(intent)
                     finish()
                     true
                 }
+
                 R.id.nav_aid_personal -> {
                     realtimeValidation.launch(ScanOptions())
                     true
                 }
+
                 R.id.nav_aid_list -> {
                     val intent = Intent(applicationContext, AssistanceListActivity::class.java)
                     startActivity(intent)
@@ -125,28 +132,20 @@ class ProfilesActivity : AppCompatActivity() {
                     dialog.show()
                     true
                 }
+
                 else -> false
             }
         }
 
-        loadData()
+
     }
 
-    private fun loadData(){
-        textViewTotalProfile.text = localDatabase.getProfileCount().toString()
-        textViewUploaded.text = localDatabase.getUploadedCount().toString()
-        textViewNotUploaded.text = localDatabase.getNotUploadedCount().toString()
-    }
-
-    private fun logout(){
+    private fun logout() {
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Logout")
-            .setMessage("Are you sure you want to logout?")
+        builder.setTitle("Logout").setMessage("Are you sure you want to logout?")
 
         builder.setPositiveButton("Yes") { dialog, _ ->
-            getSharedPreferences("pref_app", MODE_PRIVATE)
-                .edit()
-                .putString(prefAccessToken, "")
+            getSharedPreferences("pref_app", MODE_PRIVATE).edit().putString(prefAccessToken, "")
                 .apply()
             val intent = Intent(applicationContext, LoginActivity::class.java)
             startActivity(intent)
@@ -173,20 +172,20 @@ class ProfilesActivity : AppCompatActivity() {
         val buttonAccess = dialog.findViewById<Button>(R.id.buttonAccess)
 
         buttonAccess.setOnClickListener {
-            if (editTextSecret.text.toString() == "E=mc2"){
+            if (editTextSecret.text.toString() == "E=mc2") {
                 dialog.dismiss()
                 val intent = Intent(applicationContext, AdminActivity::class.java)
                 startActivity(intent)
                 finish()
-            }else {
-                Toast.makeText(applicationContext, "Incorrect Passphrase.", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(applicationContext, "Incorrect Passphrase.", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
 
         // Make the dialog full-screen width
         dialog.window?.setLayout(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.WRAP_CONTENT
+            WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT
         )
 
         return dialog
@@ -210,57 +209,64 @@ class ProfilesActivity : AppCompatActivity() {
 
             val loadingDialog = showLoadingDialog()
             if (qrcode.isNotEmpty()) {
-                val retrofit = NodeServer.getRetrofitInstance(accessToken).create(ApiInterface::class.java)
+                val retrofit =
+                    NodeServer.getRetrofitInstance(accessToken).create(ApiInterface::class.java)
                 loadingDialog.show()
 
-                retrofit.validateProfilePersonal(qrcode).enqueue(object : Callback<ProfileResponse> {
-                    override fun onResponse(call: Call<ProfileResponse>, response: Response<ProfileResponse>) {
-                        loadingDialog.dismiss()
+                retrofit.validateProfilePersonal(qrcode)
+                    .enqueue(object : Callback<ProfileResponse> {
+                        override fun onResponse(
+                            call: Call<ProfileResponse>, response: Response<ProfileResponse>
+                        ) {
+                            loadingDialog.dismiss()
 
-                        if (response.isSuccessful && response.body() != null) {
-                            val dataResponse = response.body()
+                            if (response.isSuccessful && response.body() != null) {
+                                val dataResponse = response.body()
 
-                            // Extract the profile data
-                            val profile = dataResponse?.profile
+                                // Extract the profile data
+                                val profile = dataResponse?.profile
 
-                            if (profile != null) {
-                                val fullName = "${profile.lastname}, ${profile.firstname} ${profile.middlename} ${profile.extension}".trim()
+                                if (profile != null) {
+                                    val fullName =
+                                        "${profile.lastname}, ${profile.firstname} ${profile.middlename} ${profile.extension}".trim()
 
-                                // Show dialog if ID is valid
-                                if (profile.id != 0) {
-                                    showAVDialog(
-                                        profile.id,
-                                        profile.solo,
-                                        profile.family,
-                                        profile.household,
-                                        profile.precinct,
-                                        fullName,
-                                        profile.phone,
-                                        profile.purok,
-                                        profile.barangay,
-                                        profile.status,
-                                        profile.lat,
-                                        profile.lon,
-                                        dataResponse = dataResponse
-                                    ).show()
+                                    // Show dialog if ID is valid
+                                    if (profile.id != 0) {
+                                        showAVDialog(
+                                            profile.id,
+                                            profile.solo,
+                                            profile.family,
+                                            profile.household,
+                                            profile.precinct,
+                                            fullName,
+                                            profile.phone,
+                                            profile.purok,
+                                            profile.barangay,
+                                            profile.status,
+                                            profile.lat,
+                                            profile.lon,
+                                            dataResponse = dataResponse
+                                        ).show()
+                                    }
                                 }
+                            } else {
+                                // Handle case when response is unsuccessful or body is null
+                                Log.e("API Response", "Unsuccessful response or null body")
+                                alertDialog("Not Found", "Profile does not exist.")
+                                vibrate()
                             }
-                        } else {
-                            // Handle case when response is unsuccessful or body is null
-                            Log.e("API Response", "Unsuccessful response or null body")
-                            alertDialog("Not Found", "Profile does not exist.")
+                        }
+
+                        override fun onFailure(call: Call<ProfileResponse>, t: Throwable) {
+                            // Log request failure
+                            Log.e("Request Failure", t.message.toString())
+                            alertDialog(
+                                "Request Failure", "There was an error connecting to the server."
+                            )
+                            loadingDialog.dismiss()
                             vibrate()
                         }
-                    }
-
-                    override fun onFailure(call: Call<ProfileResponse>, t: Throwable) {
-                        // Log request failure
-                        Log.e("Request Failure", t.message.toString())
-                        alertDialog("Request Failure", "There was an error connecting to the server.")
-                        loadingDialog.dismiss()
-                        vibrate()
-                    }
-                })
+                    })
             } else {
                 alertDialog("Oops!", "INVALID QR CODE")
                 vibrate()
@@ -270,7 +276,7 @@ class ProfilesActivity : AppCompatActivity() {
 
 
     private fun showAVDialog(
-        id : Int,
+        id: Int,
         solo: String,
         family: String,
         livelihood: String,
@@ -388,7 +394,11 @@ class ProfilesActivity : AppCompatActivity() {
                 solo
             }
             val bitmapSolo = decodeBase64ToBitmap(cleanBase64Solo)
-            imageViewSolo.setImageBitmap(bitmapSolo ?: BitmapFactory.decodeResource(resources, R.drawable.empty))
+            imageViewSolo.setImageBitmap(
+                bitmapSolo ?: BitmapFactory.decodeResource(
+                    resources, R.drawable.empty
+                )
+            )
 
         }
 
@@ -399,7 +409,11 @@ class ProfilesActivity : AppCompatActivity() {
                 family
             }
             val bitmapFamily = decodeBase64ToBitmap(cleanBase64Family)
-            imageViewFamily.setImageBitmap(bitmapFamily ?: BitmapFactory.decodeResource(resources, R.drawable.empty))
+            imageViewFamily.setImageBitmap(
+                bitmapFamily ?: BitmapFactory.decodeResource(
+                    resources, R.drawable.empty
+                )
+            )
 
         }
 
@@ -410,7 +424,11 @@ class ProfilesActivity : AppCompatActivity() {
                 livelihood
             }
             val bitmapLivelihood = decodeBase64ToBitmap(cleanBase64Livelihood)
-            imageViewLivelihood.setImageBitmap(bitmapLivelihood ?: BitmapFactory.decodeResource(resources, R.drawable.empty))
+            imageViewLivelihood.setImageBitmap(
+                bitmapLivelihood ?: BitmapFactory.decodeResource(
+                    resources, R.drawable.empty
+                )
+            )
 
         }
 
@@ -426,10 +444,12 @@ class ProfilesActivity : AppCompatActivity() {
                 textViewStatus.setTextColor(ContextCompat.getColor(this, R.color.green))
                 "VERIFIED"
             }
+
             "disqualified" -> {
                 textViewStatus.setTextColor(Color.parseColor("#FF9412"))
                 "DISQUALIFIED"
             }
+
             else -> {
                 textViewStatus.setTextColor(ContextCompat.getColor(this, R.color.red))
                 "UNVERIFIED"
@@ -447,8 +467,7 @@ class ProfilesActivity : AppCompatActivity() {
         }
 
         dialog.window?.setLayout(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
         )
 
         return dialog
@@ -483,8 +502,7 @@ class ProfilesActivity : AppCompatActivity() {
 
     private fun alertDialog(title: String, message: String) {
         val builder = AlertDialog.Builder(this)
-        builder.setTitle(title)
-            .setMessage(message)
+        builder.setTitle(title).setMessage(message)
         builder.setNegativeButton("Ok") { dialog, _ ->
             dialog.dismiss()
         }
@@ -494,10 +512,41 @@ class ProfilesActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.S)
     private fun vibrate() {
-        val vibratorManager =
-            this.getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager
+        val vibratorManager = this.getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager
         val vibrator = vibratorManager.defaultVibrator
         vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK))
     }
 
+    data class ProfileCountResponse(
+        val user_id: Int, val total_count: Int, val total_count_by_user: Int
+    )
+
+    private fun loadProfileCounts() {
+        val retrofit = NodeServer.getRetrofitInstance(accessToken).create(ApiInterface::class.java)
+
+        retrofit.getProfileCount().enqueue(object : Callback<ProfileCountResponse> {
+            override fun onResponse(
+                call: Call<ProfileCountResponse>, response: Response<ProfileCountResponse>
+            ) {
+                if (response.isSuccessful && response.body() != null) {
+                    val data = response.body()!!
+
+                    // Update UI on main thread
+                    Handler(Looper.getMainLooper()).post {
+                        textViewTotalProfile.text =
+                            NumberFormat.getNumberInstance(Locale.US).format(data.total_count)
+                        textViewTotalProfileByUser.text = NumberFormat.getNumberInstance(Locale.US)
+                            .format(data.total_count_by_user)
+                    }
+                } else {
+                    Log.e("ProfileCount", "Error: ${response.message()}")
+                }
+            }
+
+            override fun onFailure(call: Call<ProfileCountResponse>, t: Throwable) {
+                Log.e("ProfileCount", "Failure: ${t.message}")
+            }
+        })
+    }
 }
+

@@ -1,6 +1,7 @@
 package com.jrdemadara.ptm_geotagging.features.profiling
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.bluetooth.BluetoothManager
@@ -17,6 +18,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
+import android.util.Base64
+import android.util.Log
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
@@ -39,9 +42,18 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.jrdemadara.ptm_geotagging.R
+import com.jrdemadara.ptm_geotagging.data.Barangay
+import com.jrdemadara.ptm_geotagging.data.Municipality
 import com.jrdemadara.ptm_geotagging.features.profiles.ProfilesActivity
 import com.jrdemadara.ptm_geotagging.features.profiling.assistance.Assistance
 import com.jrdemadara.ptm_geotagging.features.profiling.assistance.AssistanceAdapter
@@ -54,22 +66,43 @@ import com.jrdemadara.ptm_geotagging.features.profiling.skill.Skills
 import com.jrdemadara.ptm_geotagging.features.profiling.skill.SkillsAdapter
 import com.jrdemadara.ptm_geotagging.features.profiling.tesda.Tesda
 import com.jrdemadara.ptm_geotagging.features.profiling.tesda.TesdaAdapter
+import com.jrdemadara.ptm_geotagging.server.ApiInterface
 import com.jrdemadara.ptm_geotagging.server.LocalDatabase
+import com.jrdemadara.ptm_geotagging.server.NodeServer
+import com.jrdemadara.ptm_geotagging.util.NetworkChecker
 import com.jrdemadara.ptm_geotagging.util.capitalizeWords
 import com.khairo.escposprinter.EscPosPrinter
 import com.khairo.escposprinter.connection.bluetooth.BluetoothPrintersConnections
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONArray
+import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.ByteArrayOutputStream
 import java.util.Calendar
 import java.util.UUID
 
 
-class
-ProfilingActivity : AppCompatActivity() {
+class ProfilingActivity : AppCompatActivity() {
+    private lateinit var networkChecker: NetworkChecker
     private lateinit var localDatabase: LocalDatabase
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var sharedPreferences: SharedPreferences
-    private var prefBarangay= "pref_barangay"
-    private lateinit var barangay: String
+    private var prefAccessToken = "pref_access_token"
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var accessToken: String
+    private var prefMunicipality = "pref_municipality"
+    private var prefMunicipalityCode = "pref_municipality_code"
+    private var prefBarangay = "pref_barangay"
+    private var prefBarangayCode = "pref_barangay_code"
+    private var municipality = ""
+    private var municipalityCode = ""
+    private var barangay = ""
+    private var barangayCode = ""
+
+    private lateinit var location: String
     private lateinit var buttonNext: Button
     private lateinit var buttonPrevious: Button
     private lateinit var buttonSave: Button
@@ -80,7 +113,7 @@ ProfilingActivity : AppCompatActivity() {
     private var longitude: Double = 0.0
     private var flip: Int = 1
     private lateinit var uuid: UUID
-    private lateinit var qrcode: UUID
+    private var qrcode: String = ""
     private lateinit var qrcodeBeneficiaries: UUID
 
     //* Profile Variables
@@ -95,7 +128,7 @@ ProfilingActivity : AppCompatActivity() {
     private lateinit var editTextPurok: EditText
     private lateinit var radioButtonIslam: RadioButton
     private lateinit var radioButtonNonIslam: RadioButton
-    private var hasPTMID: Int = 0
+    private var hasPTMID: String = "NO"
     private var group: String = "none"
 
     //* Beneficiary Variables
@@ -159,7 +192,6 @@ ProfilingActivity : AppCompatActivity() {
     private lateinit var imageViewLivelihood: ImageView
 
 
-
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -170,6 +202,8 @@ ProfilingActivity : AppCompatActivity() {
         // Enable the back arrow button
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         localDatabase = LocalDatabase(this@ProfilingActivity)
+        sharedPreferences = getSharedPreferences("pref_app", MODE_PRIVATE)
+        accessToken = sharedPreferences.getString(prefAccessToken, null).toString()
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         viewFlipper = findViewById(R.id.viewFlipper)
         buttonSave = findViewById(R.id.buttonSave)
@@ -177,10 +211,26 @@ ProfilingActivity : AppCompatActivity() {
         buttonPrevious = findViewById(R.id.buttonPreviousView)
         buttonSearchMember = findViewById(R.id.buttonSearchMember)
         textViewBarangay = findViewById(R.id.textViewBarangay)
+
         uuid = UUID.randomUUID()
 
         sharedPreferences = getSharedPreferences("pref_app", MODE_PRIVATE)
-        barangay = sharedPreferences.getString(prefBarangay, "Click to add").toString()
+
+        municipality =
+            getSharedPreferences("pref_app", MODE_PRIVATE).getString(prefMunicipality, null)
+                .toString()
+        barangay =
+            getSharedPreferences("pref_app", MODE_PRIVATE).getString(prefBarangay, null).toString()
+
+        municipalityCode =
+            getSharedPreferences("pref_app", MODE_PRIVATE).getString(prefBarangayCode, null)
+                .toString()
+
+        barangayCode =
+            getSharedPreferences("pref_app", MODE_PRIVATE).getString(prefMunicipalityCode, null)
+                .toString()
+
+        location = "${barangay.capitalizeWords()}, ${municipality.capitalizeWords()}"
 
         //* Initialize Profile Variable
         editTextProfilePrecinct = findViewById(R.id.editTextProfilePrecinct)
@@ -266,7 +316,7 @@ ProfilingActivity : AppCompatActivity() {
         populatePersonSpinner()
         populateAssistanceSpinner()
 
-        textViewBarangay.text = barangay
+        textViewBarangay.text = location
 
         radioButtonIslam.setOnClickListener {
             radioButtonNonIslam.isChecked = false
@@ -279,7 +329,7 @@ ProfilingActivity : AppCompatActivity() {
         }
 
         textViewBarangay.setOnClickListener {
-            val dialog = showBarangayDialog()
+            val dialog = showLocationDialog()
             dialog.show()
         }
 
@@ -323,8 +373,8 @@ ProfilingActivity : AppCompatActivity() {
                 }
             }
         }
-        buttonPrevious.setOnClickListener{
-            if (flip > 1){
+        buttonPrevious.setOnClickListener {
+            if (flip > 1) {
                 viewFlipper.showPrevious()
                 flip--
                 buttonPrevious.isEnabled = true
@@ -337,17 +387,15 @@ ProfilingActivity : AppCompatActivity() {
 
         buttonBeneficiaryAdd.setOnClickListener {
             qrcodeBeneficiaries = UUID.randomUUID()
-            if (editTextPrecinct.text.isNotEmpty() &&
-                editTextBeneficiaryName.text.isNotEmpty() &&
-                editTextBeneficiaryBirthdate.text.isNotEmpty() &&
-                groupBeneficiary !== "none"
-            ) {
+            if (editTextPrecinct.text.isNotEmpty() && editTextBeneficiaryName.text.isNotEmpty() && editTextBeneficiaryBirthdate.text.isNotEmpty() && groupBeneficiary !== "none") {
                 val precinct = editTextPrecinct.text.toString().trim()
                 val fullname = editTextBeneficiaryName.text.toString().trim()
                 val birthdate = editTextBeneficiaryBirthdate.text.toString().trim()
                 val isMuslim: Int = if (groupBeneficiary == "1") 1 else 0
 
-                val beneficiary = Beneficiaries(precinct, fullname, birthdate, qrcodeBeneficiaries.toString(), isMuslim)
+                val beneficiary = Beneficiaries(
+                    precinct, fullname, birthdate, qrcodeBeneficiaries.toString(), isMuslim
+                )
                 beneficiariesList.add(beneficiary)
                 adapterBeneficiaries.notifyItemInserted(beneficiariesList.size - 1)
                 checkBeneficiariesList()
@@ -356,7 +404,9 @@ ProfilingActivity : AppCompatActivity() {
                 editTextBeneficiaryBirthdate.text.clear()
                 editTextPrecinct.requestFocus()
             } else {
-                Toast.makeText(applicationContext, "Please fill the required field.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    applicationContext, "Please fill the required field.", Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -371,15 +421,16 @@ ProfilingActivity : AppCompatActivity() {
 
         buttonSkillAdd.setOnClickListener {
             val skill = editTextSkill.text.toString().trim()
-            if (skill.isNotEmpty()
-            ) {
+            if (skill.isNotEmpty()) {
                 val skills = Skills(skill)
                 skillsList.add(skills)
                 adapterSkills.notifyItemInserted(skillsList.size - 1)
                 checkSkillsList()
                 editTextSkill.text.clear()
             } else {
-                Toast.makeText(applicationContext, "Please fill the required field.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    applicationContext, "Please fill the required field.", Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -395,16 +446,17 @@ ProfilingActivity : AppCompatActivity() {
         buttonLivelihoodAdd.setOnClickListener {
             val livelihood = editTextLivelihood.text.toString().trim()
             val details = editTextLivelihoodDetails.text.toString().trim()
-            if (livelihood.isNotEmpty()
-            ) {
-                val livelihoods = Livelihood(livelihood,details)
+            if (livelihood.isNotEmpty()) {
+                val livelihoods = Livelihood(livelihood, details)
                 livelihoodList.add(livelihoods)
                 adapterLivelihood.notifyItemInserted(livelihoodList.size - 1)
                 checkLivelihoodList()
                 editTextLivelihood.text.clear()
                 editTextLivelihoodDetails.text.clear()
             } else {
-                Toast.makeText(applicationContext, "Please fill the required field.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    applicationContext, "Please fill the required field.", Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
@@ -456,39 +508,193 @@ ProfilingActivity : AppCompatActivity() {
         checkAssistanceList()
 
         buttonSave.setOnClickListener {
-            qrcode = UUID.randomUUID()
+            qrcode = qrcode.ifEmpty { UUID.randomUUID().toString() }
             buttonSave.text = "Saving..."
             buttonSave.isEnabled = false
-            if (editTextProfilePrecinct.text.isNotEmpty() &&
-                editTextLastname.text.isNotEmpty() &&
-                editTextFirstname.text.isNotEmpty() &&
-                editTextMiddlename.text.isNotEmpty() &&
-                editTextBirthdate.text.isNotEmpty() &&
-                editTextOccupation.text.isNotEmpty() &&
-                editTextPhone.text.isNotEmpty() &&
-                editTextPurok.text.isNotEmpty() &&
-                barangay != "Click to add" &&
-                capturedImagePersonal.decodeToString().isNotEmpty() &&
-                group != "none"
+            if (editTextProfilePrecinct.text.isNotEmpty() && editTextLastname.text.isNotEmpty() && editTextFirstname.text.isNotEmpty() && editTextMiddlename.text.isNotEmpty() && editTextBirthdate.text.isNotEmpty() && editTextOccupation.text.isNotEmpty() && editTextPhone.text.isNotEmpty() && editTextPurok.text.isNotEmpty() && barangay != "Click to add" && capturedImagePersonal.decodeToString()
+                    .isNotEmpty() && group != "none"
 
             ) {
-                saveProfile(uuid.toString())
-                saveBeneficiaries(uuid.toString())
-                saveSkills(uuid.toString())
-                saveLivelihood(uuid.toString())
-                saveTesda(uuid.toString())
-                saveAssistance(uuid.toString())
-                savePhoto(uuid.toString())
-                printReceipt(qrcode, editTextLastname.text.toString(),  editTextFirstname.text.toString(), editTextMiddlename.text.toString())
+
+                //* Check network connection
+                networkChecker = NetworkChecker(application)
+                networkChecker.observe(this) { isConnected ->
+                    if (isConnected) {
+                        val loadingDialog = showLoadingDialog()
+                        loadingDialog.show()
+                        val retrofit = NodeServer.getRetrofitInstance(accessToken)
+                            .create(ApiInterface::class.java)
+                        Thread {
+                            try {
+                                val profileData = JSONObject()
+                                profileData.put("precinct", editTextProfilePrecinct.text.toString())
+                                profileData.put("lastname", editTextLastname.text.toString())
+                                profileData.put("firstname", editTextFirstname.text.toString())
+                                profileData.put("middlename", editTextMiddlename.text.toString())
+                                profileData.put("extension", editTextExtension.text.toString())
+                                profileData.put("birthdate", editTextBirthdate.text.toString())
+                                profileData.put("occupation", editTextOccupation.text.toString())
+                                profileData.put("phone", editTextPhone.text.toString())
+                                profileData.put("lat", latitude)
+                                profileData.put("lon", longitude)
+                                profileData.put("qrcode", qrcode)
+                                profileData.put("hasptmid", if (hasPTMID == "YES") 1 else 0)
+                                profileData.put("municipality", municipalityCode)
+                                profileData.put("barangay", barangayCode)
+                                profileData.put("purok", editTextPurok.text.toString().trim())
+                                profileData.put("ismuslim", group)
+
+                                val beneficiariesArray = JSONArray()
+                                beneficiariesList.forEach {
+                                    val beneficiaryObject = JSONObject().apply {
+                                        put("precinct", it.precinct)
+                                        put("fullname", it.fullname)
+                                        put("birthdate", it.birthdate)
+                                        put("qrcode", it.qrcode)
+                                        put("ismuslim", it.isIslam)
+                                    }
+                                    beneficiariesArray.put(beneficiaryObject)
+                                }
+                                profileData.put("beneficiaries", beneficiariesArray)
+
+
+                                val skillsArray = JSONArray()
+                                skillsList.forEach {
+                                    skillsArray.put(it.skill)
+                                }
+                                profileData.put("skills", skillsArray)
+
+
+                                val livelihoodArray = JSONArray()
+                                livelihoodList.forEach {
+                                    val livelihoodObject = JSONObject().apply {
+                                        put("livelihood", it.livelihood)
+                                        put("description", it.details)
+                                    }
+                                    livelihoodArray.put(livelihoodObject)
+                                }
+                                profileData.put("livelihoods", livelihoodArray)
+
+
+                                val tesdaArray = JSONArray()
+                                tesdaList.forEach {
+                                    val tesdaObject = JSONObject().apply {
+                                        put("name", it.name)
+                                        put("course", it.course)
+                                    }
+                                    tesdaArray.put(tesdaObject)
+                                }
+                                profileData.put("tesda", tesdaArray)
+
+//
+//                                        val assistanceArray = JSONArray()
+//
+//                                        for (assistance in assistanceList) {
+//                                            localDatabase.saveAssistance(
+//                                                profileID,
+//                                                assistance.assistance,
+//                                            )
+//                                        }
+//
+//
+//                                        assistanceList.forEach {
+//                                                val assistanceObject = JSONObject().apply {
+//                                                    put("assistance", it.assistance)
+//                                                    put("amount", it.assistance)
+//                                                    put("released_at", it.releasedAt)
+//                                                }
+//                                                assistanceArray.put(assistanceObject)
+//                                            }
+//                                            profileData.put("assistance", assistanceArray)
+//
+
+
+                                fun createPhotoPart(
+                                    photo: ByteArray, name: String
+                                ): MultipartBody.Part {
+                                    val base64String = Base64.encodeToString(photo, Base64.DEFAULT)
+                                    val requestBody =
+                                        base64String.toRequestBody("image/jpeg".toMediaTypeOrNull())
+                                    return MultipartBody.Part.createFormData(
+                                        name, "$name.jpg", requestBody
+                                    )
+                                }
+
+                                val personalPhoto =
+                                    createPhotoPart(capturedImagePersonal, "personalPhoto")
+                                val familyPhoto =
+                                    createPhotoPart(capturedImageFamily, "familyPhoto")
+                                val livelihoodPhoto =
+                                    createPhotoPart(capturedImageLivelihood, "livelihoodPhoto")
+
+                                val response = retrofit.uploadProfile(
+                                    profileData.toString().toRequestBody(),
+                                    personalPhoto,
+                                    familyPhoto,
+                                    livelihoodPhoto
+                                ).execute()
+                                if (response.isSuccessful) {
+                                    if (response.code() == 201) {
+                                        Handler(Looper.getMainLooper()).post {
+                                            Toast.makeText(
+                                                applicationContext,
+                                                "Successfully uploaded.",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            loadingDialog.dismiss()
+                                        }
+                                    } else {
+                                        // Handle unsuccessful response
+                                        Handler(Looper.getMainLooper()).post {
+                                            Toast.makeText(
+                                                applicationContext,
+                                                "Failed to save profile.",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                            loadingDialog.dismiss()
+                                        }
+                                    }
+                                } else {
+                                    // Handle unsuccessful response
+                                    Handler(Looper.getMainLooper()).post {
+                                        Toast.makeText(
+                                            applicationContext,
+                                            "Something went wrong.\nStatusCode: ${response.message()}",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        loadingDialog.dismiss()
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                // Handle failure
+                                Handler(Looper.getMainLooper()).post {
+                                    Toast.makeText(
+                                        applicationContext, e.message.toString(), Toast.LENGTH_SHORT
+                                    ).show()
+                                    loadingDialog.dismiss()
+                                }
+                            }
+                        }.start() // Start the thread
+                    }
+                }
+
+//                printReceipt(
+//                    qrcode.toString(),
+//                    editTextLastname.text.toString(),
+//                    editTextFirstname.text.toString(),
+//                    editTextMiddlename.text.toString()
+//                )
                 Handler(Looper.getMainLooper()).postDelayed({
                     val intent = Intent(applicationContext, ProfilesActivity::class.java)
                     startActivity(intent)
                     finish()
                 }, 5000)
-            }else{
+            } else {
                 buttonSave.text = "Proceed"
                 buttonSave.isEnabled = true
-                Toast.makeText(applicationContext, "Please complete the required fields.", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    applicationContext, "Please complete the required fields.", Toast.LENGTH_LONG
+                ).show()
             }
 
         }
@@ -500,20 +706,26 @@ ProfilingActivity : AppCompatActivity() {
         }
     }
 
-    private fun populatePersonSpinner(){
+    private fun populatePersonSpinner() {
         val options = mutableListOf<String>()
-        val leader = "${editTextFirstname.text} ${editTextMiddlename.text} ${editTextLastname.text} ${editTextExtension.text}"
+        val leader =
+            "${editTextFirstname.text} ${editTextMiddlename.text} ${editTextLastname.text} ${editTextExtension.text}"
         options.add(leader)
         for (beneficiary in beneficiariesList) {
             options.add(beneficiary.fullname)
         }
 
         // Populate Spinner
-        val adapter = ArrayAdapter(applicationContext, android.R.layout.simple_spinner_item, options)
+        val adapter =
+            ArrayAdapter(applicationContext, android.R.layout.simple_spinner_item, options)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerTesdaName.adapter = adapter
         spinnerTesdaName.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {}
+            override fun onItemSelected(
+                parent: AdapterView<*>, view: View, position: Int, id: Long
+            ) {
+            }
+
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
     }
@@ -527,10 +739,7 @@ ProfilingActivity : AppCompatActivity() {
         spinnerAssistanceName.adapter = adapter
         spinnerAssistanceName.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
-                parent: AdapterView<*>,
-                view: View,
-                position: Int,
-                id: Long
+                parent: AdapterView<*>, view: View, position: Int, id: Long
             ) {
             }
 
@@ -538,119 +747,86 @@ ProfilingActivity : AppCompatActivity() {
         }
     }
 
-    private fun getIntentDataFromMemberSearch(){
-        if (intent.hasExtra("precinct")){
-            editTextProfilePrecinct.setText(intent.getStringExtra("precinct").toString().capitalizeWords())
+    private fun getIntentDataFromMemberSearch() {
+        if (intent.hasExtra("qrcode")) {
+            qrcode = intent.getStringExtra("qrcode").toString()
         }
-        if (intent.hasExtra("lastname")){
+        intent.getStringExtra("precinct")?.takeIf { it.isNotBlank() }?.let { precinct ->
+            editTextProfilePrecinct.setText(precinct)
+        }
+        if (intent.hasExtra("lastname")) {
             editTextLastname.setText(intent.getStringExtra("lastname").toString().capitalizeWords())
         }
-        if (intent.hasExtra("firstname")){
-            editTextFirstname.setText(intent.getStringExtra("firstname").toString().capitalizeWords())
+        if (intent.hasExtra("firstname")) {
+            editTextFirstname.setText(
+                intent.getStringExtra("firstname").toString().capitalizeWords()
+            )
         }
-        if (intent.hasExtra("middlename")){
-            editTextMiddlename.setText(intent.getStringExtra("middlename").toString().capitalizeWords())
+        if (intent.hasExtra("middlename")) {
+            editTextMiddlename.setText(
+                intent.getStringExtra("middlename").toString().capitalizeWords()
+            )
         }
-        if (intent.hasExtra("extension")){
-            editTextExtension.setText(intent.getStringExtra("extension").toString().capitalizeWords())
+        if (intent.hasExtra("extension")) {
+            editTextExtension.setText(
+                intent.getStringExtra("extension").toString().capitalizeWords()
+            )
         }
-        if (intent.hasExtra("birthdate")){
+        if (intent.hasExtra("birthdate")) {
             editTextBirthdate.setText(intent.getStringExtra("birthdate").toString())
         }
-        if (intent.hasExtra("contact")){
+        if (intent.hasExtra("contact")) {
             editTextPhone.setText(intent.getStringExtra("contact").toString())
         }
-        if (intent.hasExtra("occupation")){
-            editTextOccupation.setText(intent.getStringExtra("occupation").toString().capitalizeWords())
+        if (intent.hasExtra("occupation")) {
+            editTextOccupation.setText(
+                intent.getStringExtra("occupation").toString().capitalizeWords()
+            )
         }
-        if (intent.hasExtra("hasptmid")){
-            hasPTMID = intent.getIntExtra("hasptmid", 0)
 
+        if (intent.hasExtra("purok")) {
+            editTextPurok.setText(
+                intent.getStringExtra("purok").toString().capitalizeWords()
+            )
+        }
+
+        if (intent.hasExtra("hasptmid")) {
+            hasPTMID = intent.getStringExtra("hasptmid").toString()
+
+        }
+
+        if (intent.hasExtra("isMuslim")) {
+            val isMuslim = intent.getBooleanExtra("isMuslim", false)
+            radioButtonIslam.isChecked = isMuslim
+            radioButtonNonIslam.isChecked = !isMuslim
+            group = if (isMuslim) "1" else "0"
         }
     }
 
-    private fun saveProfile(profileID: String){
-        val isMuslim: Int = if (group == "muslim") 1 else 0
-        localDatabase.saveProfile(
-            profileID,
-            editTextProfilePrecinct.text.toString().trim(),
-            editTextLastname.text.toString().trim(),
-            editTextFirstname.text.toString().trim(),
-            editTextMiddlename.text.toString().trim(),
-            editTextExtension.text.toString().trim(),
-            editTextBirthdate.text.toString().trim(),
-            editTextOccupation.text.toString().trim(),
-            editTextPhone.text.toString().trim(),
-            latitude.toString(),
-            longitude.toString(),
-            barangay.trim(),
-            editTextPurok.text.toString().trim(),
-            qrcode.toString(),
-            hasPTMID,
-            isMuslim
+    private fun showLoadingDialog(): Dialog {
+        val dialog = Dialog(this@ProfilingActivity)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCancelable(false)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.setContentView(R.layout.dialog_upload) // Create a layout file for the dialog
+
+        val imageView = dialog.findViewById<ImageView>(R.id.imageViewUpload)
+        Glide.with(this@ProfilingActivity).load(R.drawable.progress).apply(
+            RequestOptions.diskCacheStrategyOf(
+                DiskCacheStrategy.NONE
+            )
+        ).into(imageView)
+
+        // Make the dialog full-screen width
+        dialog.window?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT
         )
+
+        return dialog
     }
 
-    private fun saveBeneficiaries(profileID: String){
-        for (beneficiary in beneficiariesList) {
-            localDatabase.saveBeneficiaries(
-                profileID,
-                beneficiary.precinct,
-                beneficiary.fullname,
-                beneficiary.birthdate,
-                beneficiary.qrcode,
-                beneficiary.isIslam
-            )
-        }
-    }
 
-    private fun saveSkills(profileID: String){
-        for (skill in skillsList) {
-            localDatabase.saveSkills(
-                profileID,
-                skill.skill
-            )
-        }
-    }
-
-    private fun saveLivelihood(profileID: String){
-        for (livelihood in livelihoodList) {
-            localDatabase.saveLivelihood(
-                profileID,
-                livelihood.livelihood,
-                livelihood.details
-            )
-        }
-    }
-
-    private fun saveTesda(profileID: String){
-        for (tesda in tesdaList) {
-            localDatabase.saveTesda(
-                profileID,
-                tesda.name,
-                tesda.course
-            )
-        }
-    }
-
-    private fun saveAssistance(profileID: String){
-        for (assistance in assistanceList) {
-            localDatabase.saveAssistance(
-                profileID,
-                assistance.assistance,
-            )
-        }
-    }
-
-    private fun savePhoto(profileID: String){
-        localDatabase.savePhotos(
-            profileID,
-            capturedImagePersonal,
-            capturedImageFamily,
-            capturedImageLivelihood)
-    }
-
-    private fun checkBeneficiariesList(){
+    private fun checkBeneficiariesList() {
         if (beneficiariesList.isEmpty()) {
             recyclerViewBeneficiary.visibility = View.GONE
             textViewBeneficiaryEmpty.visibility = View.VISIBLE
@@ -660,7 +836,7 @@ ProfilingActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkSkillsList(){
+    private fun checkSkillsList() {
         if (skillsList.isEmpty()) {
             recyclerViewSkill.visibility = View.GONE
             textViewSkillsEmpty.visibility = View.VISIBLE
@@ -670,7 +846,7 @@ ProfilingActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkLivelihoodList(){
+    private fun checkLivelihoodList() {
         if (livelihoodList.isEmpty()) {
             recyclerViewLivelihood.visibility = View.GONE
             textViewLivelihoodEmpty.visibility = View.VISIBLE
@@ -680,7 +856,7 @@ ProfilingActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkTesdaList(){
+    private fun checkTesdaList() {
         if (tesdaList.isEmpty()) {
             recyclerViewTesda.visibility = View.GONE
             textViewTesdaEmpty.visibility = View.VISIBLE
@@ -690,7 +866,7 @@ ProfilingActivity : AppCompatActivity() {
         }
     }
 
-    private fun checkAssistanceList(){
+    private fun checkAssistanceList() {
         if (assistanceList.isEmpty()) {
             recyclerViewAssistance.visibility = View.GONE
             textViewAssistanceEmpty.visibility = View.VISIBLE
@@ -720,56 +896,138 @@ ProfilingActivity : AppCompatActivity() {
         datePickerDialog.show()
     }
 
-    private fun showBarangayDialog(): Dialog {
+    private fun showLocationDialog(): Dialog {
+        networkChecker = NetworkChecker(application)
         val dialog = Dialog(this@ProfilingActivity)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setCancelable(true)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        dialog.setContentView(R.layout.dialog_barangay) // Create a layout file for the dialog
+        dialog.setContentView(R.layout.dialog_barangay)
 
-        val spinner = dialog.findViewById<Spinner>(R.id.spinnerBarangay)
-        val buttonBarangay = dialog.findViewById<Button>(R.id.buttonBarangay)
+        val spinnerMunicipality = dialog.findViewById<Spinner>(R.id.spinnerMunicipality)
+        val spinnerBarangay = dialog.findViewById<Spinner>(R.id.spinnerBarangay)
+        val button = dialog.findViewById<Button>(R.id.buttonBarangay)
 
-        val barangays = localDatabase.getBarangays()
+        var selectedMunicipalityCode: String? = null
+        var selectedMunicipalityName: String? = null
+        var selectedBarangayCode: String? = null
+        var selectedBarangayName: String? = null
 
-        val adapter = ArrayAdapter(dialog.context, android.R.layout.simple_spinner_item, barangays)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinner.adapter = adapter
+        // Fetch municipalities
+        networkChecker.observe(this) { isConnected ->
+            if (isConnected) {
+                val retrofit =
+                    NodeServer.getRetrofitInstance(accessToken).create(ApiInterface::class.java)
 
-        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {}
+                retrofit.getMunicipalities().enqueue(object : Callback<List<Municipality>?> {
+                    override fun onResponse(
+                        call: Call<List<Municipality>?>, response: Response<List<Municipality>?>
+                    ) {
+                        val list: List<Municipality> = response.body() ?: emptyList()
+                        val spinnerItems = list.map { SpinnerItem(it.code, it.name) }
+
+                        Handler(Looper.getMainLooper()).post {
+                            val adapter = ArrayAdapter(
+                                dialog.context, android.R.layout.simple_spinner_item, spinnerItems
+                            )
+                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                            spinnerMunicipality.adapter = adapter
+                        }
+                    }
+
+                    override fun onFailure(call: Call<List<Municipality>?>, t: Throwable) {
+                        Log.e("Request Failure", t.message.toString())
+                    }
+                })
+            }
+        }
+
+        // Municipality -> fetch barangays
+        spinnerMunicipality.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>, view: View, position: Int, id: Long
+            ) {
+                val selectedItem = parent.getItemAtPosition(position) as SpinnerItem
+                selectedMunicipalityCode = selectedItem.code
+                selectedMunicipalityName = selectedItem.name
+
+                // API call for barangays
+                val retrofit =
+                    NodeServer.getRetrofitInstance(accessToken).create(ApiInterface::class.java)
+                val filter = HashMap<String, String>()
+                filter["municipality"] = selectedMunicipalityCode!!  // FIXED
+                retrofit.getBarangay(filter).enqueue(object : Callback<List<Barangay>?> {
+                    override fun onResponse(
+                        call: Call<List<Barangay>?>, response: Response<List<Barangay>?>
+                    ) {
+                        val list: List<Barangay> = response.body() ?: emptyList()
+                        val spinnerItems = list.map { SpinnerItem(it.code, it.name) }
+
+                        Handler(Looper.getMainLooper()).post {
+                            val adapter = ArrayAdapter(
+                                dialog.context, android.R.layout.simple_spinner_item, spinnerItems
+                            )
+                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                            spinnerBarangay.adapter = adapter
+                        }
+                    }
+
+                    override fun onFailure(call: Call<List<Barangay>?>, t: Throwable) {
+                        Log.e("Request Failure", t.message.toString())
+                    }
+                })
+
+                // Track barangay selection
+                spinnerBarangay.onItemSelectedListener =
+                    object : AdapterView.OnItemSelectedListener {
+                        override fun onItemSelected(
+                            parent: AdapterView<*>, view: View, position: Int, id: Long
+                        ) {
+                            val selectedBarangay = parent.getItemAtPosition(position) as SpinnerItem
+                            selectedBarangayCode = selectedBarangay.code
+                            selectedBarangayName = selectedBarangay.name
+                        }
+
+                        override fun onNothingSelected(parent: AdapterView<*>) {}
+                    }
+            }
+
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-        buttonBarangay.setOnClickListener {
-                getSharedPreferences("pref_app", MODE_PRIVATE)
-                    .edit()
-                    .putString(prefBarangay, spinner.selectedItem.toString())
-                    .apply()
+        // Save prefs
+        button.setOnClickListener {
+            val prefs = getSharedPreferences("pref_app", MODE_PRIVATE).edit()
+            prefs.putString(prefMunicipality, selectedMunicipalityName)
+            prefs.putString(prefBarangay, selectedBarangayName)
+            prefs.putString(prefMunicipalityCode, selectedMunicipalityCode)
+            prefs.putString(prefBarangayCode, selectedBarangayCode)
+            prefs.apply()
 
-            barangay = sharedPreferences.getString(prefBarangay, null).toString()
-            textViewBarangay.text = barangay
+            textViewBarangay.text =
+                "${selectedMunicipalityName?.capitalizeWords()}, ${selectedBarangayName?.capitalizeWords()}"
             dialog.dismiss()
         }
 
-        // Make the dialog full-screen width
         dialog.window?.setLayout(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.WRAP_CONTENT
+            WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT
         )
 
         return dialog
     }
 
-
+    // Generic spinner item wrapper
+    data class SpinnerItem(val code: String, val name: String) {
+        override fun toString(): String = name
+    }
 
     //* Image Capture
     private fun openCamera(type: String) {
-        if (type == "personal"){
+        if (type == "personal") {
             takePersonalPicture.launch(Intent(MediaStore.ACTION_IMAGE_CAPTURE))
-        } else if (type == "family"){
+        } else if (type == "family") {
             takeFamilyPicture.launch(Intent(MediaStore.ACTION_IMAGE_CAPTURE))
-        }else {
+        } else {
             takeLivelihoodPicture.launch(Intent(MediaStore.ACTION_IMAGE_CAPTURE))
         }
 
@@ -816,109 +1074,115 @@ ProfilingActivity : AppCompatActivity() {
     }
 
 
-
+    @SuppressLint("MissingPermission")
     private fun getLastLocation() {
         if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
+                this, Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             return
         }
-        fusedLocationClient.lastLocation
-            .addOnSuccessListener { location: Location? ->
-                // Got last known location. In some rare situations this can be null.
-                location?.let {
-                    latitude = location.latitude
-                    longitude = location.longitude
-                }
+
+        fusedLocationClient.lastLocation.addOnSuccessListener { location: Location? ->
+            if (location != null) {
+                latitude = location.latitude
+                longitude = location.longitude
+            } else {
+                // Request a fresh location
+                val locationRequest = LocationRequest.Builder(
+                    Priority.PRIORITY_HIGH_ACCURACY, 1000
+                ).setMaxUpdates(1).build()
+
+                fusedLocationClient.requestLocationUpdates(
+                    locationRequest,
+                    object : LocationCallback() {
+                        override fun onLocationResult(result: LocationResult) {
+                            val freshLocation = result.lastLocation
+                            if (freshLocation != null) {
+                                latitude = freshLocation.latitude
+                                longitude = freshLocation.longitude
+                                fusedLocationClient.removeLocationUpdates(this)
+                            }
+                        }
+                    },
+                    Looper.getMainLooper()
+                )
             }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
-    private fun printReceipt(profileCode: UUID, lastname: String, firstname: String, middlename: String) {
-        val bluetoothManager = applicationContext.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+    private fun printReceipt(
+        profileCode: String, lastname: String, firstname: String, middlename: String
+    ) {
+        val bluetoothManager =
+            applicationContext.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothManager.adapter
         if (!bluetoothManager.adapter.isEnabled) {
-            Toast.makeText(applicationContext, "Please check your bluetooth connection.", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                applicationContext, "Please check your bluetooth connection.", Toast.LENGTH_LONG
+            ).show()
         } else {
             checkPermission()
 
-            val printer = EscPosPrinter(BluetoothPrintersConnections.selectFirstPaired(), 203, 48f, 32)
-            printer
-                .printFormattedText(
-                    "[C]<b>${lastname.uppercase()}, ${firstname.uppercase()} ${middlename.uppercase()}</b>\n" +
-                            "[C]<font size='normal'>QR Code Identifier</font> \n" +
-                            "[C]<qrcode size='32'>$profileCode</qrcode>\n".trimIndent()
-                )
+            val printer =
+                EscPosPrinter(BluetoothPrintersConnections.selectFirstPaired(), 203, 48f, 32)
+            printer.printFormattedText(
+                "[C]<b>${lastname.uppercase()}, ${firstname.uppercase()} ${middlename.uppercase()}</b>\n" + "[C]<font size='normal'>QR Code Identifier</font> \n" + "[C]<qrcode size='32'>$profileCode</qrcode>\n".trimIndent()
+            )
 
-            printer
-                .printFormattedText(
-                    "[C]<b>${lastname.uppercase()}, ${firstname.uppercase()} ${middlename.uppercase()}</b>\n" +
-                            "[C]<font size='normal'>QR Code Identifier</font> \n" +
-                            "[C]<qrcode size='32'>$profileCode</qrcode>\n".trimIndent()
-                )
+            printer.printFormattedText(
+                "[C]<b>${lastname.uppercase()}, ${firstname.uppercase()} ${middlename.uppercase()}</b>\n" + "[C]<font size='normal'>QR Code Identifier</font> \n" + "[C]<qrcode size='32'>$profileCode</qrcode>\n".trimIndent()
+            )
         }
     }
 
     //* Check Permission
     @RequiresApi(Build.VERSION_CODES.S)
-    private fun checkPermission(){
+    private fun checkPermission() {
         // Check for location permissions and request if not granted
         if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
+                this, Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
-                this,
-                arrayOf(
+                this, arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION
-                ),
-                PERMISSIONS_REQUEST_LOCATION
+                ), PERMISSIONS_REQUEST_LOCATION
             )
             return
         }
 
         // Check for camera permissions and request if not granted
         if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.CAMERA
+                this, Manifest.permission.CAMERA
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.CAMERA),
-                CAMERA_PERMISSION_CODE
+                this, arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_CODE
             )
             return
         }
 
         // Check for bluetooth permissions and request if not granted
         if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.BLUETOOTH
+                this, Manifest.permission.BLUETOOTH
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.BLUETOOTH),
-                BLUETOOTH_PERMISSION_CODE
+                this, arrayOf(Manifest.permission.BLUETOOTH), BLUETOOTH_PERMISSION_CODE
             )
             return
         }
 
         if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.BLUETOOTH_CONNECT
+                this, Manifest.permission.BLUETOOTH_CONNECT
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
@@ -930,14 +1194,11 @@ ProfilingActivity : AppCompatActivity() {
         }
 
         if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.BLUETOOTH_SCAN
+                this, Manifest.permission.BLUETOOTH_SCAN
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.BLUETOOTH_SCAN),
-                BLUETOOTH_SCAN_PERMISSION_CODE
+                this, arrayOf(Manifest.permission.BLUETOOTH_SCAN), BLUETOOTH_SCAN_PERMISSION_CODE
             )
             return
         }
